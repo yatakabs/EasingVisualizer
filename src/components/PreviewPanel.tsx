@@ -63,13 +63,13 @@ export const PreviewPanel = memo(function PreviewPanel({
       onDrop={onDrop}
     >
       <CardHeader 
-        className="bg-muted/50 border-b border-border px-2 py-0.5 cursor-move active:cursor-grabbing card-header"
+        className="bg-muted/50 border-b border-border px-2 py-0 cursor-move active:cursor-grabbing card-header"
         draggable
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
       >
         <div className="flex items-center justify-between gap-1.5">
-          <CardTitle className="text-[10px] font-semibold tracking-tight truncate flex-1 min-w-0">
+          <CardTitle className="text-[10px] font-semibold tracking-tight truncate flex-1 min-w-0 my-0">
             {title || ledFunction.name}
           </CardTitle>
           {onRemove && (
@@ -85,9 +85,9 @@ export const PreviewPanel = memo(function PreviewPanel({
         </div>
       </CardHeader>
       
-      <div className="px-2 py-0.5 border-b border-border/50">
+      <div className="px-2 py-0 border-b border-border/50">
         <div className="flex items-center justify-between gap-1.5">
-          <p className="text-[9px] font-mono text-muted-foreground leading-tight">
+          <p className="text-[9px] font-mono text-muted-foreground leading-tight my-0">
             {ledFunction.formula}
           </p>
           <ToggleGroup 
