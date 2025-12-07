@@ -23,6 +23,7 @@ interface ControlPanelProps {
   triangularWaveMode: boolean
   cameraStartPos: { x: number; y: number; z: number }
   cameraEndPos: { x: number; y: number; z: number }
+  cameraAspectRatio: string
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
   onGammaChange: (gamma: number) => void
@@ -35,6 +36,7 @@ interface ControlPanelProps {
   onSetAllEaseType?: (easeType: EaseType) => void
   onCameraStartPosChange: (pos: { x: number; y: number; z: number }) => void
   onCameraEndPosChange: (pos: { x: number; y: number; z: number }) => void
+  onCameraAspectRatioChange: (aspectRatio: string) => void
 }
 
 export function ControlPanel({
@@ -50,6 +52,7 @@ export function ControlPanel({
   triangularWaveMode,
   cameraStartPos,
   cameraEndPos,
+  cameraAspectRatio,
   onPlayPause,
   onSpeedChange,
   onGammaChange,
@@ -61,7 +64,8 @@ export function ControlPanel({
   onTriangularWaveModeChange,
   onSetAllEaseType,
   onCameraStartPosChange,
-  onCameraEndPosChange
+  onCameraEndPosChange,
+  onCameraAspectRatioChange
 }: ControlPanelProps) {
   return (
     <div className="w-full bg-card border-2 border-border rounded-lg p-3 space-y-3">
@@ -393,7 +397,36 @@ export function ControlPanel({
       
       {enabledPreviews.includes('camera') && (
         <div className="space-y-3 pt-2 border-t border-border">
-          <div className="text-xs font-medium text-foreground">カメラ座標設定</div>
+          <div className="text-xs font-medium text-foreground">カメラ設定</div>
+          
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-muted-foreground">
+              アスペクト比
+            </label>
+            <ToggleGroup 
+              type="single" 
+              value={cameraAspectRatio} 
+              onValueChange={(value) => value && onCameraAspectRatioChange(value)}
+              className="justify-start flex-wrap"
+              size="sm"
+            >
+              <ToggleGroupItem value="16/9" className="text-xs px-3 h-7">
+                16:9
+              </ToggleGroupItem>
+              <ToggleGroupItem value="4/3" className="text-xs px-3 h-7">
+                4:3
+              </ToggleGroupItem>
+              <ToggleGroupItem value="1/1" className="text-xs px-3 h-7">
+                1:1
+              </ToggleGroupItem>
+              <ToggleGroupItem value="21/9" className="text-xs px-3 h-7">
+                21:9
+              </ToggleGroupItem>
+              <ToggleGroupItem value="9/16" className="text-xs px-3 h-7">
+                9:16
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
           
           <div className="space-y-2">
             <label className="text-xs font-medium text-muted-foreground">
@@ -502,7 +535,8 @@ export function ControlPanel({
               onClick={() => {
                 onCameraStartPosChange({ x: 2.0, y: 1.0, z: -5.0 })
                 onCameraEndPosChange({ x: 2.0, y: 1.0, z: 5.0 })
-                toast.success('カメラ座標をデフォルトに戻しました')
+                onCameraAspectRatioChange('16/9')
+                toast.success('カメラ設定をデフォルトに戻しました')
               }}
               className="text-xs h-7"
             >

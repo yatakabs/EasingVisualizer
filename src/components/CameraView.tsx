@@ -19,6 +19,7 @@ interface CameraViewProps {
   filterParams: Record<string, number>
   startPos: { x: number; y: number; z: number }
   endPos: { x: number; y: number; z: number }
+  aspectRatio: string
   title?: string
   onRemove?: () => void
   onEaseTypeChange: (easeType: EaseType) => void
@@ -40,6 +41,7 @@ export const CameraView = memo(function CameraView({
   filterParams,
   startPos,
   endPos,
+  aspectRatio,
   title,
   onRemove,
   onEaseTypeChange,
@@ -184,7 +186,10 @@ export const CameraView = memo(function CameraView({
       <CardContent className="p-3 pt-2 space-y-2">
         <div 
           ref={mountRef} 
-          className="w-full h-48 rounded border border-border overflow-hidden bg-card"
+          className="w-full rounded border border-border overflow-hidden bg-card"
+          style={{ 
+            aspectRatio: aspectRatio 
+          }}
         />
         
         <div className="flex flex-col gap-1.5">

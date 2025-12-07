@@ -10,6 +10,7 @@ interface CameraPreviewProps {
   enabledFilters: string[]
   startPos: { x: number; y: number; z: number }
   endPos: { x: number; y: number; z: number }
+  aspectRatio: string
 }
 
 export const CameraPreview = memo(function CameraPreview({
@@ -19,7 +20,8 @@ export const CameraPreview = memo(function CameraPreview({
   baseInput,
   enabledFilters,
   startPos,
-  endPos
+  endPos,
+  aspectRatio
 }: CameraPreviewProps) {
   const mountRef = useRef<HTMLDivElement>(null)
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
@@ -127,7 +129,10 @@ export const CameraPreview = memo(function CameraPreview({
     <div className="flex flex-col items-center gap-2 w-full">
       <div 
         ref={mountRef} 
-        className="w-full h-48 rounded border border-border overflow-hidden bg-card"
+        className="w-full rounded border border-border overflow-hidden bg-card"
+        style={{ 
+          aspectRatio: aspectRatio 
+        }}
       />
       
       <div className="w-full bg-secondary rounded-lg p-3 space-y-2">

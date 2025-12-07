@@ -37,6 +37,7 @@ function App() {
   const [triangularWaveMode, setTriangularWaveMode] = useKV<boolean>('triangular-wave-mode', false)
   const [cameraStartPos, setCameraStartPos] = useKV<{ x: number; y: number; z: number }>('camera-start-pos', { x: 2.0, y: 1.0, z: -5.0 })
   const [cameraEndPos, setCameraEndPos] = useKV<{ x: number; y: number; z: number }>('camera-end-pos', { x: 2.0, y: 1.0, z: 5.0 })
+  const [cameraAspectRatio, setCameraAspectRatio] = useKV<string>('camera-aspect-ratio', '16/9')
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
@@ -271,8 +272,10 @@ function App() {
             onSetAllEaseType={handleSetAllEaseType}
             cameraStartPos={cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 }}
             cameraEndPos={cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }}
+            cameraAspectRatio={cameraAspectRatio ?? '16/9'}
             onCameraStartPosChange={(pos) => setCameraStartPos(() => pos)}
             onCameraEndPosChange={(pos) => setCameraEndPos(() => pos)}
+            onCameraAspectRatioChange={(aspectRatio) => setCameraAspectRatio(() => aspectRatio)}
           />
 
           {(panels || []).length === 0 ? (
@@ -307,6 +310,7 @@ function App() {
                     enabledPreviews={enabledPreviews ?? ['led', 'input', 'output']}
                     cameraStartPos={cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 }}
                     cameraEndPos={cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }}
+                    cameraAspectRatio={cameraAspectRatio ?? '16/9'}
                     title={panel.title}
                     onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
                     onEaseTypeChange={(newEaseType) => {
