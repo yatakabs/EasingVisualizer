@@ -17,7 +17,7 @@ export const RectangleMovement = memo(function RectangleMovement({
   rawBrightness, 
   onRemove 
 }: RectangleMovementProps) {
-  const { position, graphPath, inputValue } = useMemo(() => {
+  const { position, graphPath, inputValue, trailPath } = useMemo(() => {
     const graphWidth = 200
     const graphHeight = 200
     const padding = 30
@@ -25,7 +25,7 @@ export const RectangleMovement = memo(function RectangleMovement({
     const innerHeight = graphHeight - padding * 2
     
     const input = rawBrightness
-    const output = brightness
+    const output = ledFunction.calculate(input)
     
     const x = padding + input * innerWidth
     const y = padding + (1 - output) * innerHeight
@@ -40,12 +40,23 @@ export const RectangleMovement = memo(function RectangleMovement({
       points.push(`${xPos},${yPos}`)
     }
     
+    const trailPoints: string[] = []
+    const currentStep = Math.floor(input * steps)
+    for (let i = 0; i <= currentStep; i++) {
+      const t = i / steps
+      const xPos = padding + t * innerWidth
+      const yVal = ledFunction.calculate(t)
+      const yPos = padding + (1 - yVal) * innerHeight
+      trailPoints.push(`${xPos},${yPos}`)
+    }
+    
     return {
       position: { x, y },
       graphPath: points.join(' '),
+      trailPath: trailPoints.join(' '),
       inputValue: input
     }
-  }, [brightness, rawBrightness, ledFunction])
+  }, [rawBrightness, ledFunction])
 
   return (
     <Card className="relative overflow-hidden border-2 border-border">
@@ -74,8 +85,9 @@ export const RectangleMovement = memo(function RectangleMovement({
           <svg width="200" height="200" className="absolute inset-0">
             <defs>
               <filter id={`glow-rect-${ledFunction.id}`}>
-                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
                 <feMerge>
+                  <feMergeNode in="coloredBlur"/>
                   <feMergeNode in="coloredBlur"/>
                   <feMergeNode in="SourceGraphic"/>
                 </feMerge>
@@ -111,41 +123,38 @@ export const RectangleMovement = memo(function RectangleMovement({
               fill="none"
               stroke={ledFunction.color}
               strokeWidth="2"
-              opacity="0.6"
+              opacity="0.3"
             />
             
-            <line
-              x1={position.x}
-              y1="170"
-              x2={position.x}
-              y2={position.y}
+            <polyline
+              points={trailPath}
+              fill="none"
               stroke={ledFunction.color}
-              strokeWidth="1"
-              strokeDasharray="3 3"
-              opacity="0.4"
-            />
-            <line
-              x1="30"
-              y1={position.y}
-              x2={position.x}
-              y2={position.y}
-              stroke={ledFunction.color}
-              strokeWidth="1"
-              strokeDasharray="3 3"
-              opacity="0.4"
+              strokeWidth="3"
+              opacity="0.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
             
             <rect
-              x={position.x - 5}
-              y={position.y - 5}
-              width="10"
-              height="10"
+              x={position.x - 6}
+              y={position.y - 6}
+              width="12"
+              height="12"
               fill={ledFunction.color}
               rx="2"
               filter={`url(#glow-rect-${ledFunction.id})`}
               style={{
-                opacity: 0.5 + brightness * 0.5
+                opacity: 0.7 + brightness * 0.3
               }}
+            />
+            
+            <circle
+              cx={position.x}
+              cy={position.y}
+              r="3"
+              fill="white"
+              opacity="0.9"
             />
           </svg>
         </div>
