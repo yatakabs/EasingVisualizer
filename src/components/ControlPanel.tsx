@@ -407,7 +407,8 @@ export function ControlPanel({
               type="single" 
               value={cameraAspectRatio} 
               onValueChange={(value) => value && onCameraAspectRatioChange(value)}
-              className="justify-start flex-wrap border border-border rounded-md p-1"
+              variant="outline"
+              className="justify-start"
               size="sm"
             >
               <ToggleGroupItem value="16/9" className="text-xs px-3 h-7">
