@@ -62,56 +62,50 @@ export const PreviewPanel = memo(function PreviewPanel({
       onDragOver={onDragOver}
       onDrop={onDrop}
     >
-      <div 
-        className="bg-muted/50 border-b border-border px-3 py-1 flex items-center justify-between cursor-move active:cursor-grabbing"
+      <CardHeader 
+        className="bg-muted/50 border-b border-border px-3 py-1.5 cursor-move active:cursor-grabbing card-header"
         draggable
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
       >
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <span className="text-xs font-semibold tracking-tight truncate">
-            {title || ledFunction.name}
-          </span>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-xs font-semibold tracking-tight truncate mb-0.5">
+              {title || ledFunction.name}
+            </CardTitle>
+            <p className="text-[10px] font-mono text-muted-foreground leading-tight">
+              {ledFunction.formula}
+            </p>
+          </div>
+          {onRemove && (
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-5 w-5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex-shrink-0"
+              onClick={onRemove}
+            >
+              <X size={12} weight="bold" />
+            </Button>
+          )}
         </div>
-        {onRemove && (
-          <Button
-            size="icon"
-            variant="ghost"
-            className="h-5 w-5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex-shrink-0"
-            onClick={onRemove}
-          >
-            <X size={12} weight="bold" />
-          </Button>
-        )}
-      </div>
-      
-      <CardHeader className="p-0 px-3 py-1.5 card-header">
-        <CardTitle className="text-sm font-semibold tracking-tight">
-          {ledFunction.name}
-        </CardTitle>
-        <div className="space-y-1 mt-1">
-          <p className="text-[10px] font-mono text-muted-foreground leading-tight">
-            {ledFunction.formula}
-          </p>
-          <ToggleGroup 
-            type="single" 
-            value={easeType}
-            onValueChange={(value) => value && onEaseTypeChange(value as EaseType)}
-            variant="outline"
-            size="sm"
-            className="justify-start"
-          >
-            <ToggleGroupItem value="easein" aria-label="EaseIn" className="text-[10px] px-1.5 h-5">
-              EaseIn
-            </ToggleGroupItem>
-            <ToggleGroupItem value="easeout" aria-label="EaseOut" className="text-[10px] px-1.5 h-5">
-              EaseOut
-            </ToggleGroupItem>
-            <ToggleGroupItem value="easeboth" aria-label="EaseBoth" className="text-[10px] px-1.5 h-5">
-              EaseBoth
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
+        <ToggleGroup 
+          type="single" 
+          value={easeType}
+          onValueChange={(value) => value && onEaseTypeChange(value as EaseType)}
+          variant="outline"
+          size="sm"
+          className="justify-start mt-1.5"
+        >
+          <ToggleGroupItem value="easein" aria-label="EaseIn" className="text-[10px] px-1.5 h-5">
+            EaseIn
+          </ToggleGroupItem>
+          <ToggleGroupItem value="easeout" aria-label="EaseOut" className="text-[10px] px-1.5 h-5">
+            EaseOut
+          </ToggleGroupItem>
+          <ToggleGroupItem value="easeboth" aria-label="EaseBoth" className="text-[10px] px-1.5 h-5">
+            EaseBoth
+          </ToggleGroupItem>
+        </ToggleGroup>
       </CardHeader>
       
       <CardContent className="flex flex-col items-center gap-2 p-0 px-3 pb-2 pt-0">
