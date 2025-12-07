@@ -212,6 +212,8 @@ function App() {
                         output={output}
                         input={time}
                         cycleMultiplier={cycleMultiplier ?? 1}
+                        gamma={gamma ?? 2.2}
+                        applyGammaToY={applyGammaToY ?? false}
                         onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
                       />
                     )}

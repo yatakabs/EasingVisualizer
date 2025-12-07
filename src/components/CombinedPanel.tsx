@@ -28,6 +28,10 @@ export const CombinedPanel = memo(function CombinedPanel({
   const glowIntensity = useMemo(() => {
     return Math.max(0, Math.min(1, brightness))
   }, [brightness])
+  
+  const displayOutput = useMemo(() => {
+    return applyGammaToY ? Math.pow(output, 1 / gamma) : output
+  }, [output, gamma, applyGammaToY])
 
   const { position, graphPath, inputValue, trailPath } = useMemo(() => {
     const graphWidth = 200
@@ -289,7 +293,7 @@ export const CombinedPanel = memo(function CombinedPanel({
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Output</span>
               <span className="font-mono font-medium text-primary">
-                {(glowIntensity * 100).toFixed(1)}%
+                {(displayOutput * 100).toFixed(1)}%
               </span>
             </div>
             
@@ -297,7 +301,7 @@ export const CombinedPanel = memo(function CombinedPanel({
               <div
                 className="h-full rounded-full will-change-[width]"
                 style={{
-                  width: `${glowIntensity * 100}%`,
+                  width: `${displayOutput * 100}%`,
                   backgroundColor: ledFunction.color,
                   boxShadow: `0 0 8px ${ledFunction.color}`
                 }}

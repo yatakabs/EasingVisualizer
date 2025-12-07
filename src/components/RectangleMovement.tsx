@@ -25,6 +25,10 @@ export const RectangleMovement = memo(function RectangleMovement({
   applyGammaToY,
   onRemove 
 }: RectangleMovementProps) {
+  const displayOutput = useMemo(() => {
+    return applyGammaToY ? Math.pow(output, 1 / gamma) : output
+  }, [output, gamma, applyGammaToY])
+
   const { position, graphPath, inputValue, trailPath } = useMemo(() => {
     const graphWidth = 200
     const graphHeight = 200
@@ -217,7 +221,7 @@ export const RectangleMovement = memo(function RectangleMovement({
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Output (y)</span>
               <span className="font-mono font-medium text-primary">
-                {(brightness * 100).toFixed(1)}%
+                {(displayOutput * 100).toFixed(1)}%
               </span>
             </div>
             
@@ -225,7 +229,7 @@ export const RectangleMovement = memo(function RectangleMovement({
               <div
                 className="h-full rounded-full will-change-[width]"
                 style={{
-                  width: `${brightness * 100}%`,
+                  width: `${displayOutput * 100}%`,
                   backgroundColor: ledFunction.color,
                   boxShadow: `0 0 8px ${ledFunction.color}`
                 }}

@@ -10,13 +10,19 @@ interface LEDPanelProps {
   output: number
   input: number
   cycleMultiplier: number
+  gamma: number
+  applyGammaToY: boolean
   onRemove?: () => void
 }
 
-export const LEDPanel = memo(function LEDPanel({ ledFunction, brightness, output, input, cycleMultiplier, onRemove }: LEDPanelProps) {
+export const LEDPanel = memo(function LEDPanel({ ledFunction, brightness, output, input, cycleMultiplier, gamma, applyGammaToY, onRemove }: LEDPanelProps) {
   const glowIntensity = useMemo(() => {
     return Math.max(0, Math.min(1, brightness))
   }, [brightness])
+  
+  const displayOutput = useMemo(() => {
+    return applyGammaToY ? Math.pow(output, 1 / gamma) : output
+  }, [output, gamma, applyGammaToY])
 
   return (
     <Card className="relative overflow-hidden border-2 border-border">
@@ -132,7 +138,7 @@ export const LEDPanel = memo(function LEDPanel({ ledFunction, brightness, output
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Output</span>
               <span className="font-mono font-medium text-primary">
-                {(glowIntensity * 100).toFixed(1)}%
+                {(displayOutput * 100).toFixed(1)}%
               </span>
             </div>
             
@@ -140,7 +146,7 @@ export const LEDPanel = memo(function LEDPanel({ ledFunction, brightness, output
               <div
                 className="h-full rounded-full will-change-[width]"
                 style={{
-                  width: `${glowIntensity * 100}%`,
+                  width: `${displayOutput * 100}%`,
                   backgroundColor: ledFunction.color,
                   boxShadow: `0 0 8px ${ledFunction.color}`
                 }}
