@@ -8,10 +8,11 @@ interface LEDPanelProps {
   ledFunction: LEDFunction
   brightness: number
   rawBrightness: number
+  cycleMultiplier: number
   onRemove?: () => void
 }
 
-export const LEDPanel = memo(function LEDPanel({ ledFunction, brightness, rawBrightness, onRemove }: LEDPanelProps) {
+export const LEDPanel = memo(function LEDPanel({ ledFunction, brightness, rawBrightness, cycleMultiplier, onRemove }: LEDPanelProps) {
   const glowIntensity = useMemo(() => {
     return Math.max(0, Math.min(1, brightness))
   }, [brightness])

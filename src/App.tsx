@@ -179,7 +179,7 @@ function App() {
                 const func = LED_FUNCTIONS.find(f => f.id === panel.functionId)
                 if (!func) return null
 
-                const rawBrightness = func.calculate(time)
+                const rawBrightness = func.calculate(time, cycleMultiplier ?? 1)
                 const brightness = Math.pow(rawBrightness, 1 / (gamma ?? 2.2))
 
                 const PanelComponent = visualizationMode === 'rectangle' ? RectangleMovement : LEDPanel
@@ -190,6 +190,7 @@ function App() {
                     ledFunction={func}
                     brightness={brightness}
                     rawBrightness={rawBrightness}
+                    cycleMultiplier={cycleMultiplier ?? 1}
                     onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
                   />
                 )

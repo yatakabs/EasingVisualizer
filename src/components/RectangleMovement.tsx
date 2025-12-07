@@ -8,6 +8,7 @@ interface RectangleMovementProps {
   ledFunction: LEDFunction
   brightness: number
   rawBrightness: number
+  cycleMultiplier: number
   onRemove?: () => void
 }
 
@@ -15,6 +16,7 @@ export const RectangleMovement = memo(function RectangleMovement({
   ledFunction, 
   brightness, 
   rawBrightness, 
+  cycleMultiplier,
   onRemove 
 }: RectangleMovementProps) {
   const { position, graphPath, inputValue, trailPath } = useMemo(() => {
@@ -25,7 +27,7 @@ export const RectangleMovement = memo(function RectangleMovement({
     const innerHeight = graphHeight - padding * 2
     
     const input = rawBrightness
-    const output = ledFunction.calculate(input)
+    const output = ledFunction.calculate(input, cycleMultiplier)
     
     const x = padding + input * innerWidth
     const y = padding + (1 - output) * innerHeight
@@ -35,7 +37,7 @@ export const RectangleMovement = memo(function RectangleMovement({
     for (let i = 0; i <= steps; i++) {
       const t = i / steps
       const xPos = padding + t * innerWidth
-      const yVal = ledFunction.calculate(t)
+      const yVal = ledFunction.calculate(t, cycleMultiplier)
       const yPos = padding + (1 - yVal) * innerHeight
       points.push(`${xPos},${yPos}`)
     }
@@ -45,7 +47,7 @@ export const RectangleMovement = memo(function RectangleMovement({
     for (let i = 0; i <= currentStep; i++) {
       const t = i / steps
       const xPos = padding + t * innerWidth
-      const yVal = ledFunction.calculate(t)
+      const yVal = ledFunction.calculate(t, cycleMultiplier)
       const yPos = padding + (1 - yVal) * innerHeight
       trailPoints.push(`${xPos},${yPos}`)
     }
@@ -56,7 +58,7 @@ export const RectangleMovement = memo(function RectangleMovement({
       trailPath: trailPoints.join(' '),
       inputValue: input
     }
-  }, [rawBrightness, ledFunction])
+  }, [rawBrightness, ledFunction, cycleMultiplier])
 
   return (
     <Card className="relative overflow-hidden border-2 border-border">
