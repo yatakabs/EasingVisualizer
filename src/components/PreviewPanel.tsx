@@ -85,7 +85,7 @@ export const PreviewPanel = memo(function PreviewPanel({
         )}
       </div>
       
-      <CardHeader className="pb-2 pt-3 px-3">
+      <CardHeader className="pb-2 pt-2 px-3">
         <CardTitle className="text-sm font-semibold tracking-tight">
           {ledFunction.name}
         </CardTitle>
