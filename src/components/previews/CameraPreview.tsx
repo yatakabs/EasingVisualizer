@@ -153,21 +153,21 @@ export const CameraPreview = memo(function CameraPreview({
         }}
       />
       
-      <div className="w-full bg-secondary rounded px-3 py-2 space-y-1.5">
-        <div className="flex items-center justify-between text-[9px] px-0.5">
+      <div className="w-full bg-secondary rounded px-4 py-2.5 space-y-2">
+        <div className="flex items-center justify-between text-[10px] px-0.5">
           <span className="text-muted-foreground">Output</span>
           <div className="flex flex-col items-end">
             <span className="font-mono font-medium">{filteredOutput.toFixed(3)}</span>
             {enabledFilters.length > 0 && (
-              <span className="font-mono text-[8px] text-muted-foreground">
+              <span className="font-mono text-[9px] text-muted-foreground">
                 raw: {output.toFixed(3)}
               </span>
             )}
           </div>
         </div>
-        <div className="flex items-center justify-between text-[9px] px-0.5">
+        <div className="flex items-center justify-between text-[10px] px-0.5">
           <span className="text-muted-foreground">Camera Pos</span>
-          <span className="font-mono font-medium text-[8px]">
+          <span className="font-mono font-medium text-[9px]">
             ({(startPos.x + (endPos.x - startPos.x) * filteredOutput).toFixed(2)}, {(startPos.y + (endPos.y - startPos.y) * filteredOutput).toFixed(2)}, {(startPos.z + (endPos.z - startPos.z) * filteredOutput).toFixed(2)})
           </span>
         </div>
