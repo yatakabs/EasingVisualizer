@@ -11,7 +11,9 @@ export const OUTPUT_FILTERS: OutputFilter[] = [
     name: 'Gamma Correction',
     apply: (output: number, params?: Record<string, number>) => {
       const gamma = params?.gamma ?? 2.2
-      return Math.pow(output, 1 / gamma)
+      const sign = output < 0 ? -1 : 1
+      const absValue = Math.abs(output)
+      return sign * Math.pow(absValue, 1 / gamma)
     },
     parameterNames: ['gamma']
   },
