@@ -37,6 +37,7 @@ function App() {
   const [cameraStartPos, setCameraStartPos] = useKV<{ x: number; y: number; z: number }>('camera-start-pos', { x: 2.0, y: 1.0, z: -5.0 })
   const [cameraEndPos, setCameraEndPos] = useKV<{ x: number; y: number; z: number }>('camera-end-pos', { x: 2.0, y: 1.0, z: 5.0 })
   const [cameraAspectRatio, setCameraAspectRatio] = useKV<string>('camera-aspect-ratio', '16/9')
+  const [maxCameraPreviews, setMaxCameraPreviews] = useKV<number>('max-camera-previews', 24)
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
@@ -278,9 +279,11 @@ function App() {
             cameraStartPos={cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 }}
             cameraEndPos={cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }}
             cameraAspectRatio={cameraAspectRatio ?? '16/9'}
+            maxCameraPreviews={maxCameraPreviews ?? 24}
             onCameraStartPosChange={(pos) => setCameraStartPos(() => pos)}
             onCameraEndPosChange={(pos) => setCameraEndPos(() => pos)}
             onCameraAspectRatioChange={(aspectRatio) => setCameraAspectRatio(() => aspectRatio)}
+            onMaxCameraPreviewsChange={(max) => setMaxCameraPreviews(() => max)}
           />
 
           {(panels || []).length === 0 ? (
@@ -316,6 +319,7 @@ function App() {
                     cameraStartPos={cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 }}
                     cameraEndPos={cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }}
                     cameraAspectRatio={cameraAspectRatio ?? '16/9'}
+                    maxCameraPreviews={maxCameraPreviews ?? 24}
                     title={panel.title}
                     onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
                     onEaseTypeChange={(newEaseType) => {

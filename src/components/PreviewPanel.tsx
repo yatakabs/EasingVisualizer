@@ -25,6 +25,7 @@ interface PreviewPanelProps {
   cameraStartPos: { x: number; y: number; z: number }
   cameraEndPos: { x: number; y: number; z: number }
   cameraAspectRatio: string
+  maxCameraPreviews: number
   title?: string
   onRemove?: () => void
   onEaseTypeChange: (easeType: EaseType) => void
@@ -48,6 +49,7 @@ export const PreviewPanel = memo(function PreviewPanel({
   cameraStartPos,
   cameraEndPos,
   cameraAspectRatio,
+  maxCameraPreviews,
   title,
   onRemove,
   onEaseTypeChange,
@@ -124,6 +126,7 @@ export const PreviewPanel = memo(function PreviewPanel({
             startPos={cameraStartPos}
             endPos={cameraEndPos}
             aspectRatio={cameraAspectRatio}
+            maxPreviews={maxCameraPreviews}
           />
         )}
         
