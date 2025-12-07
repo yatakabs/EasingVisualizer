@@ -124,9 +124,16 @@ export function ControlPanel({
           <label className="text-sm font-medium text-foreground">
             Input Value
           </label>
-          <span className="text-sm font-mono text-primary">
-            {inputValue.toFixed(3)}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-mono text-primary">
+              {inputValue.toFixed(3)}
+            </span>
+            {cycleMultiplier !== 1 && (
+              <span className="text-xs font-mono text-muted-foreground">
+                → {(inputValue * cycleMultiplier).toFixed(3)}
+              </span>
+            )}
+          </div>
         </div>
         
         <Slider
