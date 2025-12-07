@@ -583,7 +583,7 @@ export function ControlPanel({
           </div>
           
           <div className="space-y-2.5">
-            <label className="text-sm font-medium text-muted-foreground block">
+            <label className="text-sm font-semibold text-foreground block">
               3Dプレビュー最大表示数
             </label>
             <div className="flex items-center gap-2">
