@@ -63,7 +63,7 @@ export const PreviewPanel = memo(function PreviewPanel({
       onDrop={onDrop}
     >
       <CardHeader 
-        className="bg-muted/50 border-b border-border px-3 py-1.5 cursor-move active:cursor-grabbing card-header"
+        className="bg-muted/50 border-b border-border px-3 py-1 cursor-move active:cursor-grabbing card-header"
         draggable
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
@@ -85,7 +85,7 @@ export const PreviewPanel = memo(function PreviewPanel({
         </div>
       </CardHeader>
       
-      <div className="px-3 py-2 border-b border-border/50">
+      <div className="px-3 py-1 border-b border-border/50">
         <div className="flex items-center justify-between gap-2">
           <p className="text-[10px] font-mono text-muted-foreground leading-tight">
             {ledFunction.formula}
