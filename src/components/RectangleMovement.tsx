@@ -12,6 +12,8 @@ interface RectangleMovementProps {
   output: number
   filteredOutput: number
   input: number
+  baseInput: number
+  isTriangularMode: boolean
   easeType: EaseType
   enabledFilters: string[]
   filterParams: Record<string, number>
@@ -24,6 +26,8 @@ export const RectangleMovement = memo(function RectangleMovement({
   output,
   filteredOutput,
   input,
+  baseInput,
+  isTriangularMode,
   easeType,
   enabledFilters,
   filterParams,
@@ -47,38 +51,68 @@ export const RectangleMovement = memo(function RectangleMovement({
     const points: string[] = []
     const originalPoints: string[] = []
     const steps = 100
-    for (let i = 0; i <= steps; i++) {
-      const t = i / steps
-      const xPos = padding + t * innerWidth
-      const yVal = ledFunction.calculate(t, easeType)
-      
-      const originalYPos = padding + (1 - yVal) * innerHeight
-      originalPoints.push(`${xPos},${originalYPos}`)
-      
-      const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
-      const yPos = padding + (1 - filteredYVal) * innerHeight
-      points.push(`${xPos},${yPos}`)
+    
+    if (isTriangularMode) {
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps
+        const triangularT = t < 0.5 ? t * 2 : 2 - t * 2
+        const xPos = padding + t * innerWidth
+        const yVal = ledFunction.calculate(triangularT, easeType)
+        
+        const originalYPos = padding + (1 - yVal) * innerHeight
+        originalPoints.push(`${xPos},${originalYPos}`)
+        
+        const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
+        const yPos = padding + (1 - filteredYVal) * innerHeight
+        points.push(`${xPos},${yPos}`)
+      }
+    } else {
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps
+        const xPos = padding + t * innerWidth
+        const yVal = ledFunction.calculate(t, easeType)
+        
+        const originalYPos = padding + (1 - yVal) * innerHeight
+        originalPoints.push(`${xPos},${originalYPos}`)
+        
+        const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
+        const yPos = padding + (1 - filteredYVal) * innerHeight
+        points.push(`${xPos},${yPos}`)
+      }
     }
     
     const trailPoints: string[] = []
-    const currentStep = Math.floor(input * steps)
-    for (let i = 0; i <= currentStep; i++) {
-      const t = i / steps
-      const xPos = padding + t * innerWidth
-      const yVal = ledFunction.calculate(t, easeType)
-      const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
-      const yPos = padding + (1 - filteredYVal) * innerHeight
-      trailPoints.push(`${xPos},${yPos}`)
+    const currentStep = Math.floor(baseInput * steps)
+    
+    if (isTriangularMode) {
+      for (let i = 0; i <= currentStep; i++) {
+        const t = i / steps
+        const triangularT = t < 0.5 ? t * 2 : 2 - t * 2
+        const xPos = padding + t * innerWidth
+        const yVal = ledFunction.calculate(triangularT, easeType)
+        const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
+        const yPos = padding + (1 - filteredYVal) * innerHeight
+        trailPoints.push(`${xPos},${yPos}`)
+      }
+    } else {
+      for (let i = 0; i <= currentStep; i++) {
+        const t = i / steps
+        const xPos = padding + t * innerWidth
+        const yVal = ledFunction.calculate(t, easeType)
+        const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
+        const yPos = padding + (1 - filteredYVal) * innerHeight
+        trailPoints.push(`${xPos},${yPos}`)
+      }
     }
     
     return {
-      position: { x, y },
+      position: { x: padding + baseInput * innerWidth, y },
       graphPath: points.join(' '),
       trailPath: trailPoints.join(' '),
       originalGraphPath: originalPoints.join(' '),
-      inputValue: input
+      inputValue: baseInput
     }
-  }, [input, filteredOutput, ledFunction, enabledFilters, filterParams, easeType])
+  }, [input, baseInput, filteredOutput, ledFunction, enabledFilters, filterParams, easeType, isTriangularMode])
 
   return (
     <Card className="relative overflow-hidden border-2 border-border">

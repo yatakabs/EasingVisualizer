@@ -167,6 +167,7 @@ function App() {
   const baseInputValue = (manualInputMode ?? false) ? (manualInputValue ?? 0) : time
   const currentInputValue = (triangularWaveMode ?? false) ? getTriangularWave(baseInputValue) : baseInputValue
   const usedFunctionIds = (panels || []).map(p => p.functionId)
+  const isTriangularMode = triangularWaveMode ?? false
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -244,6 +245,8 @@ function App() {
                         output={output}
                         filteredOutput={filteredOutput}
                         input={currentInputValue}
+                        baseInput={baseInputValue}
+                        isTriangularMode={isTriangularMode}
                         easeType={panel.easeType}
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}
@@ -282,6 +285,8 @@ function App() {
                         output={output}
                         filteredOutput={filteredOutput}
                         input={currentInputValue}
+                        baseInput={baseInputValue}
+                        isTriangularMode={isTriangularMode}
                         easeType={panel.easeType}
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}
