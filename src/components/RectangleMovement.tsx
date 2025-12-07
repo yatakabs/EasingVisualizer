@@ -1,4 +1,4 @@
-import { useMemo, memo } from 'react'
+import { useMemo, memo, useState, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { X } from '@phosphor-icons/react'
@@ -34,11 +34,36 @@ export const RectangleMovement = memo(function RectangleMovement({
   onRemove,
   onEaseTypeChange
 }: RectangleMovementProps) {
+  const [hoverPosition, setHoverPosition] = useState<{ x: number; y: number } | null>(null)
+  
   const displayOutput = useMemo(() => {
     return filteredOutput
   }, [filteredOutput])
 
-  const { position, graphPath, inputValue, trailPath, originalGraphPath } = useMemo(() => {
+  const handleMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+    const svg = e.currentTarget
+    const rect = svg.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    
+    const padding = 30
+    const innerWidth = 200 - padding * 2
+    const innerHeight = 200 - padding * 2
+    
+    if (x >= padding && x <= padding + innerWidth && y >= padding && y <= padding + innerHeight) {
+      const normalizedX = (x - padding) / innerWidth
+      const normalizedY = 1 - (y - padding) / innerHeight
+      setHoverPosition({ x: normalizedX, y: normalizedY })
+    } else {
+      setHoverPosition(null)
+    }
+  }, [])
+
+  const handleMouseLeave = useCallback(() => {
+    setHoverPosition(null)
+  }, [])
+
+  const { position, graphPath, inputValue, trailPath, originalGraphPath, hoverPoint } = useMemo(() => {
     const graphWidth = 200
     const graphHeight = 200
     const padding = 30
@@ -105,14 +130,37 @@ export const RectangleMovement = memo(function RectangleMovement({
       }
     }
     
+    let hoverPointData: {
+      svgX: number
+      svgY: number
+      xValue: number
+      yValue: number
+    } | null = null
+    if (hoverPosition) {
+      const hoverX = hoverPosition.x
+      const triangularHoverX = isTriangularMode 
+        ? (hoverX < 0.5 ? hoverX * 2 : 2 - hoverX * 2)
+        : hoverX
+      const hoverYVal = ledFunction.calculate(triangularHoverX, easeType)
+      const filteredHoverYVal = applyFilters(hoverYVal, enabledFilters, filterParams)
+      
+      hoverPointData = {
+        svgX: padding + hoverX * innerWidth,
+        svgY: padding + (1 - filteredHoverYVal) * innerHeight,
+        xValue: hoverX,
+        yValue: filteredHoverYVal
+      }
+    }
+    
     return {
       position: { x: padding + baseInput * innerWidth, y },
       graphPath: points.join(' '),
       trailPath: trailPoints.join(' '),
       originalGraphPath: originalPoints.join(' '),
-      inputValue: baseInput
+      inputValue: baseInput,
+      hoverPoint: hoverPointData
     }
-  }, [input, baseInput, filteredOutput, ledFunction, enabledFilters, filterParams, easeType, isTriangularMode])
+  }, [input, baseInput, filteredOutput, ledFunction, enabledFilters, filterParams, easeType, isTriangularMode, hoverPosition])
 
   return (
     <Card className="relative overflow-hidden border-2 border-border">
@@ -158,7 +206,13 @@ export const RectangleMovement = memo(function RectangleMovement({
       
       <CardContent className="flex flex-col items-center gap-4 pb-8">
         <div className="relative w-[200px] h-[200px] flex items-center justify-center bg-secondary/30 rounded-lg border-2 border-border">
-          <svg width="200" height="200" className="absolute inset-0">
+          <svg 
+            width="200" 
+            height="200" 
+            className="absolute inset-0"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+          >
             <defs>
               <filter id={`glow-rect-${ledFunction.id}`}>
                 <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
@@ -265,6 +319,67 @@ export const RectangleMovement = memo(function RectangleMovement({
               fill="white"
               opacity="0.9"
             />
+            
+            {hoverPoint && (
+              <g>
+                <line
+                  x1={hoverPoint.svgX}
+                  y1={hoverPoint.svgY}
+                  x2={hoverPoint.svgX}
+                  y2="170"
+                  stroke="oklch(0.75 0.15 200)"
+                  strokeWidth="1.5"
+                  strokeDasharray="4 4"
+                  opacity="0.8"
+                />
+                <line
+                  x1="30"
+                  y1={hoverPoint.svgY}
+                  x2={hoverPoint.svgX}
+                  y2={hoverPoint.svgY}
+                  stroke="oklch(0.75 0.15 200)"
+                  strokeWidth="1.5"
+                  strokeDasharray="4 4"
+                  opacity="0.8"
+                />
+                <circle
+                  cx={hoverPoint.svgX}
+                  cy={hoverPoint.svgY}
+                  r="5"
+                  fill="oklch(0.75 0.15 200)"
+                  stroke="white"
+                  strokeWidth="2"
+                  opacity="0.9"
+                />
+                <rect
+                  x={hoverPoint.svgX - 28}
+                  y={hoverPoint.svgY - 30}
+                  width="56"
+                  height="24"
+                  fill="oklch(0.25 0.04 250)"
+                  stroke="oklch(0.75 0.15 200)"
+                  strokeWidth="1"
+                  rx="4"
+                  opacity="0.95"
+                />
+                <text
+                  x={hoverPoint.svgX}
+                  y={hoverPoint.svgY - 18}
+                  textAnchor="middle"
+                  className="text-[9px] fill-primary font-mono font-medium"
+                >
+                  x:{hoverPoint.xValue.toFixed(3)}
+                </text>
+                <text
+                  x={hoverPoint.svgX}
+                  y={hoverPoint.svgY - 9}
+                  textAnchor="middle"
+                  className="text-[9px] fill-primary font-mono font-medium"
+                >
+                  y:{hoverPoint.yValue.toFixed(3)}
+                </text>
+              </g>
+            )}
           </svg>
         </div>
         
