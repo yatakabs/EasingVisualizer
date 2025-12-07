@@ -68,6 +68,7 @@ export function ControlPanel({
               <TabsTrigger value="0.5">2倍</TabsTrigger>
               <TabsTrigger value="1">1倍</TabsTrigger>
               <TabsTrigger value="2">1/2倍</TabsTrigger>
+              <TabsTrigger value="4">1/4倍</TabsTrigger>
             </TabsList>
           </Tabs>
           
