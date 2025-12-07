@@ -40,6 +40,13 @@ This app displays multiple animated panels with play/pause controls and function
 - Progression: User clicks add → Dialog appears → Selects function → New panel appears
 - Success criteria: Panels can be added up to 12, removed individually
 
+**Output Filtering System**
+- Functionality: Apply configurable filters (e.g., gamma correction) to function outputs before visualization
+- Purpose: Demonstrate how post-processing transforms raw mathematical functions for real-world applications
+- Trigger: Toggle filter switches in control panel
+- Progression: User enables filter → All visualizations update to show filtered output → Original output shown as dotted reference line on graphs
+- Success criteria: Filters apply consistently across all visualization types (LED, graph, combined); original vs filtered output clearly distinguished
+
 ## Edge Case Handling
 
 - **No Panels**: Display helpful empty state with "Add Panel" button

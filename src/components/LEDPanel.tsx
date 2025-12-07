@@ -6,25 +6,32 @@ import type { LEDFunction } from '@/lib/ledFunctions'
 
 interface LEDPanelProps {
   ledFunction: LEDFunction
-  brightness: number
   output: number
+  filteredOutput: number
   input: number
   cycleMultiplier: number
-  gamma: number
-  applyGammaToY: boolean
+  enabledFilters: string[]
+  filterParams: Record<string, number>
   onRemove?: () => void
 }
 
-export const LEDPanel = memo(function LEDPanel({ ledFunction, brightness, output, input, cycleMultiplier, gamma, applyGammaToY, onRemove }: LEDPanelProps) {
+export const LEDPanel = memo(function LEDPanel({ 
+  ledFunction, 
+  output, 
+  filteredOutput, 
+  input, 
+  cycleMultiplier, 
+  enabledFilters, 
+  filterParams, 
+  onRemove 
+}: LEDPanelProps) {
   const glowIntensity = useMemo(() => {
-    const baseOutput = output
-    const displayValue = applyGammaToY ? Math.pow(baseOutput, 1 / gamma) : baseOutput
-    return Math.max(0, Math.min(1, displayValue))
-  }, [output, gamma, applyGammaToY])
+    return Math.max(0, Math.min(1, filteredOutput))
+  }, [filteredOutput])
   
   const displayOutput = useMemo(() => {
-    return applyGammaToY ? Math.pow(output, 1 / gamma) : output
-  }, [output, gamma, applyGammaToY])
+    return filteredOutput
+  }, [filteredOutput])
 
   return (
     <Card className="relative overflow-hidden border-2 border-border">

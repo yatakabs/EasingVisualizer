@@ -3,31 +3,32 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { X } from '@phosphor-icons/react'
 import type { LEDFunction } from '@/lib/ledFunctions'
+import { applyFilters } from '@/lib/outputFilters'
 
 interface RectangleMovementProps {
   ledFunction: LEDFunction
-  brightness: number
   output: number
+  filteredOutput: number
   input: number
   cycleMultiplier: number
-  gamma: number
-  applyGammaToY: boolean
+  enabledFilters: string[]
+  filterParams: Record<string, number>
   onRemove?: () => void
 }
 
 export const RectangleMovement = memo(function RectangleMovement({ 
   ledFunction, 
-  brightness, 
   output,
+  filteredOutput,
   input,
   cycleMultiplier,
-  gamma,
-  applyGammaToY,
+  enabledFilters,
+  filterParams,
   onRemove 
 }: RectangleMovementProps) {
   const displayOutput = useMemo(() => {
-    return applyGammaToY ? Math.pow(output, 1 / gamma) : output
-  }, [output, gamma, applyGammaToY])
+    return filteredOutput
+  }, [filteredOutput])
 
   const { position, graphPath, inputValue, trailPath, originalGraphPath } = useMemo(() => {
     const graphWidth = 200
@@ -36,10 +37,8 @@ export const RectangleMovement = memo(function RectangleMovement({
     const innerWidth = graphWidth - padding * 2
     const innerHeight = graphHeight - padding * 2
     
-    const displayOutput = applyGammaToY ? Math.pow(output, 1 / gamma) : output
-    
     const x = padding + input * innerWidth
-    const y = padding + (1 - displayOutput) * innerHeight
+    const y = padding + (1 - filteredOutput) * innerHeight
     
     const points: string[] = []
     const originalPoints: string[] = []
@@ -52,8 +51,8 @@ export const RectangleMovement = memo(function RectangleMovement({
       const originalYPos = padding + (1 - yVal) * innerHeight
       originalPoints.push(`${xPos},${originalYPos}`)
       
-      const displayYVal = applyGammaToY ? Math.pow(yVal, 1 / gamma) : yVal
-      const yPos = padding + (1 - displayYVal) * innerHeight
+      const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
+      const yPos = padding + (1 - filteredYVal) * innerHeight
       points.push(`${xPos},${yPos}`)
     }
     
@@ -63,8 +62,8 @@ export const RectangleMovement = memo(function RectangleMovement({
       const t = i / steps
       const xPos = padding + t * innerWidth
       const yVal = ledFunction.calculate(t, cycleMultiplier)
-      const displayYVal = applyGammaToY ? Math.pow(yVal, 1 / gamma) : yVal
-      const yPos = padding + (1 - displayYVal) * innerHeight
+      const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
+      const yPos = padding + (1 - filteredYVal) * innerHeight
       trailPoints.push(`${xPos},${yPos}`)
     }
     
@@ -75,7 +74,7 @@ export const RectangleMovement = memo(function RectangleMovement({
       originalGraphPath: originalPoints.join(' '),
       inputValue: input
     }
-  }, [input, output, ledFunction, cycleMultiplier, gamma, applyGammaToY])
+  }, [input, filteredOutput, ledFunction, cycleMultiplier, enabledFilters, filterParams])
 
   return (
     <Card className="relative overflow-hidden border-2 border-border">
@@ -197,7 +196,7 @@ export const RectangleMovement = memo(function RectangleMovement({
               rx="2"
               filter={`url(#glow-rect-${ledFunction.id})`}
               style={{
-                opacity: 0.7 + brightness * 0.3
+                opacity: 0.7 + filteredOutput * 0.3
               }}
             />
             

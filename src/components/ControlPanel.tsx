@@ -15,7 +15,7 @@ interface ControlPanelProps {
   showLED: boolean
   showRectangle: boolean
   cycleMultiplier: number
-  applyGammaToY: boolean
+  enabledFilters: string[]
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
   onGammaChange: (gamma: number) => void
@@ -23,7 +23,7 @@ interface ControlPanelProps {
   onToggleLED: () => void
   onToggleRectangle: () => void
   onCycleMultiplierChange: (multiplier: number) => void
-  onToggleGammaToY: () => void
+  onToggleFilter: (filterId: string) => void
 }
 
 export function ControlPanel({
@@ -34,7 +34,7 @@ export function ControlPanel({
   showLED,
   showRectangle,
   cycleMultiplier,
-  applyGammaToY,
+  enabledFilters,
   onPlayPause,
   onSpeedChange,
   onGammaChange,
@@ -42,7 +42,7 @@ export function ControlPanel({
   onToggleLED,
   onToggleRectangle,
   onCycleMultiplierChange,
-  onToggleGammaToY
+  onToggleFilter
 }: ControlPanelProps) {
   return (
     <div className="w-full bg-card border-2 border-border rounded-lg p-6 space-y-6">
@@ -162,12 +162,12 @@ export function ControlPanel({
         
         <div className="flex items-center gap-2 pt-2">
           <Switch
-            id="apply-gamma-to-y"
-            checked={applyGammaToY}
-            onCheckedChange={onToggleGammaToY}
+            id="apply-gamma-filter"
+            checked={enabledFilters.includes('gamma')}
+            onCheckedChange={() => onToggleFilter('gamma')}
           />
-          <Label htmlFor="apply-gamma-to-y" className="text-sm font-medium cursor-pointer">
-            Y軸にガンマ補正を反映
+          <Label htmlFor="apply-gamma-filter" className="text-sm font-medium cursor-pointer">
+            ガンマ補正フィルタを適用
           </Label>
         </div>
       </div>

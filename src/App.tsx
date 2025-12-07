@@ -6,6 +6,7 @@ import { CombinedPanel } from '@/components/CombinedPanel'
 import { ControlPanel } from '@/components/ControlPanel'
 import { FunctionSelector } from '@/components/FunctionSelector'
 import { LED_FUNCTIONS, type LEDFunction } from '@/lib/ledFunctions'
+import { applyFilters } from '@/lib/outputFilters'
 import { Toaster as Sonner } from 'sonner'
 import { toast } from 'sonner'
 
@@ -30,7 +31,7 @@ function App() {
   const [showLED, setShowLED] = useKV<boolean>('show-led', true)
   const [showRectangle, setShowRectangle] = useKV<boolean>('show-rectangle', false)
   const [cycleMultiplier, setCycleMultiplier] = useKV<number>('cycle-multiplier', 1)
-  const [applyGammaToY, setApplyGammaToY] = useKV<boolean>('apply-gamma-to-y', false)
+  const [enabledFilters, setEnabledFilters] = useKV<string[]>('enabled-filters', [])
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
@@ -161,7 +162,7 @@ function App() {
             showLED={showLED ?? true}
             showRectangle={showRectangle ?? false}
             cycleMultiplier={cycleMultiplier ?? 1}
-            applyGammaToY={applyGammaToY ?? false}
+            enabledFilters={enabledFilters ?? []}
             onPlayPause={() => setIsPlaying((current) => !current)}
             onSpeedChange={handleSpeedChange}
             onGammaChange={handleGammaChange}
@@ -169,7 +170,16 @@ function App() {
             onToggleLED={() => setShowLED((current) => !current)}
             onToggleRectangle={() => setShowRectangle((current) => !current)}
             onCycleMultiplierChange={(multiplier) => setCycleMultiplier(() => multiplier)}
-            onToggleGammaToY={() => setApplyGammaToY((current) => !current)}
+            onToggleFilter={(filterId) => {
+              setEnabledFilters((current) => {
+                const filters = current ?? []
+                if (filters.includes(filterId)) {
+                  return filters.filter(id => id !== filterId)
+                } else {
+                  return [...filters, filterId]
+                }
+              })
+            }}
           />
 
           {(panels || []).length === 0 ? (
@@ -187,7 +197,7 @@ function App() {
                 if (!func) return null
 
                 const output = func.calculate(time, cycleMultiplier ?? 1)
-                const brightness = Math.pow(output, 1 / (gamma ?? 2.2))
+                const filteredOutput = applyFilters(output, enabledFilters ?? [], { gamma: gamma ?? 2.2 })
 
                 const bothEnabled = (showLED ?? true) && (showRectangle ?? false)
 
@@ -196,36 +206,36 @@ function App() {
                     {bothEnabled && (
                       <CombinedPanel
                         ledFunction={func}
-                        brightness={brightness}
                         output={output}
+                        filteredOutput={filteredOutput}
                         input={time}
                         cycleMultiplier={cycleMultiplier ?? 1}
-                        gamma={gamma ?? 2.2}
-                        applyGammaToY={applyGammaToY ?? false}
+                        enabledFilters={enabledFilters ?? []}
+                        filterParams={{ gamma: gamma ?? 2.2 }}
                         onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
                       />
                     )}
                     {!bothEnabled && (showLED ?? true) && (
                       <LEDPanel
                         ledFunction={func}
-                        brightness={brightness}
                         output={output}
+                        filteredOutput={filteredOutput}
                         input={time}
                         cycleMultiplier={cycleMultiplier ?? 1}
-                        gamma={gamma ?? 2.2}
-                        applyGammaToY={applyGammaToY ?? false}
+                        enabledFilters={enabledFilters ?? []}
+                        filterParams={{ gamma: gamma ?? 2.2 }}
                         onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
                       />
                     )}
                     {!bothEnabled && (showRectangle ?? false) && (
                       <RectangleMovement
                         ledFunction={func}
-                        brightness={brightness}
                         output={output}
+                        filteredOutput={filteredOutput}
                         input={time}
                         cycleMultiplier={cycleMultiplier ?? 1}
-                        gamma={gamma ?? 2.2}
-                        applyGammaToY={applyGammaToY ?? false}
+                        enabledFilters={enabledFilters ?? []}
+                        filterParams={{ gamma: gamma ?? 2.2 }}
                         onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
                       />
                     )}
