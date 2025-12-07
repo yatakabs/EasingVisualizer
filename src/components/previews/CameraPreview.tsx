@@ -44,7 +44,7 @@ export const CameraPreview = memo(function CameraPreview({
     camera.position.set(0, 2, 5)
     cameraRef.current = camera
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true })
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' })
     renderer.setSize(width, height)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     mountRef.current.appendChild(renderer.domElement)
@@ -133,7 +133,7 @@ export const CameraPreview = memo(function CameraPreview({
   useEffect(() => {
     if (!cameraRef.current || !cubeRef.current || !rendererRef.current || !sceneRef.current) return
 
-    const cameraX = -(startPos.x + (endPos.x - startPos.x) * filteredOutput)
+    const cameraX = startPos.x + (endPos.x - startPos.x) * filteredOutput
     const cameraY = startPos.y + (endPos.y - startPos.y) * filteredOutput
     const cameraZ = startPos.z + (endPos.z - startPos.z) * filteredOutput
     
@@ -168,7 +168,7 @@ export const CameraPreview = memo(function CameraPreview({
         <div className="flex items-center justify-between text-[9px]">
           <span className="text-muted-foreground">Camera Pos</span>
           <span className="font-mono font-medium text-[8px]">
-            ({(-(startPos.x + (endPos.x - startPos.x) * filteredOutput)).toFixed(2)}, {(startPos.y + (endPos.y - startPos.y) * filteredOutput).toFixed(2)}, {(startPos.z + (endPos.z - startPos.z) * filteredOutput).toFixed(2)})
+            ({(startPos.x + (endPos.x - startPos.x) * filteredOutput).toFixed(2)}, {(startPos.y + (endPos.y - startPos.y) * filteredOutput).toFixed(2)}, {(startPos.z + (endPos.z - startPos.z) * filteredOutput).toFixed(2)})
           </span>
         </div>
       </div>
