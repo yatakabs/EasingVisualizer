@@ -9,6 +9,8 @@ import type { PreviewType } from '@/lib/previewTypes'
 import { LEDPreview } from '@/components/previews/LEDPreview'
 import { GraphPreview } from '@/components/previews/GraphPreview'
 import { CameraPreview } from '@/components/previews/CameraPreview'
+import { InputPreview } from '@/components/previews/InputPreview'
+import { OutputPreview } from '@/components/previews/OutputPreview'
 
 interface PreviewPanelProps {
   ledFunction: LEDFunction
@@ -114,7 +116,6 @@ export const PreviewPanel = memo(function PreviewPanel({
           <LEDPreview
             ledFunction={ledFunction}
             filteredOutput={filteredOutput}
-            input={input}
           />
         )}
         
@@ -140,6 +141,19 @@ export const PreviewPanel = memo(function PreviewPanel({
             enabledFilters={enabledFilters}
             startPos={cameraStartPos}
             endPos={cameraEndPos}
+          />
+        )}
+        
+        {enabledPreviews.includes('input') && (
+          <InputPreview
+            input={input}
+          />
+        )}
+        
+        {enabledPreviews.includes('output') && (
+          <OutputPreview
+            ledFunction={ledFunction}
+            filteredOutput={filteredOutput}
           />
         )}
       </CardContent>

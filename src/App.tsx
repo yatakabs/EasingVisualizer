@@ -30,7 +30,7 @@ function App() {
   const [isPlaying, setIsPlaying] = useKV<boolean>('is-playing', true)
   const [savedSpeed, setSavedSpeed] = useKV<number>('animation-speed', 1)
   const [savedGamma, setSavedGamma] = useKV<number>('gamma-correction', 2.2)
-  const [enabledPreviews, setEnabledPreviews] = useKV<PreviewType[]>('enabled-previews', ['led'])
+  const [enabledPreviews, setEnabledPreviews] = useKV<PreviewType[]>('enabled-previews', ['led', 'input', 'output'])
   const [enabledFilters, setEnabledFilters] = useKV<string[]>('enabled-filters', [])
   const [manualInputMode, setManualInputMode] = useKV<boolean>('manual-input-mode', false)
   const [manualInputValue, setManualInputValue] = useKV<number>('manual-input-value', 0)
@@ -244,7 +244,7 @@ function App() {
             speed={speed ?? 1}
             gamma={gamma ?? 2.2}
             fps={fps}
-            enabledPreviews={enabledPreviews ?? ['led']}
+            enabledPreviews={enabledPreviews ?? ['led', 'input', 'output']}
             enabledFilters={enabledFilters ?? []}
             inputValue={currentInputValue}
             baseInputValue={baseInputValue}
@@ -304,7 +304,7 @@ function App() {
                     easeType={panel.easeType}
                     enabledFilters={enabledFilters ?? []}
                     filterParams={{ gamma: gamma ?? 2.2 }}
-                    enabledPreviews={enabledPreviews ?? ['led']}
+                    enabledPreviews={enabledPreviews ?? ['led', 'input', 'output']}
                     cameraStartPos={cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 }}
                     cameraEndPos={cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }}
                     title={panel.title}

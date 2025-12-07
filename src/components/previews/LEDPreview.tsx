@@ -4,20 +4,14 @@ import type { LEDFunction } from '@/lib/ledFunctions'
 interface LEDPreviewProps {
   ledFunction: LEDFunction
   filteredOutput: number
-  input: number
 }
 
 export const LEDPreview = memo(function LEDPreview({ 
   ledFunction, 
-  filteredOutput,
-  input
+  filteredOutput
 }: LEDPreviewProps) {
   const glowIntensity = useMemo(() => {
     return Math.max(0, Math.min(1, filteredOutput))
-  }, [filteredOutput])
-  
-  const displayOutput = useMemo(() => {
-    return filteredOutput
   }, [filteredOutput])
 
   return (
@@ -86,48 +80,6 @@ export const LEDPreview = memo(function LEDPreview({
             strokeWidth="2"
           />
         </svg>
-      </div>
-      
-      <div className="w-full bg-secondary rounded-lg p-2 space-y-2">
-        <div className="space-y-1">
-          <div className="flex justify-between text-[10px]">
-            <span className="text-muted-foreground">Input</span>
-            <span className="font-mono font-medium text-muted-foreground">
-              {(input * 100).toFixed(1)}%
-            </span>
-          </div>
-          
-          <div className="w-full bg-background rounded-full h-1.5 overflow-hidden">
-            <div
-              className="h-full rounded-full will-change-[width]"
-              style={{
-                width: `${input * 100}%`,
-                backgroundColor: 'oklch(0.65 0.1 250)',
-                boxShadow: `0 0 4px oklch(0.65 0.1 250 / 0.5)`
-              }}
-            />
-          </div>
-        </div>
-        
-        <div className="space-y-1">
-          <div className="flex justify-between text-[10px]">
-            <span className="text-muted-foreground">Output</span>
-            <span className="font-mono font-medium text-primary">
-              {(displayOutput * 100).toFixed(1)}%
-            </span>
-          </div>
-          
-          <div className="w-full bg-background rounded-full h-1.5 overflow-hidden">
-            <div
-              className="h-full rounded-full will-change-[width]"
-              style={{
-                width: `${displayOutput * 100}%`,
-                backgroundColor: ledFunction.color,
-                boxShadow: `0 0 6px ${ledFunction.color}`
-              }}
-            />
-          </div>
-        </div>
       </div>
     </div>
   )

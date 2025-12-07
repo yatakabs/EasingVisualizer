@@ -1,4 +1,4 @@
-export type PreviewType = 'led' | 'graph' | 'camera'
+export type PreviewType = 'led' | 'graph' | 'camera' | 'input' | 'output'
 
 export interface PreviewConfig {
   id: PreviewType
@@ -21,5 +21,15 @@ export const PREVIEW_CONFIGS: PreviewConfig[] = [
     id: 'camera',
     label: 'カメラ',
     description: '3Dカメラビュー'
+  },
+  {
+    id: 'input',
+    label: 'Input',
+    description: '入力値バー'
+  },
+  {
+    id: 'output',
+    label: 'Output',
+    description: '出力値バー'
   }
 ]
