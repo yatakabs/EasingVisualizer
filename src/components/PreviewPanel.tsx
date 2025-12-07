@@ -62,28 +62,30 @@ export const PreviewPanel = memo(function PreviewPanel({
       onDragOver={onDragOver}
       onDrop={onDrop}
     >
-      {onRemove && (
-        <Button
-          size="icon"
-          variant="ghost"
-          className="absolute top-1.5 right-1.5 z-10 h-6 w-6 text-muted-foreground hover:text-destructive transition-colors"
-          onClick={onRemove}
-        >
-          <X size={14} />
-        </Button>
-      )}
-      
-      <CardHeader 
-        className="pb-2 pt-3 px-3 cursor-move active:cursor-grabbing"
+      <div 
+        className="bg-muted/50 border-b border-border px-3 py-1.5 flex items-center justify-between cursor-move active:cursor-grabbing"
         draggable
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
       >
-        {title && (
-          <div className="text-[10px] font-medium text-muted-foreground mb-1 uppercase tracking-wider">
-            {title}
-          </div>
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <span className="text-xs font-semibold tracking-tight truncate">
+            {title || ledFunction.name}
+          </span>
+        </div>
+        {onRemove && (
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-5 w-5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex-shrink-0"
+            onClick={onRemove}
+          >
+            <X size={12} weight="bold" />
+          </Button>
         )}
+      </div>
+      
+      <CardHeader className="pb-2 pt-3 px-3">
         <CardTitle className="text-sm font-semibold tracking-tight">
           {ledFunction.name}
         </CardTitle>
