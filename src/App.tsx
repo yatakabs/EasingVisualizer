@@ -38,6 +38,7 @@ function App() {
   const [cameraEndPos, setCameraEndPos] = useKV<{ x: number; y: number; z: number }>('camera-end-pos', { x: 2.0, y: 1.0, z: 5.0 })
   const [cameraAspectRatio, setCameraAspectRatio] = useKV<string>('camera-aspect-ratio', '16/9')
   const [maxCameraPreviews, setMaxCameraPreviews] = useKV<number>('max-camera-previews', 6)
+  const [activeCameraPanels, setActiveCameraPanels] = useKV<string[]>('active-camera-panels', [])
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
@@ -62,6 +63,25 @@ function App() {
       setGamma(savedGamma)
     }
   }, [savedGamma])
+
+  useEffect(() => {
+    const currentPanels = panels || []
+    const currentActive = activeCameraPanels || []
+    const currentMax = maxCameraPreviews ?? 6
+    
+    const validActivePanels = currentActive.filter(id => 
+      currentPanels.some(panel => panel.id === id)
+    )
+    
+    if (validActivePanels.length === 0 && currentPanels.length > 0) {
+      const initialActive = currentPanels
+        .slice(0, Math.min(currentMax, currentPanels.length))
+        .map(p => p.id)
+      setActiveCameraPanels(() => initialActive)
+    } else if (validActivePanels.length !== currentActive.length) {
+      setActiveCameraPanels(() => validActivePanels)
+    }
+  }, [panels, activeCameraPanels, maxCameraPreviews, setActiveCameraPanels])
 
   useEffect(() => {
     if (!isPlaying || (manualInputMode ?? false)) return
@@ -114,10 +134,21 @@ function App() {
   const handleSelectFunction = useCallback((func: LEDFunction) => {
     setPanels((currentPanels) => {
       const nextPanelNumber = (currentPanels || []).length + 1
+      const newPanelId = Date.now().toString()
+      
+      setActiveCameraPanels((currentActive) => {
+        const active = currentActive || []
+        const currentMax = maxCameraPreviews ?? 6
+        if (active.length < currentMax) {
+          return [...active, newPanelId]
+        }
+        return active
+      })
+      
       return [
         ...(currentPanels || []),
         {
-          id: Date.now().toString(),
+          id: newPanelId,
           functionId: func.id,
           easeType: 'easein' as EaseType,
           title: `Panel ${nextPanelNumber}`
@@ -125,11 +156,12 @@ function App() {
       ]
     })
     toast.success(`Added ${func.name} panel`)
-  }, [setPanels])
+  }, [setPanels, setActiveCameraPanels, maxCameraPreviews])
 
   const handleRemovePanel = useCallback((id: string) => () => {
     setPanels((currentPanels) => (currentPanels || []).filter(panel => panel.id !== id))
-  }, [setPanels])
+    setActiveCameraPanels((currentActive) => (currentActive || []).filter(panelId => panelId !== id))
+  }, [setPanels, setActiveCameraPanels])
 
   const handleDragStart = useCallback((panelId: string) => (e: React.DragEvent) => {
     setDraggedPanelId(panelId)
@@ -226,6 +258,22 @@ function App() {
     })
   }, [setEnabledPreviews])
 
+  const handleToggleCameraForPanel = useCallback((panelId: string) => {
+    setActiveCameraPanels((currentActive) => {
+      const active = currentActive || []
+      if (active.includes(panelId)) {
+        return active.filter(id => id !== panelId)
+      } else {
+        const currentMax = maxCameraPreviews ?? 6
+        if (active.length >= currentMax) {
+          toast.error(`最大${currentMax}個のカメラプレビューまで表示可能です`)
+          return active
+        }
+        return [...active, panelId]
+      }
+    })
+  }, [setActiveCameraPanels, maxCameraPreviews])
+
   const baseInputValue = (manualInputMode ?? false) ? (manualInputValue ?? 0) : time
   const currentInputValue = (triangularWaveMode ?? false) ? getTriangularWave(baseInputValue) : baseInputValue
   const usedFunctionIds = (panels || []).map(p => p.functionId)
@@ -303,7 +351,8 @@ function App() {
                 const output = func.calculate(currentInputValue, panel.easeType)
                 const filteredOutput = applyFilters(output, enabledFilters ?? [], { gamma: gamma ?? 2.2 })
                 
-                const showCamera = panelIndex < (maxCameraPreviews ?? 6)
+                const isCameraActive = (activeCameraPanels || []).includes(panel.id)
+                const canActivateCamera = !isCameraActive && (activeCameraPanels || []).length < (maxCameraPreviews ?? 6)
 
                 return (
                   <PreviewPanel
@@ -321,9 +370,12 @@ function App() {
                     cameraStartPos={cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 }}
                     cameraEndPos={cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }}
                     cameraAspectRatio={cameraAspectRatio ?? '16/9'}
-                    showCamera={showCamera}
+                    showCamera={isCameraActive}
+                    canToggleCamera={enabledPreviews?.includes('camera') ?? false}
+                    canActivateCamera={canActivateCamera}
                     title={panel.title}
                     onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
+                    onToggleCamera={() => handleToggleCameraForPanel(panel.id)}
                     onEaseTypeChange={(newEaseType) => {
                       setPanels((currentPanels) =>
                         (currentPanels || []).map(p =>

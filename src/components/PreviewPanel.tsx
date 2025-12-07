@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { X } from '@phosphor-icons/react'
+import { X, Video, Eye, EyeSlash } from '@phosphor-icons/react'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import type { LEDFunction } from '@/lib/ledFunctions'
 import type { EaseType } from '@/lib/easeTypes'
@@ -26,8 +26,11 @@ interface PreviewPanelProps {
   cameraEndPos: { x: number; y: number; z: number }
   cameraAspectRatio: string
   showCamera: boolean
+  canToggleCamera: boolean
+  canActivateCamera: boolean
   title?: string
   onRemove?: () => void
+  onToggleCamera: () => void
   onEaseTypeChange: (easeType: EaseType) => void
   onDragStart?: (e: React.DragEvent) => void
   onDragEnd?: (e: React.DragEvent) => void
@@ -50,8 +53,11 @@ export const PreviewPanel = memo(function PreviewPanel({
   cameraEndPos,
   cameraAspectRatio,
   showCamera,
+  canToggleCamera,
+  canActivateCamera,
   title,
   onRemove,
+  onToggleCamera,
   onEaseTypeChange,
   onDragStart,
   onDragEnd,
@@ -76,16 +82,47 @@ export const PreviewPanel = memo(function PreviewPanel({
           <CardTitle className="text-sm font-semibold tracking-tight truncate flex-1 min-w-0" style={{ margin: 0, lineHeight: '1.4' }}>
             {title || ledFunction.name}
           </CardTitle>
-          {onRemove && (
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex-shrink-0"
-              onClick={onRemove}
-            >
-              <X size={14} weight="bold" />
-            </Button>
-          )}
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            {canToggleCamera && (
+              <Button
+                size="icon"
+                variant={showCamera ? "default" : "ghost"}
+                className={`h-6 w-6 transition-colors ${
+                  showCamera 
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                    : canActivateCamera
+                      ? "text-muted-foreground hover:text-primary hover:bg-primary/10"
+                      : "text-muted-foreground/50 cursor-not-allowed"
+                }`}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (showCamera || canActivateCamera) {
+                    onToggleCamera()
+                  }
+                }}
+                disabled={!showCamera && !canActivateCamera}
+                title={
+                  showCamera 
+                    ? "カメラプレビューを無効化" 
+                    : canActivateCamera
+                      ? "カメラプレビューを有効化"
+                      : "カメラプレビューの最大表示数に達しています"
+                }
+              >
+                {showCamera ? <Eye size={14} weight="bold" /> : <EyeSlash size={14} weight="bold" />}
+              </Button>
+            )}
+            {onRemove && (
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex-shrink-0"
+                onClick={onRemove}
+              >
+                <X size={14} weight="bold" />
+              </Button>
+            )}
+          </div>
         </div>
       </CardHeader>
       
