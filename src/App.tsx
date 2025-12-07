@@ -23,14 +23,31 @@ function App() {
     { id: '4', functionId: 'cubic' }
   ])
   const [isPlaying, setIsPlaying] = useKV<boolean>('is-playing', true)
-  const [speed, setSpeed] = useKV<number>('animation-speed', 1)
-  const [gamma, setGamma] = useKV<number>('gamma-correction', 2.2)
+  const [savedSpeed, setSavedSpeed] = useKV<number>('animation-speed', 1)
+  const [savedGamma, setSavedGamma] = useKV<number>('gamma-correction', 2.2)
+  
+  const [speed, setSpeed] = useState(1)
+  const [gamma, setGamma] = useState(2.2)
   const [time, setTime] = useState(0)
   const [fps, setFps] = useState(60)
   const [selectorOpen, setSelectorOpen] = useState(false)
   
   const lastFrameTime = useRef(Date.now())
   const fpsFrames = useRef<number[]>([])
+  const speedTimeoutRef = useRef<number | undefined>(undefined)
+  const gammaTimeoutRef = useRef<number | undefined>(undefined)
+
+  useEffect(() => {
+    if (savedSpeed !== undefined && savedSpeed !== null) {
+      setSpeed(savedSpeed)
+    }
+  }, [savedSpeed])
+
+  useEffect(() => {
+    if (savedGamma !== undefined && savedGamma !== null) {
+      setGamma(savedGamma)
+    }
+  }, [savedGamma])
 
   useEffect(() => {
     if (!isPlaying) return
@@ -88,6 +105,30 @@ function App() {
     setPanels((currentPanels) => (currentPanels || []).filter(panel => panel.id !== id))
   }, [setPanels])
 
+  const handleSpeedChange = useCallback((newSpeed: number) => {
+    setSpeed(newSpeed)
+    
+    if (speedTimeoutRef.current) {
+      window.clearTimeout(speedTimeoutRef.current)
+    }
+    
+    speedTimeoutRef.current = window.setTimeout(() => {
+      setSavedSpeed(() => newSpeed)
+    }, 500)
+  }, [setSavedSpeed])
+
+  const handleGammaChange = useCallback((newGamma: number) => {
+    setGamma(newGamma)
+    
+    if (gammaTimeoutRef.current) {
+      window.clearTimeout(gammaTimeoutRef.current)
+    }
+    
+    gammaTimeoutRef.current = window.setTimeout(() => {
+      setSavedGamma(() => newGamma)
+    }, 500)
+  }, [setSavedGamma])
+
   const usedFunctionIds = (panels || []).map(p => p.functionId)
 
   return (
@@ -111,8 +152,8 @@ function App() {
             gamma={gamma ?? 2.2}
             fps={fps}
             onPlayPause={() => setIsPlaying((current) => !current)}
-            onSpeedChange={setSpeed}
-            onGammaChange={setGamma}
+            onSpeedChange={handleSpeedChange}
+            onGammaChange={handleGammaChange}
             onAddPanel={handleAddPanel}
           />
 
