@@ -51,11 +51,15 @@ export const CameraPreview = memo(function CameraPreview({
     rendererRef.current = renderer
 
     const geometry = new THREE.BoxGeometry(1, 1, 1)
-    const material = new THREE.MeshPhongMaterial({ 
-      color: 0x4488ff,
-      shininess: 100
-    })
-    const cube = new THREE.Mesh(geometry, material)
+    const materials = [
+      new THREE.MeshPhongMaterial({ color: 0xff0000, shininess: 100 }),
+      new THREE.MeshPhongMaterial({ color: 0xff0000, shininess: 100 }),
+      new THREE.MeshPhongMaterial({ color: 0x00ff00, shininess: 100 }),
+      new THREE.MeshPhongMaterial({ color: 0x00ff00, shininess: 100 }),
+      new THREE.MeshPhongMaterial({ color: 0x0000ff, shininess: 100 }),
+      new THREE.MeshPhongMaterial({ color: 0x0000ff, shininess: 100 })
+    ]
+    const cube = new THREE.Mesh(geometry, materials)
     cube.position.set(0, 0, 0)
     scene.add(cube)
     cubeRef.current = cube
@@ -102,7 +106,9 @@ export const CameraPreview = memo(function CameraPreview({
       
       if (cubeRef.current) {
         cubeRef.current.geometry.dispose()
-        if (cubeRef.current.material instanceof THREE.Material) {
+        if (Array.isArray(cubeRef.current.material)) {
+          cubeRef.current.material.forEach(mat => mat.dispose())
+        } else if (cubeRef.current.material instanceof THREE.Material) {
           cubeRef.current.material.dispose()
         }
       }
