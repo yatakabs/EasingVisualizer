@@ -68,9 +68,9 @@ export const PreviewPanel = memo(function PreviewPanel({
         draggable
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
-        style={{ margin: 0, padding: '12px 16px', gap: 0 }}
+        style={{ margin: 0, padding: '6px 8px', gap: 0 }}
       >
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-1.5">
           <CardTitle className="text-xs font-semibold tracking-tight truncate flex-1 min-w-0" style={{ margin: 0, lineHeight: '1.4' }}>
             {title || ledFunction.name}
           </CardTitle>
@@ -78,17 +78,17 @@ export const PreviewPanel = memo(function PreviewPanel({
             <Button
               size="icon"
               variant="ghost"
-              className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex-shrink-0"
+              className="h-5 w-5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex-shrink-0"
               onClick={onRemove}
             >
-              <X size={14} weight="bold" />
+              <X size={12} weight="bold" />
             </Button>
           )}
         </div>
       </CardHeader>
       
-      <div className="px-4 py-2.5 border-b border-border/50">
-        <div className="flex items-center justify-between gap-3">
+      <div className="px-2 py-1.5 border-b border-border/50">
+        <div className="flex items-center justify-between gap-1.5">
           <p className="text-[11px] font-mono text-muted-foreground leading-relaxed">
             {ledFunction.formula}
           </p>
@@ -100,20 +100,20 @@ export const PreviewPanel = memo(function PreviewPanel({
             size="sm"
             className="flex-shrink-0"
           >
-            <ToggleGroupItem value="easein" aria-label="EaseIn" className="text-[10px] px-2.5 h-7">
+            <ToggleGroupItem value="easein" aria-label="EaseIn" className="text-[10px] px-2 h-6">
               In
             </ToggleGroupItem>
-            <ToggleGroupItem value="easeout" aria-label="EaseOut" className="text-[10px] px-2.5 h-7">
+            <ToggleGroupItem value="easeout" aria-label="EaseOut" className="text-[10px] px-2 h-6">
               Out
             </ToggleGroupItem>
-            <ToggleGroupItem value="easeboth" aria-label="EaseBoth" className="text-[10px] px-2.5 h-7">
+            <ToggleGroupItem value="easeboth" aria-label="EaseBoth" className="text-[10px] px-2 h-6">
               Both
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
       </div>
       
-      <CardContent className="flex flex-col items-center gap-3" style={{ margin: 0, padding: '16px' }}>
+      <CardContent className="flex flex-col items-center gap-1.5" style={{ margin: 0, padding: '8px' }}>
         {enabledPreviews.includes('camera') && (
           <CameraPreview
             ledFunction={ledFunction}
