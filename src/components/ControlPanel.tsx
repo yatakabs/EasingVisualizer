@@ -260,6 +260,26 @@ export function ControlPanel({
             })}
           </div>
         </div>
+        
+        <div className="flex items-center gap-2 pt-2">
+          <Input
+            id="speed-value-field"
+            type="number"
+            value={speed.toFixed(1)}
+            onChange={(e) => {
+              const value = parseFloat(e.target.value)
+              if (!isNaN(value) && value >= 0.1 && value <= 3) {
+                onSpeedChange(value)
+              }
+            }}
+            step={0.1}
+            min={0.1}
+            max={3}
+            className="w-24 font-mono text-sm"
+            disabled={manualInputMode}
+          />
+          <span className="text-sm text-muted-foreground">直接入力</span>
+        </div>
       </div>
       
       <div className="space-y-3">
@@ -301,15 +321,36 @@ export function ControlPanel({
           </div>
         </div>
         
-        <div className="flex items-center gap-2 pt-2">
-          <Switch
-            id="apply-gamma-filter"
-            checked={enabledFilters.includes('gamma')}
-            onCheckedChange={() => onToggleFilter('gamma')}
-          />
-          <Label htmlFor="apply-gamma-filter" className="text-sm font-medium cursor-pointer">
-            ガンマ補正フィルタを適用
-          </Label>
+        <div className="flex items-center gap-4 pt-2">
+          <div className="flex items-center gap-2">
+            <Input
+              id="gamma-value-field"
+              type="number"
+              value={gamma.toFixed(1)}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value)
+                if (!isNaN(value) && value >= 0.0 && value <= 3.0) {
+                  onGammaChange(value)
+                }
+              }}
+              step={0.1}
+              min={0.0}
+              max={3.0}
+              className="w-24 font-mono text-sm"
+            />
+            <span className="text-sm text-muted-foreground">直接入力</span>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Switch
+              id="apply-gamma-filter"
+              checked={enabledFilters.includes('gamma')}
+              onCheckedChange={() => onToggleFilter('gamma')}
+            />
+            <Label htmlFor="apply-gamma-filter" className="text-sm font-medium cursor-pointer">
+              ガンマ補正フィルタを適用
+            </Label>
+          </div>
         </div>
       </div>
     </div>
