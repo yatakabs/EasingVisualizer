@@ -58,13 +58,13 @@ export const PreviewPanel = memo(function PreviewPanel({
 }: PreviewPanelProps) {
   return (
     <Card 
-      className="relative overflow-hidden border-2 border-green-500"
+      className="relative overflow-hidden"
       onDragOver={onDragOver}
       onDrop={onDrop}
-      style={{ padding: 0, gap: 0, backgroundColor: 'red' }}
+      style={{ padding: 0, gap: 0 }}
     >
       <CardHeader 
-        className="bg-blue-500 border-b-4 border-yellow-500 cursor-move active:cursor-grabbing"
+        className="cursor-move active:cursor-grabbing"
         draggable
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
@@ -113,7 +113,7 @@ export const PreviewPanel = memo(function PreviewPanel({
         </div>
       </div>
       
-      <CardContent className="flex flex-col items-center gap-2 bg-purple-500" style={{ margin: 0, padding: '0 12px 6px 12px' }}>
+      <CardContent className="flex flex-col items-center gap-2" style={{ margin: 0, padding: '0 12px 6px 12px' }}>
         {enabledPreviews.includes('camera') && (
           <CameraPreview
             ledFunction={ledFunction}
