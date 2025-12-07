@@ -425,24 +425,29 @@ export function ControlPanel({
               <ToggleGroupItem value="9/16" className="text-xs px-3 h-7">
                 9:16
               </ToggleGroupItem>
+              <ToggleGroupItem value="custom" className="text-xs px-3 h-7">
+                カスタム
+              </ToggleGroupItem>
             </ToggleGroup>
             
-            <div className="flex items-center gap-2 pt-1">
-              <Input
-                id="custom-aspect-ratio"
-                type="text"
-                value={cameraAspectRatio}
-                onChange={(e) => {
-                  const value = e.target.value
-                  if (value) {
-                    onCameraAspectRatioChange(value)
-                  }
-                }}
-                placeholder="例: 2.35/1"
-                className="flex-1 font-mono text-xs h-7"
-              />
-              <span className="text-xs text-muted-foreground">カスタム</span>
-            </div>
+            {cameraAspectRatio === 'custom' && (
+              <div className="flex items-center gap-2 pt-1">
+                <Input
+                  id="custom-aspect-ratio"
+                  type="text"
+                  defaultValue=""
+                  onChange={(e) => {
+                    const value = e.target.value
+                    if (value && value !== 'custom') {
+                      onCameraAspectRatioChange(value)
+                    }
+                  }}
+                  placeholder="例: 2.35/1"
+                  className="flex-1 font-mono text-xs h-7"
+                />
+                <span className="text-xs text-muted-foreground">カスタム入力</span>
+              </div>
+            )}
           </div>
           
           <div className="space-y-2">
