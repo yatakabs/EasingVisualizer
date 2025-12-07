@@ -64,11 +64,11 @@ export const PreviewPanel = memo(function PreviewPanel({
       style={{ padding: 0, gap: 0 }}
     >
       <CardHeader 
-        className="cursor-move active:cursor-grabbing"
+        className="cursor-move active:cursor-grabbing bg-primary/10"
         draggable
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
-        style={{ margin: 0, padding: '6px 12px', gap: 0 }}
+        style={{ margin: 0, padding: '8px 12px', gap: 0 }}
       >
         <div className="flex items-center justify-between gap-2">
           <CardTitle className="text-xs font-semibold tracking-tight truncate flex-1 min-w-0 !leading-none">
