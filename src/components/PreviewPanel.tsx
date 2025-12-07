@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { X, Video, Eye, EyeSlash } from '@phosphor-icons/react'
+import { X, Video, Cube } from '@phosphor-icons/react'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import type { LEDFunction } from '@/lib/ledFunctions'
 import type { EaseType } from '@/lib/easeTypes'
@@ -109,7 +109,7 @@ export const PreviewPanel = memo(function PreviewPanel({
                       : "カメラプレビューの最大表示数に達しています"
                 }
               >
-                {showCamera ? <Eye size={14} weight="bold" /> : <EyeSlash size={14} weight="bold" />}
+                {showCamera ? <Cube size={14} weight="bold" /> : <Cube size={14} weight="regular" />}
               </Button>
             )}
             {onRemove && (
@@ -189,7 +189,7 @@ export const PreviewPanel = memo(function PreviewPanel({
                   }}
                   disabled={!canActivateCamera}
                 >
-                  <Eye size={14} weight="bold" className="mr-1" />
+                  <Cube size={14} weight="bold" className="mr-1" />
                   表示を有効化
                 </Button>
                 {!canActivateCamera && (
