@@ -18,14 +18,15 @@ interface PanelData {
   id: string
   functionId: string
   easeType: EaseType
+  title?: string
 }
 
 function App() {
   const [panels, setPanels] = useKV<PanelData[]>('led-panels', [
-    { id: '1', functionId: 'linear', easeType: 'easein' },
-    { id: '2', functionId: 'sine', easeType: 'easein' },
-    { id: '3', functionId: 'quadratic', easeType: 'easein' },
-    { id: '4', functionId: 'cubic', easeType: 'easein' }
+    { id: '1', functionId: 'linear', easeType: 'easein', title: 'Panel 1' },
+    { id: '2', functionId: 'sine', easeType: 'easein', title: 'Panel 2' },
+    { id: '3', functionId: 'quadratic', easeType: 'easein', title: 'Panel 3' },
+    { id: '4', functionId: 'cubic', easeType: 'easein', title: 'Panel 4' }
   ])
   const [isPlaying, setIsPlaying] = useKV<boolean>('is-playing', true)
   const [savedSpeed, setSavedSpeed] = useKV<number>('animation-speed', 1)
@@ -42,6 +43,7 @@ function App() {
   const [time, setTime] = useState(0)
   const [fps, setFps] = useState(60)
   const [selectorOpen, setSelectorOpen] = useState(false)
+  const [draggedPanelId, setDraggedPanelId] = useState<string | null>(null)
   
   const lastFrameTime = useRef(Date.now())
   const fpsFrames = useRef<number[]>([])
@@ -107,20 +109,62 @@ function App() {
   }, [panels])
 
   const handleSelectFunction = useCallback((func: LEDFunction) => {
-    setPanels((currentPanels) => [
-      ...(currentPanels || []),
-      {
-        id: Date.now().toString(),
-        functionId: func.id,
-        easeType: 'easein' as EaseType
-      }
-    ])
+    setPanels((currentPanels) => {
+      const nextPanelNumber = (currentPanels || []).length + 1
+      return [
+        ...(currentPanels || []),
+        {
+          id: Date.now().toString(),
+          functionId: func.id,
+          easeType: 'easein' as EaseType,
+          title: `Panel ${nextPanelNumber}`
+        }
+      ]
+    })
     toast.success(`Added ${func.name} panel`)
   }, [setPanels])
 
   const handleRemovePanel = useCallback((id: string) => () => {
     setPanels((currentPanels) => (currentPanels || []).filter(panel => panel.id !== id))
   }, [setPanels])
+
+  const handleDragStart = useCallback((panelId: string) => (e: React.DragEvent) => {
+    setDraggedPanelId(panelId)
+    e.dataTransfer.effectAllowed = 'move'
+  }, [])
+
+  const handleDragEnd = useCallback(() => {
+    setDraggedPanelId(null)
+  }, [])
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }, [])
+
+  const handleDrop = useCallback((targetPanelId: string) => (e: React.DragEvent) => {
+    e.preventDefault()
+    
+    if (!draggedPanelId || draggedPanelId === targetPanelId) {
+      return
+    }
+
+    setPanels((currentPanels) => {
+      const panels = currentPanels || []
+      const draggedIndex = panels.findIndex(p => p.id === draggedPanelId)
+      const targetIndex = panels.findIndex(p => p.id === targetPanelId)
+      
+      if (draggedIndex === -1 || targetIndex === -1) {
+        return panels
+      }
+
+      const newPanels = [...panels]
+      const [draggedPanel] = newPanels.splice(draggedIndex, 1)
+      newPanels.splice(targetIndex, 0, draggedPanel)
+      
+      return newPanels
+    })
+  }, [draggedPanelId, setPanels])
 
   const handleSpeedChange = useCallback((newSpeed: number) => {
     setSpeed(newSpeed)
@@ -250,6 +294,7 @@ function App() {
                         easeType={panel.easeType}
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}
+                        title={panel.title}
                         onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
                         onEaseTypeChange={(newEaseType) => {
                           setPanels((currentPanels) =>
@@ -258,6 +303,10 @@ function App() {
                             )
                           )
                         }}
+                        onDragStart={handleDragStart(panel.id)}
+                        onDragEnd={handleDragEnd}
+                        onDragOver={handleDragOver}
+                        onDrop={handleDrop(panel.id)}
                       />
                     )}
                     {!bothEnabled && (showLED ?? true) && (
@@ -269,6 +318,7 @@ function App() {
                         easeType={panel.easeType}
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}
+                        title={panel.title}
                         onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
                         onEaseTypeChange={(newEaseType) => {
                           setPanels((currentPanels) =>
@@ -277,6 +327,10 @@ function App() {
                             )
                           )
                         }}
+                        onDragStart={handleDragStart(panel.id)}
+                        onDragEnd={handleDragEnd}
+                        onDragOver={handleDragOver}
+                        onDrop={handleDrop(panel.id)}
                       />
                     )}
                     {!bothEnabled && (showRectangle ?? false) && (
@@ -290,6 +344,7 @@ function App() {
                         easeType={panel.easeType}
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}
+                        title={panel.title}
                         onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
                         onEaseTypeChange={(newEaseType) => {
                           setPanels((currentPanels) =>
@@ -298,6 +353,10 @@ function App() {
                             )
                           )
                         }}
+                        onDragStart={handleDragStart(panel.id)}
+                        onDragEnd={handleDragEnd}
+                        onDragOver={handleDragOver}
+                        onDrop={handleDrop(panel.id)}
                       />
                     )}
                   </div>

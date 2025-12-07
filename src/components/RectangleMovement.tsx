@@ -17,8 +17,13 @@ interface RectangleMovementProps {
   easeType: EaseType
   enabledFilters: string[]
   filterParams: Record<string, number>
+  title?: string
   onRemove?: () => void
   onEaseTypeChange: (easeType: EaseType) => void
+  onDragStart?: (e: React.DragEvent) => void
+  onDragEnd?: (e: React.DragEvent) => void
+  onDragOver?: (e: React.DragEvent) => void
+  onDrop?: (e: React.DragEvent) => void
 }
 
 export const RectangleMovement = memo(function RectangleMovement({ 
@@ -31,8 +36,13 @@ export const RectangleMovement = memo(function RectangleMovement({
   easeType,
   enabledFilters,
   filterParams,
+  title,
   onRemove,
-  onEaseTypeChange
+  onEaseTypeChange,
+  onDragStart,
+  onDragEnd,
+  onDragOver,
+  onDrop
 }: RectangleMovementProps) {
   const [hoverPosition, setHoverPosition] = useState<{ x: number; y: number } | null>(null)
   
@@ -163,7 +173,11 @@ export const RectangleMovement = memo(function RectangleMovement({
   }, [input, baseInput, filteredOutput, ledFunction, enabledFilters, filterParams, easeType, isTriangularMode, hoverPosition])
 
   return (
-    <Card className="relative overflow-hidden border-2 border-border">
+    <Card 
+      className="relative overflow-hidden border-2 border-border"
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+    >
       {onRemove && (
         <Button
           size="icon"
@@ -175,7 +189,17 @@ export const RectangleMovement = memo(function RectangleMovement({
         </Button>
       )}
       
-      <CardHeader className="pb-2 pt-3 px-3">
+      <CardHeader 
+        className="pb-2 pt-3 px-3 cursor-move active:cursor-grabbing"
+        draggable
+        onDragStart={onDragStart}
+        onDragEnd={onDragEnd}
+      >
+        {title && (
+          <div className="text-[10px] font-medium text-muted-foreground mb-1 uppercase tracking-wider">
+            {title}
+          </div>
+        )}
         <CardTitle className="text-sm font-semibold tracking-tight">
           {ledFunction.name}
         </CardTitle>
