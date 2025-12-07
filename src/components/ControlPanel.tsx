@@ -8,15 +8,14 @@ import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { type EaseType } from '@/lib/easeTypes'
+import { type PreviewType } from '@/lib/previewTypes'
 
 interface ControlPanelProps {
   isPlaying: boolean
   speed: number
   gamma: number
   fps: number
-  showLED: boolean
-  showRectangle: boolean
-  showCamera: boolean
+  enabledPreviews: PreviewType[]
   enabledFilters: string[]
   inputValue: number
   baseInputValue: number
@@ -28,9 +27,7 @@ interface ControlPanelProps {
   onSpeedChange: (speed: number) => void
   onGammaChange: (gamma: number) => void
   onAddPanel: () => void
-  onToggleLED: () => void
-  onToggleRectangle: () => void
-  onToggleCamera: () => void
+  onTogglePreview: (previewType: PreviewType) => void
   onToggleFilter: (filterId: string) => void
   onInputValueChange: (value: number) => void
   onManualInputModeChange: (enabled: boolean) => void
@@ -45,9 +42,7 @@ export function ControlPanel({
   speed,
   gamma,
   fps,
-  showLED,
-  showRectangle,
-  showCamera,
+  enabledPreviews,
   enabledFilters,
   inputValue,
   baseInputValue,
@@ -59,9 +54,7 @@ export function ControlPanel({
   onSpeedChange,
   onGammaChange,
   onAddPanel,
-  onToggleLED,
-  onToggleRectangle,
-  onToggleCamera,
+  onTogglePreview,
   onToggleFilter,
   onInputValueChange,
   onManualInputModeChange,
@@ -102,26 +95,22 @@ export function ControlPanel({
         <div className="flex flex-wrap gap-2 items-center">
           <ToggleGroup 
             type="multiple" 
-            value={[
-              ...(showLED ? ['led'] : []),
-              ...(showRectangle ? ['rectangle'] : []),
-              ...(showCamera ? ['camera'] : [])
-            ]}
+            value={enabledPreviews}
             variant="outline"
             size="sm"
           >
             <ToggleGroupItem 
               value="led" 
               aria-label="LED表示"
-              onClick={onToggleLED}
+              onClick={() => onTogglePreview('led')}
               className="text-xs"
             >
               LED
             </ToggleGroupItem>
             <ToggleGroupItem 
-              value="rectangle" 
+              value="graph" 
               aria-label="グラフ表示"
-              onClick={onToggleRectangle}
+              onClick={() => onTogglePreview('graph')}
               className="text-xs"
             >
               グラフ
@@ -129,7 +118,7 @@ export function ControlPanel({
             <ToggleGroupItem 
               value="camera" 
               aria-label="カメラ表示"
-              onClick={onToggleCamera}
+              onClick={() => onTogglePreview('camera')}
               className="text-xs"
             >
               カメラ
@@ -402,7 +391,7 @@ export function ControlPanel({
         </div>
       </div>
       
-      {showCamera && (
+      {enabledPreviews.includes('camera') && (
         <div className="space-y-3 pt-2 border-t border-border">
           <div className="text-xs font-medium text-foreground">カメラ座標設定</div>
           
