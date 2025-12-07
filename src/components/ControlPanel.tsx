@@ -3,19 +3,20 @@ import { Slider } from '@/components/ui/slider'
 import { Badge } from '@/components/ui/badge'
 import { Play, Pause, Plus } from '@phosphor-icons/react'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 interface ControlPanelProps {
   isPlaying: boolean
   speed: number
   gamma: number
   fps: number
-  visualizationMode: 'led' | 'rectangle'
+  visualizationMode: 'led' | 'rectangle' | 'both'
   cycleMultiplier: number
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
   onGammaChange: (gamma: number) => void
   onAddPanel: () => void
-  onVisualizationModeChange: (mode: 'led' | 'rectangle') => void
+  onVisualizationModeChange: (mode: 'led' | 'rectangle' | 'both') => void
   onCycleMultiplierChange: (multiplier: number) => void
 }
 
@@ -72,12 +73,22 @@ export function ControlPanel({
             </TabsList>
           </Tabs>
           
-          <Tabs value={visualizationMode} onValueChange={(value) => onVisualizationModeChange(value as 'led' | 'rectangle')}>
-            <TabsList>
-              <TabsTrigger value="led">LED</TabsTrigger>
-              <TabsTrigger value="rectangle">四角形</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <ToggleGroup 
+            type="single" 
+            value={visualizationMode} 
+            onValueChange={(value) => value && onVisualizationModeChange(value as 'led' | 'rectangle' | 'both')}
+            variant="outline"
+          >
+            <ToggleGroupItem value="led" aria-label="LED表示">
+              LED
+            </ToggleGroupItem>
+            <ToggleGroupItem value="rectangle" aria-label="四角形表示">
+              四角形
+            </ToggleGroupItem>
+            <ToggleGroupItem value="both" aria-label="両方表示">
+              両方
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
       </div>
       
