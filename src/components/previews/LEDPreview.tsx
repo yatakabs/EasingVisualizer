@@ -15,7 +15,7 @@ export const LEDPreview = memo(function LEDPreview({
   }, [filteredOutput])
 
   return (
-    <div className="w-full py-1">
+    <div className="w-full py-2">
       <div className="relative w-20 h-20 flex items-center justify-center mx-auto">
         <svg width="80" height="80" className="absolute inset-0" viewBox="0 0 80 80">
           <defs>

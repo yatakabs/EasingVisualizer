@@ -68,10 +68,10 @@ export const PreviewPanel = memo(function PreviewPanel({
         draggable
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
-        style={{ margin: 0, padding: '8px 12px', gap: 0 }}
+        style={{ margin: 0, padding: '10px 14px', gap: 0 }}
       >
         <div className="flex items-center justify-between gap-2">
-          <CardTitle className="text-xs font-semibold tracking-tight truncate flex-1 min-w-0 !leading-none">
+          <CardTitle className="text-xs font-semibold tracking-tight truncate flex-1 min-w-0 !leading-none" style={{ margin: 0 }}>
             {title || ledFunction.name}
           </CardTitle>
           {onRemove && (
@@ -87,8 +87,8 @@ export const PreviewPanel = memo(function PreviewPanel({
         </div>
       </CardHeader>
       
-      <div className="px-3 py-1.5 border-b border-border/50">
-        <div className="flex items-center justify-between gap-2">
+      <div className="px-4 py-2 border-b border-border/50">
+        <div className="flex items-center justify-between gap-3">
           <p className="text-[10px] font-mono text-muted-foreground leading-tight">
             {ledFunction.formula}
           </p>
@@ -113,7 +113,7 @@ export const PreviewPanel = memo(function PreviewPanel({
         </div>
       </div>
       
-      <CardContent className="flex flex-col items-center gap-2" style={{ margin: 0, padding: '8px 12px' }}>
+      <CardContent className="flex flex-col items-center gap-3" style={{ margin: 0, padding: '12px 14px' }}>
         {enabledPreviews.includes('camera') && (
           <CameraPreview
             ledFunction={ledFunction}

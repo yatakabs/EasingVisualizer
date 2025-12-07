@@ -144,7 +144,7 @@ export const CameraPreview = memo(function CameraPreview({
   }, [baseInput, filteredOutput, startPos, endPos])
 
   return (
-    <div className="flex flex-col items-center gap-1 w-full">
+    <div className="flex flex-col items-center gap-2 w-full">
       <div 
         ref={mountRef} 
         className="w-full rounded border border-border overflow-hidden bg-card"
@@ -153,8 +153,8 @@ export const CameraPreview = memo(function CameraPreview({
         }}
       />
       
-      <div className="w-full bg-secondary rounded p-1.5 space-y-1">
-        <div className="flex items-center justify-between text-[9px]">
+      <div className="w-full bg-secondary rounded px-3 py-2 space-y-1.5">
+        <div className="flex items-center justify-between text-[9px] px-0.5">
           <span className="text-muted-foreground">Output</span>
           <div className="flex flex-col items-end">
             <span className="font-mono font-medium">{filteredOutput.toFixed(3)}</span>
@@ -165,7 +165,7 @@ export const CameraPreview = memo(function CameraPreview({
             )}
           </div>
         </div>
-        <div className="flex items-center justify-between text-[9px]">
+        <div className="flex items-center justify-between text-[9px] px-0.5">
           <span className="text-muted-foreground">Camera Pos</span>
           <span className="font-mono font-medium text-[8px]">
             ({(startPos.x + (endPos.x - startPos.x) * filteredOutput).toFixed(2)}, {(startPos.y + (endPos.y - startPos.y) * filteredOutput).toFixed(2)}, {(startPos.z + (endPos.z - startPos.z) * filteredOutput).toFixed(2)})
