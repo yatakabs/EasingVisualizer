@@ -17,37 +17,35 @@ export const RectangleMovement = memo(function RectangleMovement({
   rawBrightness, 
   onRemove 
 }: RectangleMovementProps) {
-  const position = useMemo(() => {
-    const progress = brightness
-    const pathLength = 4
-    const segment = progress * pathLength
+  const { position, graphPath, inputValue } = useMemo(() => {
+    const graphWidth = 200
+    const graphHeight = 200
+    const padding = 30
+    const innerWidth = graphWidth - padding * 2
+    const innerHeight = graphHeight - padding * 2
     
-    const size = 120
-    const padding = 20
-    const squareSize = 20
+    const input = rawBrightness
+    const output = brightness
     
-    if (segment < 1) {
-      return {
-        x: padding,
-        y: padding + (size - padding * 2) * (1 - segment)
-      }
-    } else if (segment < 2) {
-      return {
-        x: padding + (size - padding * 2) * (segment - 1),
-        y: padding
-      }
-    } else if (segment < 3) {
-      return {
-        x: size - padding - squareSize,
-        y: padding + (size - padding * 2) * (segment - 2)
-      }
-    } else {
-      return {
-        x: padding + (size - padding * 2) * (1 - (segment - 3)),
-        y: size - padding - squareSize
-      }
+    const x = padding + input * innerWidth
+    const y = padding + (1 - output) * innerHeight
+    
+    const points: string[] = []
+    const steps = 100
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps
+      const xPos = padding + t * innerWidth
+      const yVal = ledFunction.calculate(t)
+      const yPos = padding + (1 - yVal) * innerHeight
+      points.push(`${xPos},${yPos}`)
     }
-  }, [brightness])
+    
+    return {
+      position: { x, y },
+      graphPath: points.join(' '),
+      inputValue: input
+    }
+  }, [brightness, rawBrightness, ledFunction])
 
   return (
     <Card className="relative overflow-hidden border-2 border-border">
@@ -72,11 +70,11 @@ export const RectangleMovement = memo(function RectangleMovement({
       </CardHeader>
       
       <CardContent className="flex flex-col items-center gap-4 pb-8">
-        <div className="relative w-40 h-40 flex items-center justify-center bg-secondary/30 rounded-lg border-2 border-border">
-          <svg width="160" height="160" className="absolute inset-0">
+        <div className="relative w-[200px] h-[200px] flex items-center justify-center bg-secondary/30 rounded-lg border-2 border-border">
+          <svg width="200" height="200" className="absolute inset-0">
             <defs>
               <filter id={`glow-rect-${ledFunction.id}`}>
-                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
                 <feMerge>
                   <feMergeNode in="coloredBlur"/>
                   <feMergeNode in="SourceGraphic"/>
@@ -84,28 +82,69 @@ export const RectangleMovement = memo(function RectangleMovement({
               </filter>
             </defs>
             
-            <rect
-              x="20"
-              y="20"
-              width="120"
-              height="120"
-              fill="none"
-              stroke="oklch(0.4 0.03 250)"
+            <line
+              x1="30"
+              y1="170"
+              x2="170"
+              y2="170"
+              stroke="oklch(0.5 0.05 250)"
               strokeWidth="2"
-              strokeDasharray="4 4"
-              rx="4"
+            />
+            <line
+              x1="30"
+              y1="30"
+              x2="30"
+              y2="170"
+              stroke="oklch(0.5 0.05 250)"
+              strokeWidth="2"
+            />
+            
+            <text x="100" y="195" textAnchor="middle" className="text-[10px] fill-muted-foreground font-mono">
+              Input (x)
+            </text>
+            <text x="10" y="100" textAnchor="middle" className="text-[10px] fill-muted-foreground font-mono" transform="rotate(-90 10 100)">
+              Output (y)
+            </text>
+            
+            <polyline
+              points={graphPath}
+              fill="none"
+              stroke={ledFunction.color}
+              strokeWidth="2"
+              opacity="0.6"
+            />
+            
+            <line
+              x1={position.x}
+              y1="170"
+              x2={position.x}
+              y2={position.y}
+              stroke={ledFunction.color}
+              strokeWidth="1"
+              strokeDasharray="3 3"
+              opacity="0.4"
+            />
+            <line
+              x1="30"
+              y1={position.y}
+              x2={position.x}
+              y2={position.y}
+              stroke={ledFunction.color}
+              strokeWidth="1"
+              strokeDasharray="3 3"
+              opacity="0.4"
             />
             
             <rect
-              x={position.x}
-              y={position.y}
-              width="20"
-              height="20"
+              x={position.x - 5}
+              y={position.y - 5}
+              width="10"
+              height="10"
               fill={ledFunction.color}
-              rx="3"
+              rx="2"
               filter={`url(#glow-rect-${ledFunction.id})`}
               style={{
-                opacity: 0.3 + brightness * 0.7
+                opacity: 0.5 + brightness * 0.5
               }}
             />
           </svg>
@@ -113,9 +152,9 @@ export const RectangleMovement = memo(function RectangleMovement({
         
         <div className="w-full bg-secondary rounded-lg p-3 space-y-2">
           <div className="flex justify-between text-xs">
-            <span className="text-muted-foreground">Position</span>
+            <span className="text-muted-foreground">Input (x)</span>
             <span className="font-mono font-medium text-primary">
-              {(brightness * 100).toFixed(1)}%
+              {(inputValue * 100).toFixed(1)}%
             </span>
           </div>
           
@@ -123,7 +162,7 @@ export const RectangleMovement = memo(function RectangleMovement({
             <div
               className="h-full rounded-full will-change-[width]"
               style={{
-                width: `${brightness * 100}%`,
+                width: `${inputValue * 100}%`,
                 backgroundColor: ledFunction.color,
                 boxShadow: `0 0 8px ${ledFunction.color}`
               }}
@@ -131,9 +170,9 @@ export const RectangleMovement = memo(function RectangleMovement({
           </div>
           
           <div className="flex justify-between text-xs pt-1">
-            <span className="text-muted-foreground">Raw Value</span>
+            <span className="text-muted-foreground">Output (y)</span>
             <span className="font-mono font-medium text-muted-foreground">
-              {(rawBrightness * 100).toFixed(1)}%
+              {(brightness * 100).toFixed(1)}%
             </span>
           </div>
         </div>
