@@ -10,13 +10,15 @@ interface ControlPanelProps {
   speed: number
   gamma: number
   fps: number
-  visualizationMode: 'led' | 'rectangle' | 'both'
+  showLED: boolean
+  showRectangle: boolean
   cycleMultiplier: number
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
   onGammaChange: (gamma: number) => void
   onAddPanel: () => void
-  onVisualizationModeChange: (mode: 'led' | 'rectangle' | 'both') => void
+  onToggleLED: () => void
+  onToggleRectangle: () => void
   onCycleMultiplierChange: (multiplier: number) => void
 }
 
@@ -25,13 +27,15 @@ export function ControlPanel({
   speed,
   gamma,
   fps,
-  visualizationMode,
+  showLED,
+  showRectangle,
   cycleMultiplier,
   onPlayPause,
   onSpeedChange,
   onGammaChange,
   onAddPanel,
-  onVisualizationModeChange,
+  onToggleLED,
+  onToggleRectangle,
   onCycleMultiplierChange
 }: ControlPanelProps) {
   return (
@@ -74,19 +78,26 @@ export function ControlPanel({
           </Tabs>
           
           <ToggleGroup 
-            type="single" 
-            value={visualizationMode} 
-            onValueChange={(value) => value && onVisualizationModeChange(value as 'led' | 'rectangle' | 'both')}
+            type="multiple" 
+            value={[
+              ...(showLED ? ['led'] : []),
+              ...(showRectangle ? ['rectangle'] : [])
+            ]}
             variant="outline"
           >
-            <ToggleGroupItem value="led" aria-label="LED表示">
+            <ToggleGroupItem 
+              value="led" 
+              aria-label="LED表示"
+              onClick={onToggleLED}
+            >
               LED
             </ToggleGroupItem>
-            <ToggleGroupItem value="rectangle" aria-label="四角形表示">
+            <ToggleGroupItem 
+              value="rectangle" 
+              aria-label="四角形表示"
+              onClick={onToggleRectangle}
+            >
               四角形
-            </ToggleGroupItem>
-            <ToggleGroupItem value="both" aria-label="両方表示">
-              両方
             </ToggleGroupItem>
           </ToggleGroup>
         </div>

@@ -27,7 +27,8 @@ function App() {
   const [isPlaying, setIsPlaying] = useKV<boolean>('is-playing', true)
   const [savedSpeed, setSavedSpeed] = useKV<number>('animation-speed', 1)
   const [savedGamma, setSavedGamma] = useKV<number>('gamma-correction', 2.2)
-  const [visualizationMode, setVisualizationMode] = useKV<'led' | 'rectangle' | 'both'>('visualization-mode', 'led')
+  const [showLED, setShowLED] = useKV<boolean>('show-led', true)
+  const [showRectangle, setShowRectangle] = useKV<boolean>('show-rectangle', false)
   const [cycleMultiplier, setCycleMultiplier] = useKV<number>('cycle-multiplier', 1)
   
   const [speed, setSpeed] = useState(1)
@@ -156,13 +157,15 @@ function App() {
             speed={speed ?? 1}
             gamma={gamma ?? 2.2}
             fps={fps}
-            visualizationMode={visualizationMode ?? 'led'}
+            showLED={showLED ?? true}
+            showRectangle={showRectangle ?? false}
             cycleMultiplier={cycleMultiplier ?? 1}
             onPlayPause={() => setIsPlaying((current) => !current)}
             onSpeedChange={handleSpeedChange}
             onGammaChange={handleGammaChange}
             onAddPanel={handleAddPanel}
-            onVisualizationModeChange={(mode) => setVisualizationMode(() => mode)}
+            onToggleLED={() => setShowLED((current) => !current)}
+            onToggleRectangle={() => setShowRectangle((current) => !current)}
             onCycleMultiplierChange={(multiplier) => setCycleMultiplier(() => multiplier)}
           />
 
@@ -183,20 +186,38 @@ function App() {
                 const rawBrightness = func.calculate(time, cycleMultiplier ?? 1)
                 const brightness = Math.pow(rawBrightness, 1 / (gamma ?? 2.2))
 
-                const PanelComponent = 
-                  visualizationMode === 'rectangle' ? RectangleMovement :
-                  visualizationMode === 'both' ? CombinedPanel :
-                  LEDPanel
+                const bothEnabled = (showLED ?? true) && (showRectangle ?? false)
 
                 return (
-                  <PanelComponent
-                    key={panel.id}
-                    ledFunction={func}
-                    brightness={brightness}
-                    rawBrightness={rawBrightness}
-                    cycleMultiplier={cycleMultiplier ?? 1}
-                    onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
-                  />
+                  <div key={panel.id} className="flex flex-col gap-6">
+                    {bothEnabled && (
+                      <CombinedPanel
+                        ledFunction={func}
+                        brightness={brightness}
+                        rawBrightness={rawBrightness}
+                        cycleMultiplier={cycleMultiplier ?? 1}
+                        onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
+                      />
+                    )}
+                    {!bothEnabled && (showLED ?? true) && (
+                      <LEDPanel
+                        ledFunction={func}
+                        brightness={brightness}
+                        rawBrightness={rawBrightness}
+                        cycleMultiplier={cycleMultiplier ?? 1}
+                        onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
+                      />
+                    )}
+                    {!bothEnabled && (showRectangle ?? false) && (
+                      <RectangleMovement
+                        ledFunction={func}
+                        brightness={brightness}
+                        rawBrightness={rawBrightness}
+                        cycleMultiplier={cycleMultiplier ?? 1}
+                        onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
+                      />
+                    )}
+                  </div>
                 )
               })}
             </div>
