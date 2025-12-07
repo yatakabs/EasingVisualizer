@@ -63,13 +63,13 @@ export const PreviewPanel = memo(function PreviewPanel({
       onDrop={onDrop}
     >
       <CardHeader 
-        className="bg-muted/50 border-b border-border px-2 py-0 cursor-move active:cursor-grabbing card-header"
+        className="bg-muted/50 border-b border-border px-2 py-0 gap-0 cursor-move active:cursor-grabbing card-header"
         draggable
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
       >
         <div className="flex items-center justify-between gap-1.5">
-          <CardTitle className="text-[10px] font-semibold tracking-tight truncate flex-1 min-w-0 my-0">
+          <CardTitle className="text-[10px] font-semibold tracking-tight truncate flex-1 min-w-0 my-0 leading-none">
             {title || ledFunction.name}
           </CardTitle>
           {onRemove && (
