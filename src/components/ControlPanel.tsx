@@ -2,16 +2,19 @@ import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { Badge } from '@/components/ui/badge'
 import { Play, Pause, Plus } from '@phosphor-icons/react'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface ControlPanelProps {
   isPlaying: boolean
   speed: number
   gamma: number
   fps: number
+  visualizationMode: 'led' | 'rectangle'
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
   onGammaChange: (gamma: number) => void
   onAddPanel: () => void
+  onVisualizationModeChange: (mode: 'led' | 'rectangle') => void
 }
 
 export function ControlPanel({
@@ -19,10 +22,12 @@ export function ControlPanel({
   speed,
   gamma,
   fps,
+  visualizationMode,
   onPlayPause,
   onSpeedChange,
   onGammaChange,
-  onAddPanel
+  onAddPanel,
+  onVisualizationModeChange
 }: ControlPanelProps) {
   return (
     <div className="w-full bg-card border-2 border-border rounded-lg p-6 space-y-6">
@@ -51,6 +56,13 @@ export function ControlPanel({
             {fps} FPS
           </Badge>
         </div>
+        
+        <Tabs value={visualizationMode} onValueChange={(value) => onVisualizationModeChange(value as 'led' | 'rectangle')}>
+          <TabsList>
+            <TabsTrigger value="led">LED</TabsTrigger>
+            <TabsTrigger value="rectangle">四角形</TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
       
       <div className="space-y-3">

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { LEDPanel } from '@/components/LEDPanel'
+import { RectangleMovement } from '@/components/RectangleMovement'
 import { ControlPanel } from '@/components/ControlPanel'
 import { FunctionSelector } from '@/components/FunctionSelector'
 import { LED_FUNCTIONS, type LEDFunction } from '@/lib/ledFunctions'
@@ -25,6 +26,7 @@ function App() {
   const [isPlaying, setIsPlaying] = useKV<boolean>('is-playing', true)
   const [savedSpeed, setSavedSpeed] = useKV<number>('animation-speed', 1)
   const [savedGamma, setSavedGamma] = useKV<number>('gamma-correction', 2.2)
+  const [visualizationMode, setVisualizationMode] = useKV<'led' | 'rectangle'>('visualization-mode', 'led')
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
@@ -151,10 +153,12 @@ function App() {
             speed={speed ?? 1}
             gamma={gamma ?? 2.2}
             fps={fps}
+            visualizationMode={visualizationMode ?? 'led'}
             onPlayPause={() => setIsPlaying((current) => !current)}
             onSpeedChange={handleSpeedChange}
             onGammaChange={handleGammaChange}
             onAddPanel={handleAddPanel}
+            onVisualizationModeChange={(mode) => setVisualizationMode(() => mode)}
           />
 
           {(panels || []).length === 0 ? (
@@ -174,8 +178,10 @@ function App() {
                 const rawBrightness = func.calculate(time)
                 const brightness = Math.pow(rawBrightness, 1 / (gamma ?? 2.2))
 
+                const PanelComponent = visualizationMode === 'rectangle' ? RectangleMovement : LEDPanel
+
                 return (
-                  <LEDPanel
+                  <PanelComponent
                     key={panel.id}
                     ledFunction={func}
                     brightness={brightness}
