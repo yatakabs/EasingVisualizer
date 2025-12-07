@@ -275,16 +275,16 @@ export function ControlPanel({
         <Slider
           value={[gamma]}
           onValueChange={([value]) => onGammaChange(value)}
-          min={1.0}
+          min={0.0}
           max={3.0}
           step={0.1}
         />
         
         <div className="relative text-xs text-muted-foreground font-mono h-8 px-2">
           <div className="absolute inset-x-2 flex items-start pt-1">
-            {[1.0, 1.4, 1.8, 2.2, 2.6, 3.0].map((mark) => {
-              const position = ((mark - 1.0) / (3.0 - 1.0)) * 100
-              const isMajor = mark === 1.0 || mark === 2.2 || mark === 3.0
+            {[0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0].map((mark) => {
+              const position = ((mark - 0.0) / (3.0 - 0.0)) * 100
+              const isMajor = mark === 0.0 || mark === 1.0 || mark === 2.0 || mark === 3.0
               return (
                 <div
                   key={mark}
