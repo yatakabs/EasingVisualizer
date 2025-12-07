@@ -16,6 +16,7 @@ interface ControlPanelProps {
   fps: number
   showLED: boolean
   showRectangle: boolean
+  showCamera: boolean
   enabledFilters: string[]
   inputValue: number
   baseInputValue: number
@@ -27,6 +28,7 @@ interface ControlPanelProps {
   onAddPanel: () => void
   onToggleLED: () => void
   onToggleRectangle: () => void
+  onToggleCamera: () => void
   onToggleFilter: (filterId: string) => void
   onInputValueChange: (value: number) => void
   onManualInputModeChange: (enabled: boolean) => void
@@ -41,6 +43,7 @@ export function ControlPanel({
   fps,
   showLED,
   showRectangle,
+  showCamera,
   enabledFilters,
   inputValue,
   baseInputValue,
@@ -52,6 +55,7 @@ export function ControlPanel({
   onAddPanel,
   onToggleLED,
   onToggleRectangle,
+  onToggleCamera,
   onToggleFilter,
   onInputValueChange,
   onManualInputModeChange,
@@ -92,7 +96,8 @@ export function ControlPanel({
             type="multiple" 
             value={[
               ...(showLED ? ['led'] : []),
-              ...(showRectangle ? ['rectangle'] : [])
+              ...(showRectangle ? ['rectangle'] : []),
+              ...(showCamera ? ['camera'] : [])
             ]}
             variant="outline"
             size="sm"
@@ -112,6 +117,14 @@ export function ControlPanel({
               className="text-xs"
             >
               四角形
+            </ToggleGroupItem>
+            <ToggleGroupItem 
+              value="camera" 
+              aria-label="カメラ表示"
+              onClick={onToggleCamera}
+              className="text-xs"
+            >
+              カメラ
             </ToggleGroupItem>
           </ToggleGroup>
         </div>

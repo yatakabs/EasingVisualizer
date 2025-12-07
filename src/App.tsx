@@ -3,6 +3,7 @@ import { useKV } from '@github/spark/hooks'
 import { LEDPanel } from '@/components/LEDPanel'
 import { RectangleMovement } from '@/components/RectangleMovement'
 import { CombinedPanel } from '@/components/CombinedPanel'
+import { CameraView } from '@/components/CameraView'
 import { ControlPanel } from '@/components/ControlPanel'
 import { FunctionSelector } from '@/components/FunctionSelector'
 import { LED_FUNCTIONS, type LEDFunction } from '@/lib/ledFunctions'
@@ -33,6 +34,7 @@ function App() {
   const [savedGamma, setSavedGamma] = useKV<number>('gamma-correction', 2.2)
   const [showLED, setShowLED] = useKV<boolean>('show-led', true)
   const [showRectangle, setShowRectangle] = useKV<boolean>('show-rectangle', false)
+  const [showCamera, setShowCamera] = useKV<boolean>('show-camera', false)
   const [enabledFilters, setEnabledFilters] = useKV<string[]>('enabled-filters', [])
   const [manualInputMode, setManualInputMode] = useKV<boolean>('manual-input-mode', false)
   const [manualInputValue, setManualInputValue] = useKV<number>('manual-input-value', 0)
@@ -235,6 +237,7 @@ function App() {
             fps={fps}
             showLED={showLED ?? true}
             showRectangle={showRectangle ?? false}
+            showCamera={showCamera ?? false}
             enabledFilters={enabledFilters ?? []}
             inputValue={currentInputValue}
             baseInputValue={baseInputValue}
@@ -246,6 +249,7 @@ function App() {
             onAddPanel={handleAddPanel}
             onToggleLED={() => setShowLED((current) => !current)}
             onToggleRectangle={() => setShowRectangle((current) => !current)}
+            onToggleCamera={() => setShowCamera((current) => !current)}
             onToggleFilter={(filterId) => {
               setEnabledFilters((current) => {
                 const filters = current ?? []
@@ -279,11 +283,16 @@ function App() {
                 const output = func.calculate(currentInputValue, panel.easeType)
                 const filteredOutput = applyFilters(output, enabledFilters ?? [], { gamma: gamma ?? 2.2 })
 
-                const bothEnabled = (showLED ?? true) && (showRectangle ?? false)
+                const enabledViews = [
+                  showLED ?? true,
+                  showRectangle ?? false,
+                  showCamera ?? false
+                ].filter(Boolean).length
+                const multipleViews = enabledViews > 1
 
                 return (
                   <div key={panel.id} className="flex flex-col gap-3">
-                    {bothEnabled && (
+                    {multipleViews && (showLED ?? true) && (showRectangle ?? false) && !(showCamera ?? false) && (
                       <CombinedPanel
                         ledFunction={func}
                         output={output}
@@ -309,7 +318,7 @@ function App() {
                         onDrop={handleDrop(panel.id)}
                       />
                     )}
-                    {!bothEnabled && (showLED ?? true) && (
+                    {!multipleViews && (showLED ?? true) && (
                       <LEDPanel
                         ledFunction={func}
                         output={output}
@@ -333,8 +342,34 @@ function App() {
                         onDrop={handleDrop(panel.id)}
                       />
                     )}
-                    {!bothEnabled && (showRectangle ?? false) && (
+                    {!multipleViews && (showRectangle ?? false) && (
                       <RectangleMovement
+                        ledFunction={func}
+                        output={output}
+                        filteredOutput={filteredOutput}
+                        input={currentInputValue}
+                        baseInput={baseInputValue}
+                        isTriangularMode={isTriangularMode}
+                        easeType={panel.easeType}
+                        enabledFilters={enabledFilters ?? []}
+                        filterParams={{ gamma: gamma ?? 2.2 }}
+                        title={panel.title}
+                        onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
+                        onEaseTypeChange={(newEaseType) => {
+                          setPanels((currentPanels) =>
+                            (currentPanels || []).map(p =>
+                              p.id === panel.id ? { ...p, easeType: newEaseType } : p
+                            )
+                          )
+                        }}
+                        onDragStart={handleDragStart(panel.id)}
+                        onDragEnd={handleDragEnd}
+                        onDragOver={handleDragOver}
+                        onDrop={handleDrop(panel.id)}
+                      />
+                    )}
+                    {(showCamera ?? false) && (
+                      <CameraView
                         ledFunction={func}
                         output={output}
                         filteredOutput={filteredOutput}
