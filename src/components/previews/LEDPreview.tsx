@@ -15,9 +15,9 @@ export const LEDPreview = memo(function LEDPreview({
   }, [filteredOutput])
 
   return (
-    <div className="w-full">
-      <div className="relative w-32 h-32 flex items-center justify-center mx-auto">
-        <svg width="128" height="128" className="absolute inset-0">
+    <div className="w-full py-2">
+      <div className="relative w-28 h-28 flex items-center justify-center mx-auto">
+        <svg width="112" height="112" className="absolute inset-0" viewBox="0 0 112 112">
           <defs>
             <radialGradient id={`glow-${ledFunction.id}`}>
               <stop
@@ -56,25 +56,25 @@ export const LEDPreview = memo(function LEDPreview({
           </defs>
           
           <circle
-            cx="64"
-            cy="64"
-            r="56"
+            cx="56"
+            cy="56"
+            r="48"
             fill={`url(#glow-${ledFunction.id})`}
             className="transition-opacity duration-75"
           />
           
           <circle
-            cx="64"
-            cy="64"
-            r="28"
+            cx="56"
+            cy="56"
+            r="24"
             fill={`url(#led-${ledFunction.id})`}
             className="transition-opacity duration-75"
           />
           
           <circle
-            cx="64"
-            cy="64"
-            r="28"
+            cx="56"
+            cy="56"
+            r="24"
             fill="none"
             stroke="oklch(0.4 0.03 250)"
             strokeWidth="2"
