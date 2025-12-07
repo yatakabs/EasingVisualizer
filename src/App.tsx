@@ -152,6 +152,12 @@ function App() {
     setTime(value)
   }, [setManualInputValue])
 
+  const handleSetAllEaseType = useCallback((easeType: EaseType) => {
+    setPanels((currentPanels) => 
+      (currentPanels || []).map(panel => ({ ...panel, easeType }))
+    )
+  }, [setPanels])
+
   const currentInputValue = (manualInputMode ?? false) ? (manualInputValue ?? 0) : time
   const usedFunctionIds = (panels || []).map(p => p.functionId)
 
@@ -198,6 +204,7 @@ function App() {
             }}
             onInputValueChange={handleInputValueChange}
             onManualInputModeChange={handleManualInputModeChange}
+            onSetAllEaseType={handleSetAllEaseType}
           />
 
           {(panels || []).length === 0 ? (

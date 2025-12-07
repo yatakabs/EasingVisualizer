@@ -7,6 +7,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
+import { type EaseType } from '@/lib/easeTypes'
 
 interface ControlPanelProps {
   isPlaying: boolean
@@ -27,6 +28,7 @@ interface ControlPanelProps {
   onToggleFilter: (filterId: string) => void
   onInputValueChange: (value: number) => void
   onManualInputModeChange: (enabled: boolean) => void
+  onSetAllEaseType?: (easeType: EaseType) => void
 }
 
 export function ControlPanel({
@@ -47,7 +49,8 @@ export function ControlPanel({
   onToggleRectangle,
   onToggleFilter,
   onInputValueChange,
-  onManualInputModeChange
+  onManualInputModeChange,
+  onSetAllEaseType
 }: ControlPanelProps) {
   return (
     <div className="w-full bg-card border-2 border-border rounded-lg p-6 space-y-6">
@@ -104,6 +107,50 @@ export function ControlPanel({
           </ToggleGroup>
         </div>
       </div>
+      
+      {onSetAllEaseType && (
+        <div className="space-y-3">
+          <label className="text-sm font-medium text-foreground">
+            全パネル一括設定
+          </label>
+          
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                onSetAllEaseType('easein')
+                toast.success('全パネルをEaseInに設定しました')
+              }}
+              className="font-semibold"
+            >
+              全てEaseIn
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                onSetAllEaseType('easeout')
+                toast.success('全パネルをEaseOutに設定しました')
+              }}
+              className="font-semibold"
+            >
+              全てEaseOut
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                onSetAllEaseType('easeboth')
+                toast.success('全パネルをEaseBothに設定しました')
+              }}
+              className="font-semibold"
+            >
+              全てEaseBoth
+            </Button>
+          </div>
+        </div>
+      )}
       
       <div className="space-y-3">
         <div className="flex items-center justify-between">
