@@ -85,11 +85,11 @@ export const PreviewPanel = memo(function PreviewPanel({
         )}
       </div>
       
-      <CardHeader className="p-0 px-3 pt-1 pb-1">
+      <CardHeader className="p-0 px-3 py-1.5">
         <CardTitle className="text-sm font-semibold tracking-tight">
           {ledFunction.name}
         </CardTitle>
-        <div className="space-y-0.5 mt-0.5">
+        <div className="space-y-1 mt-1">
           <p className="text-[10px] font-mono text-muted-foreground leading-tight">
             {ledFunction.formula}
           </p>
@@ -114,7 +114,7 @@ export const PreviewPanel = memo(function PreviewPanel({
         </div>
       </CardHeader>
       
-      <CardContent className="flex flex-col items-center gap-2 p-0 px-3 pb-1.5 pt-0.5">
+      <CardContent className="flex flex-col items-center gap-2 p-0 px-3 pb-2 pt-0">
         {enabledPreviews.includes('camera') && (
           <CameraPreview
             ledFunction={ledFunction}
