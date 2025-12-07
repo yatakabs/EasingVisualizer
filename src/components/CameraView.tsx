@@ -62,7 +62,7 @@ export const CameraView = memo(function CameraView({
     sceneRef.current = scene
 
     const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000)
-    camera.position.set(0, 0, 5)
+    camera.position.set(0, 2, 5)
     cameraRef.current = camera
 
     const renderer = new THREE.WebGLRenderer({ antialias: true })
@@ -94,26 +94,6 @@ export const CameraView = memo(function CameraView({
 
     const axesHelper = new THREE.AxesHelper(2)
     scene.add(axesHelper)
-
-    const animate = () => {
-      frameIdRef.current = requestAnimationFrame(animate)
-      
-      if (rendererRef.current && sceneRef.current && cameraRef.current && cubeRef.current) {
-        const radius = 5
-        const angle = baseInput * Math.PI * 2
-        
-        const cameraX = Math.sin(angle) * radius * filteredOutput
-        const cameraZ = Math.cos(angle) * radius * filteredOutput
-        
-        cameraRef.current.position.set(cameraX, 2, cameraZ)
-        cameraRef.current.lookAt(cubeRef.current.position)
-        
-        cubeRef.current.rotation.y = angle * 0.5
-        
-        rendererRef.current.render(sceneRef.current, cameraRef.current)
-      }
-    }
-    animate()
 
     const handleResize = () => {
       if (!mountRef.current || !cameraRef.current || !rendererRef.current) return
@@ -152,16 +132,20 @@ export const CameraView = memo(function CameraView({
   useEffect(() => {
     if (!cameraRef.current || !cubeRef.current || !rendererRef.current || !sceneRef.current) return
 
-    const radius = 5
+    const minRadius = 2.5
+    const maxRadius = 7
+    const radius = minRadius + (maxRadius - minRadius) * filteredOutput
     const angle = baseInput * Math.PI * 2
     
-    const cameraX = Math.sin(angle) * radius * filteredOutput
-    const cameraZ = Math.cos(angle) * radius * filteredOutput
+    const cameraX = Math.sin(angle) * radius
+    const cameraZ = Math.cos(angle) * radius
+    const cameraY = 2 + filteredOutput * 1.5
     
-    cameraRef.current.position.set(cameraX, 2, cameraZ)
+    cameraRef.current.position.set(cameraX, cameraY, cameraZ)
     cameraRef.current.lookAt(cubeRef.current.position)
     
     cubeRef.current.rotation.y = angle * 0.5
+    cubeRef.current.rotation.x = Math.sin(baseInput * Math.PI * 4) * 0.2
     
     rendererRef.current.render(sceneRef.current, cameraRef.current)
   }, [baseInput, filteredOutput])
@@ -225,7 +209,11 @@ export const CameraView = memo(function CameraView({
           </div>
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Camera Distance</span>
-            <span className="font-mono font-medium">{(filteredOutput * 5).toFixed(2)}</span>
+            <span className="font-mono font-medium">{(2.5 + (7 - 2.5) * filteredOutput).toFixed(2)}</span>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Camera Height</span>
+            <span className="font-mono font-medium">{(2 + filteredOutput * 1.5).toFixed(2)}</span>
           </div>
         </div>
 
