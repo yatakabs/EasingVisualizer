@@ -120,11 +120,11 @@ export function ControlPanel({
             </ToggleGroupItem>
             <ToggleGroupItem 
               value="rectangle" 
-              aria-label="四角形表示"
+              aria-label="グラフ表示"
               onClick={onToggleRectangle}
               className="text-xs"
             >
-              四角形
+              グラフ
             </ToggleGroupItem>
             <ToggleGroupItem 
               value="camera" 
