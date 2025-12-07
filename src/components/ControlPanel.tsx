@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge'
 import { Play, Pause, Plus } from '@phosphor-icons/react'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 
 interface ControlPanelProps {
   isPlaying: boolean
@@ -13,6 +15,7 @@ interface ControlPanelProps {
   showLED: boolean
   showRectangle: boolean
   cycleMultiplier: number
+  applyGammaToY: boolean
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
   onGammaChange: (gamma: number) => void
@@ -20,6 +23,7 @@ interface ControlPanelProps {
   onToggleLED: () => void
   onToggleRectangle: () => void
   onCycleMultiplierChange: (multiplier: number) => void
+  onToggleGammaToY: () => void
 }
 
 export function ControlPanel({
@@ -30,13 +34,15 @@ export function ControlPanel({
   showLED,
   showRectangle,
   cycleMultiplier,
+  applyGammaToY,
   onPlayPause,
   onSpeedChange,
   onGammaChange,
   onAddPanel,
   onToggleLED,
   onToggleRectangle,
-  onCycleMultiplierChange
+  onCycleMultiplierChange,
+  onToggleGammaToY
 }: ControlPanelProps) {
   return (
     <div className="w-full bg-card border-2 border-border rounded-lg p-6 space-y-6">
@@ -152,6 +158,17 @@ export function ControlPanel({
           <span className="absolute left-0">1.0</span>
           <span className="absolute" style={{ left: `${((2.2 - 1.0) / (3.0 - 1.0)) * 100}%`, transform: 'translateX(-50%)' }}>2.2</span>
           <span className="absolute right-0">3.0</span>
+        </div>
+        
+        <div className="flex items-center gap-2 pt-2">
+          <Switch
+            id="apply-gamma-to-y"
+            checked={applyGammaToY}
+            onCheckedChange={onToggleGammaToY}
+          />
+          <Label htmlFor="apply-gamma-to-y" className="text-sm font-medium cursor-pointer">
+            Y軸にガンマ補正を反映
+          </Label>
         </div>
       </div>
     </div>

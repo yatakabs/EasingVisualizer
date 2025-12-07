@@ -30,6 +30,7 @@ function App() {
   const [showLED, setShowLED] = useKV<boolean>('show-led', true)
   const [showRectangle, setShowRectangle] = useKV<boolean>('show-rectangle', false)
   const [cycleMultiplier, setCycleMultiplier] = useKV<number>('cycle-multiplier', 1)
+  const [applyGammaToY, setApplyGammaToY] = useKV<boolean>('apply-gamma-to-y', false)
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
@@ -160,6 +161,7 @@ function App() {
             showLED={showLED ?? true}
             showRectangle={showRectangle ?? false}
             cycleMultiplier={cycleMultiplier ?? 1}
+            applyGammaToY={applyGammaToY ?? false}
             onPlayPause={() => setIsPlaying((current) => !current)}
             onSpeedChange={handleSpeedChange}
             onGammaChange={handleGammaChange}
@@ -167,6 +169,7 @@ function App() {
             onToggleLED={() => setShowLED((current) => !current)}
             onToggleRectangle={() => setShowRectangle((current) => !current)}
             onCycleMultiplierChange={(multiplier) => setCycleMultiplier(() => multiplier)}
+            onToggleGammaToY={() => setApplyGammaToY((current) => !current)}
           />
 
           {(panels || []).length === 0 ? (
@@ -196,6 +199,8 @@ function App() {
                         brightness={brightness}
                         rawBrightness={rawBrightness}
                         cycleMultiplier={cycleMultiplier ?? 1}
+                        gamma={gamma ?? 2.2}
+                        applyGammaToY={applyGammaToY ?? false}
                         onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
                       />
                     )}
@@ -214,6 +219,8 @@ function App() {
                         brightness={brightness}
                         rawBrightness={rawBrightness}
                         cycleMultiplier={cycleMultiplier ?? 1}
+                        gamma={gamma ?? 2.2}
+                        applyGammaToY={applyGammaToY ?? false}
                         onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
                       />
                     )}

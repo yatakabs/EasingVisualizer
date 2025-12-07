@@ -9,6 +9,8 @@ interface CombinedPanelProps {
   brightness: number
   rawBrightness: number
   cycleMultiplier: number
+  gamma: number
+  applyGammaToY: boolean
   onRemove?: () => void
 }
 
@@ -17,6 +19,8 @@ export const CombinedPanel = memo(function CombinedPanel({
   brightness, 
   rawBrightness, 
   cycleMultiplier,
+  gamma,
+  applyGammaToY,
   onRemove 
 }: CombinedPanelProps) {
   const glowIntensity = useMemo(() => {
@@ -32,9 +36,10 @@ export const CombinedPanel = memo(function CombinedPanel({
     
     const input = rawBrightness
     const output = ledFunction.calculate(input, cycleMultiplier)
+    const displayOutput = applyGammaToY ? Math.pow(output, 1 / gamma) : output
     
     const x = padding + input * innerWidth
-    const y = padding + (1 - output) * innerHeight
+    const y = padding + (1 - displayOutput) * innerHeight
     
     const points: string[] = []
     const steps = 100
@@ -42,7 +47,8 @@ export const CombinedPanel = memo(function CombinedPanel({
       const t = i / steps
       const xPos = padding + t * innerWidth
       const yVal = ledFunction.calculate(t, cycleMultiplier)
-      const yPos = padding + (1 - yVal) * innerHeight
+      const displayYVal = applyGammaToY ? Math.pow(yVal, 1 / gamma) : yVal
+      const yPos = padding + (1 - displayYVal) * innerHeight
       points.push(`${xPos},${yPos}`)
     }
     
@@ -52,7 +58,8 @@ export const CombinedPanel = memo(function CombinedPanel({
       const t = i / steps
       const xPos = padding + t * innerWidth
       const yVal = ledFunction.calculate(t, cycleMultiplier)
-      const yPos = padding + (1 - yVal) * innerHeight
+      const displayYVal = applyGammaToY ? Math.pow(yVal, 1 / gamma) : yVal
+      const yPos = padding + (1 - displayYVal) * innerHeight
       trailPoints.push(`${xPos},${yPos}`)
     }
     
@@ -62,7 +69,7 @@ export const CombinedPanel = memo(function CombinedPanel({
       trailPath: trailPoints.join(' '),
       inputValue: input
     }
-  }, [rawBrightness, ledFunction, cycleMultiplier])
+  }, [rawBrightness, ledFunction, cycleMultiplier, gamma, applyGammaToY])
 
   return (
     <Card className="relative overflow-hidden border-2 border-border">
@@ -87,7 +94,7 @@ export const CombinedPanel = memo(function CombinedPanel({
       </CardHeader>
       
       <CardContent className="flex flex-col items-center gap-4 pb-8">
-        <div className="flex gap-4 items-center justify-center w-full">
+        <div className="flex flex-col gap-4 items-center justify-center w-full">
           <div className="relative w-32 h-32 flex items-center justify-center flex-shrink-0">
             <svg width="128" height="128" className="absolute inset-0">
               <defs>

@@ -9,6 +9,8 @@ interface RectangleMovementProps {
   brightness: number
   rawBrightness: number
   cycleMultiplier: number
+  gamma: number
+  applyGammaToY: boolean
   onRemove?: () => void
 }
 
@@ -17,6 +19,8 @@ export const RectangleMovement = memo(function RectangleMovement({
   brightness, 
   rawBrightness, 
   cycleMultiplier,
+  gamma,
+  applyGammaToY,
   onRemove 
 }: RectangleMovementProps) {
   const { position, graphPath, inputValue, trailPath } = useMemo(() => {
@@ -28,9 +32,10 @@ export const RectangleMovement = memo(function RectangleMovement({
     
     const input = rawBrightness
     const output = ledFunction.calculate(input, cycleMultiplier)
+    const displayOutput = applyGammaToY ? Math.pow(output, 1 / gamma) : output
     
     const x = padding + input * innerWidth
-    const y = padding + (1 - output) * innerHeight
+    const y = padding + (1 - displayOutput) * innerHeight
     
     const points: string[] = []
     const steps = 100
@@ -38,7 +43,8 @@ export const RectangleMovement = memo(function RectangleMovement({
       const t = i / steps
       const xPos = padding + t * innerWidth
       const yVal = ledFunction.calculate(t, cycleMultiplier)
-      const yPos = padding + (1 - yVal) * innerHeight
+      const displayYVal = applyGammaToY ? Math.pow(yVal, 1 / gamma) : yVal
+      const yPos = padding + (1 - displayYVal) * innerHeight
       points.push(`${xPos},${yPos}`)
     }
     
@@ -48,7 +54,8 @@ export const RectangleMovement = memo(function RectangleMovement({
       const t = i / steps
       const xPos = padding + t * innerWidth
       const yVal = ledFunction.calculate(t, cycleMultiplier)
-      const yPos = padding + (1 - yVal) * innerHeight
+      const displayYVal = applyGammaToY ? Math.pow(yVal, 1 / gamma) : yVal
+      const yPos = padding + (1 - displayYVal) * innerHeight
       trailPoints.push(`${xPos},${yPos}`)
     }
     
@@ -58,7 +65,7 @@ export const RectangleMovement = memo(function RectangleMovement({
       trailPath: trailPoints.join(' '),
       inputValue: input
     }
-  }, [rawBrightness, ledFunction, cycleMultiplier])
+  }, [rawBrightness, ledFunction, cycleMultiplier, gamma, applyGammaToY])
 
   return (
     <Card className="relative overflow-hidden border-2 border-border">
