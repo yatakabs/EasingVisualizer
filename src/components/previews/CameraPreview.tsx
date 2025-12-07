@@ -110,6 +110,21 @@ export const CameraPreview = memo(function CameraPreview({
   }, [])
 
   useEffect(() => {
+    if (!mountRef.current || !cameraRef.current || !rendererRef.current) return
+    
+    requestAnimationFrame(() => {
+      if (!mountRef.current || !cameraRef.current || !rendererRef.current) return
+      
+      const newWidth = mountRef.current.clientWidth
+      const newHeight = mountRef.current.clientHeight
+      
+      cameraRef.current.aspect = newWidth / newHeight
+      cameraRef.current.updateProjectionMatrix()
+      rendererRef.current.setSize(newWidth, newHeight)
+    })
+  }, [aspectRatio])
+
+  useEffect(() => {
     if (!cameraRef.current || !cubeRef.current || !rendererRef.current || !sceneRef.current) return
 
     const cameraX = -(startPos.x + (endPos.x - startPos.x) * filteredOutput)
