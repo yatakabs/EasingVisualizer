@@ -58,7 +58,7 @@ export const PreviewPanel = memo(function PreviewPanel({
 }: PreviewPanelProps) {
   return (
     <Card 
-      className="relative overflow-hidden border-2 border-border"
+      className="relative overflow-hidden border-2 border-border card-container"
       onDragOver={onDragOver}
       onDrop={onDrop}
     >
@@ -85,7 +85,7 @@ export const PreviewPanel = memo(function PreviewPanel({
         )}
       </div>
       
-      <CardHeader className="p-0 px-3 py-1.5">
+      <CardHeader className="p-0 px-3 py-1.5 card-header">
         <CardTitle className="text-sm font-semibold tracking-tight">
           {ledFunction.name}
         </CardTitle>
