@@ -511,8 +511,8 @@ export function ControlPanel({
               variant="outline"
               size="sm"
               onClick={() => {
-                onCameraStartPosChange({ x: 0, y: 2, z: 5 })
-                onCameraEndPosChange({ x: 0, y: 5, z: 8 })
+                onCameraStartPosChange({ x: 2.0, y: 1.0, z: -5.0 })
+                onCameraEndPosChange({ x: 2.0, y: 1.0, z: 5.0 })
                 toast.success('カメラ座標をデフォルトに戻しました')
               }}
               className="text-xs h-7"
