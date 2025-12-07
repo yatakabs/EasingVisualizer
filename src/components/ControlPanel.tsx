@@ -27,7 +27,6 @@ interface ControlPanelProps {
   onToggleFilter: (filterId: string) => void
   onInputValueChange: (value: number) => void
   onManualInputModeChange: (enabled: boolean) => void
-  onApplyPreset: (presetName: 'easein' | 'easeout' | 'easeboth') => void
 }
 
 export function ControlPanel({
@@ -48,8 +47,7 @@ export function ControlPanel({
   onToggleRectangle,
   onToggleFilter,
   onInputValueChange,
-  onManualInputModeChange,
-  onApplyPreset
+  onManualInputModeChange
 }: ControlPanelProps) {
   return (
     <div className="w-full bg-card border-2 border-border rounded-lg p-6 space-y-6">
@@ -104,44 +102,6 @@ export function ControlPanel({
               四角形
             </ToggleGroupItem>
           </ToggleGroup>
-        </div>
-      </div>
-      
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-foreground">
-            Input Function
-          </label>
-          <Badge variant="secondary" className="text-sm px-3 py-1.5 font-mono">
-            Linear (x = t)
-          </Badge>
-        </div>
-        
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onApplyPreset('easein')}
-            className="flex-1 font-semibold"
-          >
-            EaseIn
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onApplyPreset('easeout')}
-            className="flex-1 font-semibold"
-          >
-            EaseOut
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onApplyPreset('easeboth')}
-            className="flex-1 font-semibold"
-          >
-            EaseBoth
-          </Button>
         </div>
       </div>
       

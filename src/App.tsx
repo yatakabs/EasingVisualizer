@@ -6,8 +6,8 @@ import { CombinedPanel } from '@/components/CombinedPanel'
 import { ControlPanel } from '@/components/ControlPanel'
 import { FunctionSelector } from '@/components/FunctionSelector'
 import { LED_FUNCTIONS, type LEDFunction } from '@/lib/ledFunctions'
-import { INPUT_FUNCTIONS } from '@/lib/inputFunctions'
 import { applyFilters } from '@/lib/outputFilters'
+import { type EaseType, applyEase } from '@/lib/easeTypes'
 import { Toaster as Sonner } from 'sonner'
 import { toast } from 'sonner'
 
@@ -17,14 +17,15 @@ const MAX_PANELS = 12
 interface PanelData {
   id: string
   functionId: string
+  easeType: EaseType
 }
 
 function App() {
   const [panels, setPanels] = useKV<PanelData[]>('led-panels', [
-    { id: '1', functionId: 'linear' },
-    { id: '2', functionId: 'sine' },
-    { id: '3', functionId: 'quadratic' },
-    { id: '4', functionId: 'cubic' }
+    { id: '1', functionId: 'linear', easeType: 'easein' },
+    { id: '2', functionId: 'sine', easeType: 'easein' },
+    { id: '3', functionId: 'quadratic', easeType: 'easein' },
+    { id: '4', functionId: 'cubic', easeType: 'easein' }
   ])
   const [isPlaying, setIsPlaying] = useKV<boolean>('is-playing', true)
   const [savedSpeed, setSavedSpeed] = useKV<number>('animation-speed', 1)
@@ -104,7 +105,8 @@ function App() {
       ...(currentPanels || []),
       {
         id: Date.now().toString(),
-        functionId: func.id
+        functionId: func.id,
+        easeType: 'easein' as EaseType
       }
     ])
     toast.success(`Added ${func.name} panel`)
@@ -150,46 +152,8 @@ function App() {
     setTime(value)
   }, [setManualInputValue])
 
-  const handleApplyPreset = useCallback((presetName: 'easein' | 'easeout' | 'easeboth') => {
-    const presets = {
-      easein: 'quadratic',
-      easeout: 'sqrt',
-      easeboth: 'sine'
-    }
-    
-    const outputFunctionId = presets[presetName]
-    const outputFunction = LED_FUNCTIONS.find(f => f.id === outputFunctionId)
-    
-    if (!outputFunction) return
-    
-    setPanels((currentPanels) => {
-      const panels = currentPanels || []
-      const outputExists = panels.some(p => p.functionId === outputFunctionId)
-      
-      if (outputExists) {
-        toast.success(`${presetName === 'easein' ? 'EaseIn' : presetName === 'easeout' ? 'EaseOut' : 'EaseBoth'}プリセットを適用しました`)
-        return panels
-      }
-      
-      toast.success(`${presetName === 'easein' ? 'EaseIn' : presetName === 'easeout' ? 'EaseOut' : 'EaseBoth'}プリセットを適用しました`, {
-        description: `${outputFunction.name}パネルを追加しました`
-      })
-      
-      return [
-        ...panels,
-        {
-          id: Date.now().toString(),
-          functionId: outputFunctionId
-        }
-      ]
-    })
-  }, [setPanels])
-
   const currentInputValue = (manualInputMode ?? false) ? (manualInputValue ?? 0) : time
   const usedFunctionIds = (panels || []).map(p => p.functionId)
-  
-  const inputFunction = INPUT_FUNCTIONS.find(f => f.id === 'linear') || INPUT_FUNCTIONS[1]
-  const transformedInput = inputFunction.calculate(currentInputValue)
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -234,7 +198,6 @@ function App() {
             }}
             onInputValueChange={handleInputValueChange}
             onManualInputModeChange={handleManualInputModeChange}
-            onApplyPreset={handleApplyPreset}
           />
 
           {(panels || []).length === 0 ? (
@@ -251,6 +214,7 @@ function App() {
                 const func = LED_FUNCTIONS.find(f => f.id === panel.functionId)
                 if (!func) return null
 
+                const transformedInput = applyEase(currentInputValue, panel.easeType)
                 const output = func.calculate(transformedInput)
                 const filteredOutput = applyFilters(output, enabledFilters ?? [], { gamma: gamma ?? 2.2 })
 
@@ -264,9 +228,17 @@ function App() {
                         output={output}
                         filteredOutput={filteredOutput}
                         input={transformedInput}
+                        easeType={panel.easeType}
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}
                         onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
+                        onEaseTypeChange={(newEaseType) => {
+                          setPanels((currentPanels) =>
+                            (currentPanels || []).map(p =>
+                              p.id === panel.id ? { ...p, easeType: newEaseType } : p
+                            )
+                          )
+                        }}
                       />
                     )}
                     {!bothEnabled && (showLED ?? true) && (
@@ -275,9 +247,17 @@ function App() {
                         output={output}
                         filteredOutput={filteredOutput}
                         input={transformedInput}
+                        easeType={panel.easeType}
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}
                         onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
+                        onEaseTypeChange={(newEaseType) => {
+                          setPanels((currentPanels) =>
+                            (currentPanels || []).map(p =>
+                              p.id === panel.id ? { ...p, easeType: newEaseType } : p
+                            )
+                          )
+                        }}
                       />
                     )}
                     {!bothEnabled && (showRectangle ?? false) && (
@@ -286,9 +266,17 @@ function App() {
                         output={output}
                         filteredOutput={filteredOutput}
                         input={transformedInput}
+                        easeType={panel.easeType}
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}
                         onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
+                        onEaseTypeChange={(newEaseType) => {
+                          setPanels((currentPanels) =>
+                            (currentPanels || []).map(p =>
+                              p.id === panel.id ? { ...p, easeType: newEaseType } : p
+                            )
+                          )
+                        }}
                       />
                     )}
                   </div>

@@ -3,16 +3,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { X } from '@phosphor-icons/react'
 import type { LEDFunction } from '@/lib/ledFunctions'
+import type { EaseType } from '@/lib/easeTypes'
 import { applyFilters } from '@/lib/outputFilters'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 interface RectangleMovementProps {
   ledFunction: LEDFunction
   output: number
   filteredOutput: number
   input: number
+  easeType: EaseType
   enabledFilters: string[]
   filterParams: Record<string, number>
   onRemove?: () => void
+  onEaseTypeChange: (easeType: EaseType) => void
 }
 
 export const RectangleMovement = memo(function RectangleMovement({ 
@@ -20,9 +24,11 @@ export const RectangleMovement = memo(function RectangleMovement({
   output,
   filteredOutput,
   input,
+  easeType,
   enabledFilters,
   filterParams,
-  onRemove 
+  onRemove,
+  onEaseTypeChange
 }: RectangleMovementProps) {
   const displayOutput = useMemo(() => {
     return filteredOutput
@@ -91,10 +97,28 @@ export const RectangleMovement = memo(function RectangleMovement({
         <CardTitle className="text-lg font-semibold tracking-tight">
           {ledFunction.name}
         </CardTitle>
-        <div className="space-y-0.5 mt-1">
+        <div className="space-y-2 mt-1">
           <p className="text-xs font-mono text-muted-foreground">
             {ledFunction.formula}
           </p>
+          <ToggleGroup 
+            type="single" 
+            value={easeType}
+            onValueChange={(value) => value && onEaseTypeChange(value as EaseType)}
+            variant="outline"
+            size="sm"
+            className="justify-start"
+          >
+            <ToggleGroupItem value="easein" aria-label="EaseIn" className="text-xs px-2 h-7">
+              EaseIn
+            </ToggleGroupItem>
+            <ToggleGroupItem value="easeout" aria-label="EaseOut" className="text-xs px-2 h-7">
+              EaseOut
+            </ToggleGroupItem>
+            <ToggleGroupItem value="easeboth" aria-label="EaseBoth" className="text-xs px-2 h-7">
+              EaseBoth
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
       </CardHeader>
       
