@@ -127,6 +127,14 @@ export function ControlPanel({
             >
               カメラ
             </ToggleGroupItem>
+            <ToggleGroupItem 
+              value="value" 
+              aria-label="値表示"
+              onClick={() => onTogglePreview('value')}
+              className="text-xs"
+            >
+              値
+            </ToggleGroupItem>
           </ToggleGroup>
         </div>
       </div>

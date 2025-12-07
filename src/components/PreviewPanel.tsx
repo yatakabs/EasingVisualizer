@@ -9,8 +9,7 @@ import type { PreviewType } from '@/lib/previewTypes'
 import { LEDPreview } from '@/components/previews/LEDPreview'
 import { GraphPreview } from '@/components/previews/GraphPreview'
 import { CameraPreview } from '@/components/previews/CameraPreview'
-import { InputPreview } from '@/components/previews/InputPreview'
-import { OutputPreview } from '@/components/previews/OutputPreview'
+import { ValuePreview } from '@/components/previews/ValuePreview'
 
 interface PreviewPanelProps {
   ledFunction: LEDFunction
@@ -147,20 +146,15 @@ export const PreviewPanel = memo(function PreviewPanel({
           />
         )}
         
-        <div className="w-full flex flex-col gap-3 mt-auto">
-          {enabledPreviews.includes('input') && (
-            <InputPreview
+        {enabledPreviews.includes('value') && (
+          <div className="w-full mt-auto">
+            <ValuePreview
               input={input}
-            />
-          )}
-          
-          {enabledPreviews.includes('output') && (
-            <OutputPreview
               ledFunction={ledFunction}
               filteredOutput={filteredOutput}
             />
-          )}
-        </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   )
