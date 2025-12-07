@@ -12,7 +12,7 @@ export const LED_FUNCTIONS: LEDFunction[] = [
     name: 'Linear',
     formula: 'y = x',
     calculate: (t: number, cycleMultiplier: number = 1) => {
-      if (cycleMultiplier === 2) {
+      if (cycleMultiplier === 1) {
         return t
       }
       return t < 0.5 ? 2 * t : 2 * (1 - t)
@@ -24,7 +24,7 @@ export const LED_FUNCTIONS: LEDFunction[] = [
     name: 'Sine',
     formula: 'y = sin(πx)',
     calculate: (t: number, cycleMultiplier: number = 1) => {
-      if (cycleMultiplier === 2) {
+      if (cycleMultiplier === 1) {
         return Math.sin(Math.PI * t / 2)
       }
       const x = t < 0.5 ? 2 * t : 2 * (1 - t)
@@ -37,7 +37,7 @@ export const LED_FUNCTIONS: LEDFunction[] = [
     name: 'Quadratic',
     formula: 'y = x²',
     calculate: (t: number, cycleMultiplier: number = 1) => {
-      if (cycleMultiplier === 2) {
+      if (cycleMultiplier === 1) {
         return t * t
       }
       const x = t < 0.5 ? 2 * t : 2 * (1 - t)
@@ -50,7 +50,7 @@ export const LED_FUNCTIONS: LEDFunction[] = [
     name: 'Cubic',
     formula: 'y = x³',
     calculate: (t: number, cycleMultiplier: number = 1) => {
-      if (cycleMultiplier === 2) {
+      if (cycleMultiplier === 1) {
         return t * t * t
       }
       const x = t < 0.5 ? 2 * t : 2 * (1 - t)
@@ -63,7 +63,7 @@ export const LED_FUNCTIONS: LEDFunction[] = [
     name: 'Quartic',
     formula: 'y = x⁴',
     calculate: (t: number, cycleMultiplier: number = 1) => {
-      if (cycleMultiplier === 2) {
+      if (cycleMultiplier === 1) {
         return t * t * t * t
       }
       const x = t < 0.5 ? 2 * t : 2 * (1 - t)
@@ -76,7 +76,7 @@ export const LED_FUNCTIONS: LEDFunction[] = [
     name: 'Square Root',
     formula: 'y = √x',
     calculate: (t: number, cycleMultiplier: number = 1) => {
-      if (cycleMultiplier === 2) {
+      if (cycleMultiplier === 1) {
         return Math.sqrt(t)
       }
       const x = t < 0.5 ? 2 * t : 2 * (1 - t)
