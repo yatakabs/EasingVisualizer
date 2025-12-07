@@ -58,7 +58,7 @@ export const PreviewPanel = memo(function PreviewPanel({
 }: PreviewPanelProps) {
   return (
     <Card 
-      className="relative overflow-hidden border border-border card-container"
+      className="relative overflow-hidden border border-border card-container gap-0 py-0"
       onDragOver={onDragOver}
       onDrop={onDrop}
     >
@@ -85,7 +85,7 @@ export const PreviewPanel = memo(function PreviewPanel({
         </div>
       </CardHeader>
       
-      <div className="px-3 py-2 border-b border-border/50">
+      <div className="px-3 py-2 border-b border-border/50 mt-0">
         <div className="flex items-center justify-between gap-2 py-0">
           <p className="text-[10px] font-mono text-muted-foreground leading-tight my-0 py-0">
             {ledFunction.formula}
@@ -111,7 +111,7 @@ export const PreviewPanel = memo(function PreviewPanel({
         </div>
       </div>
       
-      <CardContent className="flex flex-col items-center gap-2 p-0 px-3 pb-2 pt-0">
+      <CardContent className="flex flex-col items-center gap-2 p-0 px-3 pb-2 pt-0 mt-0">
         {enabledPreviews.includes('camera') && (
           <CameraPreview
             ledFunction={ledFunction}
