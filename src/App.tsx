@@ -37,6 +37,7 @@ function App() {
   const [cameraStartPos, setCameraStartPos] = useKV<{ x: number; y: number; z: number }>('camera-start-pos', { x: 2.0, y: 1.0, z: -5.0 })
   const [cameraEndPos, setCameraEndPos] = useKV<{ x: number; y: number; z: number }>('camera-end-pos', { x: 2.0, y: 1.0, z: 5.0 })
   const [cameraAspectRatio, setCameraAspectRatio] = useKV<string>('camera-aspect-ratio', '16/9')
+  const [maxCameraPreviews, setMaxCameraPreviews] = useKV<number>('max-camera-previews', 6)
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
@@ -278,9 +279,11 @@ function App() {
             cameraStartPos={cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 }}
             cameraEndPos={cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }}
             cameraAspectRatio={cameraAspectRatio ?? '16/9'}
+            maxCameraPreviews={maxCameraPreviews ?? 6}
             onCameraStartPosChange={(pos) => setCameraStartPos(() => pos)}
             onCameraEndPosChange={(pos) => setCameraEndPos(() => pos)}
             onCameraAspectRatioChange={(aspectRatio) => setCameraAspectRatio(() => aspectRatio)}
+            onMaxCameraPreviewsChange={(max) => setMaxCameraPreviews(() => max)}
           />
 
           {(panels || []).length === 0 ? (
@@ -299,6 +302,8 @@ function App() {
 
                 const output = func.calculate(currentInputValue, panel.easeType)
                 const filteredOutput = applyFilters(output, enabledFilters ?? [], { gamma: gamma ?? 2.2 })
+                
+                const showCamera = panelIndex < (maxCameraPreviews ?? 6)
 
                 return (
                   <PreviewPanel
@@ -316,6 +321,7 @@ function App() {
                     cameraStartPos={cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 }}
                     cameraEndPos={cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }}
                     cameraAspectRatio={cameraAspectRatio ?? '16/9'}
+                    showCamera={showCamera}
                     title={panel.title}
                     onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
                     onEaseTypeChange={(newEaseType) => {
