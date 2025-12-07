@@ -296,12 +296,19 @@ function App() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-3 sm:gap-4">
-              {(panels || []).map((panel) => {
+              {(panels || []).map((panel, panelIndex) => {
                 const func = LED_FUNCTIONS.find(f => f.id === panel.functionId)
                 if (!func) return null
 
                 const output = func.calculate(currentInputValue, panel.easeType)
                 const filteredOutput = applyFilters(output, enabledFilters ?? [], { gamma: gamma ?? 2.2 })
+
+                const cameraEnabledCount = (panels || [])
+                  .slice(0, panelIndex)
+                  .filter(() => (enabledPreviews ?? ['led', 'value']).includes('camera')).length
+                
+                const shouldEnableCamera = (enabledPreviews ?? ['led', 'value']).includes('camera') && 
+                                          cameraEnabledCount < (maxCameraPreviews ?? 24)
 
                 return (
                   <PreviewPanel
@@ -320,6 +327,7 @@ function App() {
                     cameraEndPos={cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }}
                     cameraAspectRatio={cameraAspectRatio ?? '16/9'}
                     maxCameraPreviews={maxCameraPreviews ?? 24}
+                    shouldEnableCamera={shouldEnableCamera}
                     title={panel.title}
                     onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
                     onEaseTypeChange={(newEaseType) => {
