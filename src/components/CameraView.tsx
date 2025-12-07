@@ -97,6 +97,7 @@ export const CameraView = memo(function CameraView({
     scene.add(gridHelper)
 
     const axesHelper = new THREE.AxesHelper(2)
+    axesHelper.scale.x = -1
     scene.add(axesHelper)
 
     const handleResize = () => {
@@ -136,7 +137,7 @@ export const CameraView = memo(function CameraView({
   useEffect(() => {
     if (!cameraRef.current || !cubeRef.current || !rendererRef.current || !sceneRef.current) return
 
-    const cameraX = startPos.x + (endPos.x - startPos.x) * filteredOutput
+    const cameraX = -(startPos.x + (endPos.x - startPos.x) * filteredOutput)
     const cameraY = startPos.y + (endPos.y - startPos.y) * filteredOutput
     const cameraZ = startPos.z + (endPos.z - startPos.z) * filteredOutput
     
@@ -205,7 +206,7 @@ export const CameraView = memo(function CameraView({
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Camera Position</span>
             <span className="font-mono font-medium">
-              ({(startPos.x + (endPos.x - startPos.x) * filteredOutput).toFixed(2)}, {(startPos.y + (endPos.y - startPos.y) * filteredOutput).toFixed(2)}, {(startPos.z + (endPos.z - startPos.z) * filteredOutput).toFixed(2)})
+              ({(-(startPos.x + (endPos.x - startPos.x) * filteredOutput)).toFixed(2)}, {(startPos.y + (endPos.y - startPos.y) * filteredOutput).toFixed(2)}, {(startPos.z + (endPos.z - startPos.z) * filteredOutput).toFixed(2)})
             </span>
           </div>
           <div className="flex items-center justify-between text-xs">
