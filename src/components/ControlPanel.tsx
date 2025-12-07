@@ -24,7 +24,6 @@ interface ControlPanelProps {
   cameraStartPos: { x: number; y: number; z: number }
   cameraEndPos: { x: number; y: number; z: number }
   cameraAspectRatio: string
-  maxCameraPreviews: number
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
   onGammaChange: (gamma: number) => void
@@ -38,7 +37,6 @@ interface ControlPanelProps {
   onCameraStartPosChange: (pos: { x: number; y: number; z: number }) => void
   onCameraEndPosChange: (pos: { x: number; y: number; z: number }) => void
   onCameraAspectRatioChange: (aspectRatio: string) => void
-  onMaxCameraPreviewsChange: (max: number) => void
 }
 
 export function ControlPanel({
@@ -55,7 +53,6 @@ export function ControlPanel({
   cameraStartPos,
   cameraEndPos,
   cameraAspectRatio,
-  maxCameraPreviews,
   onPlayPause,
   onSpeedChange,
   onGammaChange,
@@ -68,8 +65,7 @@ export function ControlPanel({
   onSetAllEaseType,
   onCameraStartPosChange,
   onCameraEndPosChange,
-  onCameraAspectRatioChange,
-  onMaxCameraPreviewsChange
+  onCameraAspectRatioChange
 }: ControlPanelProps) {
   return (
     <div className="w-full bg-card border border-border rounded-lg p-4 sm:p-5 space-y-4">
@@ -580,43 +576,6 @@ export function ControlPanel({
             >
               デフォルトに戻す
             </Button>
-          </div>
-          
-          <div className="space-y-2.5">
-            <label className="text-sm font-semibold text-foreground block">
-              3Dプレビュー最大表示数
-            </label>
-            <div className="flex items-center gap-2">
-              <Slider
-                value={[maxCameraPreviews]}
-                onValueChange={([value]) => onMaxCameraPreviewsChange(value)}
-                min={1}
-                max={24}
-                step={1}
-                className="flex-1"
-              />
-              <span className="text-base font-mono text-primary font-semibold min-w-[3rem] text-right">
-                {maxCameraPreviews}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Input
-                id="max-camera-previews"
-                type="number"
-                value={maxCameraPreviews}
-                onChange={(e) => {
-                  const value = parseInt(e.target.value)
-                  if (!isNaN(value) && value >= 1 && value <= 24) {
-                    onMaxCameraPreviewsChange(value)
-                  }
-                }}
-                step={1}
-                min={1}
-                max={24}
-                className="w-28 font-mono text-sm h-9 px-2"
-              />
-              <span className="text-sm text-muted-foreground">直接入力</span>
-            </div>
           </div>
         </div>
       )}

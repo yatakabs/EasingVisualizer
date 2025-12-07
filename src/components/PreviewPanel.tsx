@@ -25,8 +25,6 @@ interface PreviewPanelProps {
   cameraStartPos: { x: number; y: number; z: number }
   cameraEndPos: { x: number; y: number; z: number }
   cameraAspectRatio: string
-  maxCameraPreviews: number
-  shouldEnableCamera: boolean
   title?: string
   onRemove?: () => void
   onEaseTypeChange: (easeType: EaseType) => void
@@ -50,8 +48,6 @@ export const PreviewPanel = memo(function PreviewPanel({
   cameraStartPos,
   cameraEndPos,
   cameraAspectRatio,
-  maxCameraPreviews,
-  shouldEnableCamera,
   title,
   onRemove,
   onEaseTypeChange,
@@ -118,7 +114,7 @@ export const PreviewPanel = memo(function PreviewPanel({
       </div>
       
       <CardContent className="flex flex-col items-center gap-1.5" style={{ margin: 0, padding: '8px' }}>
-        {enabledPreviews.includes('camera') && shouldEnableCamera && (
+        {enabledPreviews.includes('camera') && (
           <CameraPreview
             ledFunction={ledFunction}
             output={output}
@@ -128,7 +124,6 @@ export const PreviewPanel = memo(function PreviewPanel({
             startPos={cameraStartPos}
             endPos={cameraEndPos}
             aspectRatio={cameraAspectRatio}
-            maxPreviews={maxCameraPreviews}
           />
         )}
         

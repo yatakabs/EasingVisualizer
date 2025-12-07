@@ -11,7 +11,6 @@ interface CameraPreviewProps {
   startPos: { x: number; y: number; z: number }
   endPos: { x: number; y: number; z: number }
   aspectRatio: string
-  maxPreviews: number
 }
 
 export const CameraPreview = memo(function CameraPreview({
@@ -22,8 +21,7 @@ export const CameraPreview = memo(function CameraPreview({
   enabledFilters,
   startPos,
   endPos,
-  aspectRatio,
-  maxPreviews
+  aspectRatio
 }: CameraPreviewProps) {
   const mountRef = useRef<HTMLDivElement>(null)
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
@@ -31,8 +29,6 @@ export const CameraPreview = memo(function CameraPreview({
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
   const cubeRef = useRef<THREE.Mesh | null>(null)
   const frameIdRef = useRef<number | null>(null)
-  const previewCubesRef = useRef<THREE.Mesh[]>([])
-  const currentMaxPreviewsRef = useRef<number>(maxPreviews)
 
   useEffect(() => {
     if (!mountRef.current) return
@@ -103,14 +99,6 @@ export const CameraPreview = memo(function CameraPreview({
         cancelAnimationFrame(frameIdRef.current)
       }
       
-      previewCubesRef.current.forEach(cube => {
-        cube.geometry.dispose()
-        if (Array.isArray(cube.material)) {
-          cube.material.forEach(mat => mat.dispose())
-        }
-      })
-      previewCubesRef.current = []
-      
       if (rendererRef.current && mountRef.current) {
         mountRef.current.removeChild(rendererRef.current.domElement)
         rendererRef.current.dispose()
@@ -157,56 +145,8 @@ export const CameraPreview = memo(function CameraPreview({
     camera.position.set(cameraX, cameraY, cameraZ)
     camera.lookAt(mainCube.position)
     
-    if (currentMaxPreviewsRef.current !== maxPreviews) {
-      previewCubesRef.current.forEach(cube => {
-        scene.remove(cube)
-        cube.geometry.dispose()
-        if (Array.isArray(cube.material)) {
-          cube.material.forEach(mat => mat.dispose())
-        }
-      })
-      previewCubesRef.current = []
-      currentMaxPreviewsRef.current = maxPreviews
-    }
-    
-    const numSteps = Math.min(maxPreviews, 24)
-    const stepSize = 1 / numSteps
-    
-    while (previewCubesRef.current.length > numSteps) {
-      const cube = previewCubesRef.current.pop()
-      if (cube) {
-        scene.remove(cube)
-        cube.geometry.dispose()
-        if (Array.isArray(cube.material)) {
-          cube.material.forEach(mat => mat.dispose())
-        }
-      }
-    }
-    
-    while (previewCubesRef.current.length < numSteps) {
-      const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
-      const material = new THREE.MeshPhongMaterial({ 
-        color: 0x888888,
-        transparent: true,
-        opacity: 0.3,
-        shininess: 60
-      })
-      const cube = new THREE.Mesh(geometry, material)
-      scene.add(cube)
-      previewCubesRef.current.push(cube)
-    }
-    
-    previewCubesRef.current.forEach((cube, index) => {
-      const t = stepSize * (index + 1)
-      const posX = startPos.x + (endPos.x - startPos.x) * t
-      const posY = startPos.y + (endPos.y - startPos.y) * t
-      const posZ = startPos.z + (endPos.z - startPos.z) * t
-      
-      cube.position.set(posX, posY, posZ)
-    })
-    
     renderer.render(scene, camera)
-  }, [baseInput, filteredOutput, startPos, endPos, maxPreviews])
+  }, [baseInput, filteredOutput, startPos, endPos])
 
   return (
     <div className="flex flex-col items-center gap-2 w-full">
@@ -235,10 +175,6 @@ export const CameraPreview = memo(function CameraPreview({
           <span className="font-mono font-medium text-[9px]">
             ({(startPos.x + (endPos.x - startPos.x) * filteredOutput).toFixed(2)}, {(startPos.y + (endPos.y - startPos.y) * filteredOutput).toFixed(2)}, {(startPos.z + (endPos.z - startPos.z) * filteredOutput).toFixed(2)})
           </span>
-        </div>
-        <div className="flex items-center justify-between text-[10px] px-0.5">
-          <span className="text-muted-foreground">Preview Count</span>
-          <span className="font-mono font-medium">{Math.min(maxPreviews, 24)}</span>
         </div>
       </div>
     </div>
