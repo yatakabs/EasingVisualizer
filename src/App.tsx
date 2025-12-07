@@ -308,7 +308,7 @@ function App() {
                   .filter(() => (enabledPreviews ?? ['led', 'value']).includes('camera')).length
                 
                 const shouldEnableCamera = (enabledPreviews ?? ['led', 'value']).includes('camera') && 
-                                          cameraEnabledCount < (maxCameraPreviews ?? 24)
+                                          (cameraEnabledCount + 1) <= (maxCameraPreviews ?? 24)
 
                 return (
                   <PreviewPanel
