@@ -7,7 +7,7 @@ import { ControlPanel } from '@/components/ControlPanel'
 import { FunctionSelector } from '@/components/FunctionSelector'
 import { LED_FUNCTIONS, type LEDFunction } from '@/lib/ledFunctions'
 import { applyFilters } from '@/lib/outputFilters'
-import { type EaseType, applyEase } from '@/lib/easeTypes'
+import { type EaseType } from '@/lib/easeTypes'
 import { Toaster as Sonner } from 'sonner'
 import { toast } from 'sonner'
 
@@ -214,8 +214,7 @@ function App() {
                 const func = LED_FUNCTIONS.find(f => f.id === panel.functionId)
                 if (!func) return null
 
-                const transformedInput = applyEase(currentInputValue, panel.easeType)
-                const output = func.calculate(transformedInput)
+                const output = func.calculate(currentInputValue, panel.easeType)
                 const filteredOutput = applyFilters(output, enabledFilters ?? [], { gamma: gamma ?? 2.2 })
 
                 const bothEnabled = (showLED ?? true) && (showRectangle ?? false)
@@ -227,7 +226,7 @@ function App() {
                         ledFunction={func}
                         output={output}
                         filteredOutput={filteredOutput}
-                        input={transformedInput}
+                        input={currentInputValue}
                         easeType={panel.easeType}
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}
@@ -246,7 +245,7 @@ function App() {
                         ledFunction={func}
                         output={output}
                         filteredOutput={filteredOutput}
-                        input={transformedInput}
+                        input={currentInputValue}
                         easeType={panel.easeType}
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}
@@ -265,7 +264,7 @@ function App() {
                         ledFunction={func}
                         output={output}
                         filteredOutput={filteredOutput}
-                        input={transformedInput}
+                        input={currentInputValue}
                         easeType={panel.easeType}
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}

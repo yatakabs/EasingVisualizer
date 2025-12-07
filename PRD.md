@@ -20,11 +20,11 @@ This app displays multiple animated panels with play/pause controls and function
 - Success criteria: Smooth 60fps animation with synchronized timing across all panels
 
 **Function Comparison**
-- Functionality: Support multiple output functions (Linear, Sine, Quadratic, Square Root, etc.) with a fixed Linear input function (x = t)
-- Purpose: Demonstrate how different mathematical approaches affect perceived brightness
-- Trigger: Panels display preset functions on load
-- Progression: User views panels → Observes brightness patterns → Understands function differences
-- Success criteria: Each function produces visually distinct brightness patterns with Linear input
+- Functionality: Support multiple output functions (Linear, Sine, Quadratic, Cubic, Quartic, Square Root) with built-in easing transformations (EaseIn, EaseOut, EaseBoth) that can be selected per panel
+- Purpose: Demonstrate how different mathematical functions and easing transformations affect perceived brightness curves
+- Trigger: Panels display preset functions with EaseIn on load; users can toggle between easing types for each panel
+- Progression: User views panels → Observes brightness patterns → Toggles easing type on individual panels → Compares different easing behaviors for same base function
+- Success criteria: Each function produces visually distinct brightness patterns; easing toggles update visualization immediately; all three easing types (EaseIn, EaseOut, EaseBoth) work correctly for every function
 
 **Playback Controls**
 - Functionality: Play/pause all animations and adjust animation speed
@@ -34,11 +34,11 @@ This app displays multiple animated panels with play/pause controls and function
 - Success criteria: Immediate response to controls affecting all panels simultaneously
 
 **Function Customization**
-- Functionality: Add/remove panels with different functions; apply preset easing functions (EaseIn, EaseOut, EaseBoth) with Linear input
-- Purpose: Let users create custom comparisons and quickly apply common easing patterns
-- Trigger: Click add/remove buttons or preset buttons
-- Progression: User clicks add → Dialog appears → Selects function → New panel appears; OR User clicks preset → Appropriate output function panel is added
-- Success criteria: Panels can be added up to 12, removed individually; presets add Quadratic (EaseIn), Square Root (EaseOut), or Sine (EaseBoth) panels
+- Functionality: Add/remove panels with different functions; each panel has its own easing type selector (EaseIn, EaseOut, EaseBoth) to control how the function is applied
+- Purpose: Let users create custom comparisons and observe how easing transformations affect each mathematical function independently
+- Trigger: Click add/remove buttons or easing toggle buttons on each panel
+- Progression: User clicks add → Dialog appears → Selects function → New panel appears with EaseIn default; OR User clicks easing toggle on existing panel → Output visualization updates to show new easing behavior
+- Success criteria: Panels can be added up to 12, removed individually; easing can be changed per panel; each easing type correctly transforms the base mathematical function (EaseIn = direct function, EaseOut = inverted function, EaseBoth = symmetric combination)
 
 **Output Filtering System**
 - Functionality: Apply configurable filters (e.g., gamma correction) to function outputs before visualization

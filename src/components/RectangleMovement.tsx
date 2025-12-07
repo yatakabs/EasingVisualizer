@@ -50,7 +50,7 @@ export const RectangleMovement = memo(function RectangleMovement({
     for (let i = 0; i <= steps; i++) {
       const t = i / steps
       const xPos = padding + t * innerWidth
-      const yVal = ledFunction.calculate(t)
+      const yVal = ledFunction.calculate(t, easeType)
       
       const originalYPos = padding + (1 - yVal) * innerHeight
       originalPoints.push(`${xPos},${originalYPos}`)
@@ -65,7 +65,7 @@ export const RectangleMovement = memo(function RectangleMovement({
     for (let i = 0; i <= currentStep; i++) {
       const t = i / steps
       const xPos = padding + t * innerWidth
-      const yVal = ledFunction.calculate(t)
+      const yVal = ledFunction.calculate(t, easeType)
       const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
       const yPos = padding + (1 - filteredYVal) * innerHeight
       trailPoints.push(`${xPos},${yPos}`)
@@ -78,7 +78,7 @@ export const RectangleMovement = memo(function RectangleMovement({
       originalGraphPath: originalPoints.join(' '),
       inputValue: input
     }
-  }, [input, filteredOutput, ledFunction, enabledFilters, filterParams])
+  }, [input, filteredOutput, ledFunction, enabledFilters, filterParams, easeType])
 
   return (
     <Card className="relative overflow-hidden border-2 border-border">
