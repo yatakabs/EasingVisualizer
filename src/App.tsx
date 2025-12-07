@@ -12,7 +12,7 @@ import { Toaster as Sonner } from 'sonner'
 import { toast } from 'sonner'
 
 const CYCLE_DURATION = 2000
-const MAX_PANELS = 12
+const MAX_PANELS = 24
 
 interface PanelData {
   id: string
