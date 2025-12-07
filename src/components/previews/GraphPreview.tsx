@@ -32,9 +32,9 @@ export const GraphPreview = memo(function GraphPreview({
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
     
-    const padding = 25
-    const innerWidth = 150 - padding * 2
-    const innerHeight = 150 - padding * 2
+    const padding = 18
+    const innerWidth = 100 - padding * 2
+    const innerHeight = 100 - padding * 2
     
     if (x >= padding && x <= padding + innerWidth && y >= padding && y <= padding + innerHeight) {
       const normalizedX = (x - padding) / innerWidth
@@ -50,9 +50,9 @@ export const GraphPreview = memo(function GraphPreview({
   }, [])
 
   const { position, graphPath, inputValue, trailPath, originalGraphPath, hoverPoint } = useMemo(() => {
-    const graphWidth = 150
-    const graphHeight = 150
-    const padding = 25
+    const graphWidth = 100
+    const graphHeight = 100
+    const padding = 18
     const innerWidth = graphWidth - padding * 2
     const innerHeight = graphHeight - padding * 2
     
@@ -153,14 +153,14 @@ export const GraphPreview = memo(function GraphPreview({
       <svg 
         width="100%" 
         height="100%" 
-        viewBox="0 0 150 150"
+        viewBox="0 0 100 100"
         className="absolute inset-0"
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
         <defs>
           <filter id={`glow-rect-${ledFunction.id}`}>
-            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+            <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
             <feMerge>
               <feMergeNode in="coloredBlur"/>
               <feMergeNode in="coloredBlur"/>
@@ -170,50 +170,50 @@ export const GraphPreview = memo(function GraphPreview({
         </defs>
         
         <line
-          x1="25"
-          y1="125"
-          x2="125"
-          y2="125"
+          x1="18"
+          y1="82"
+          x2="82"
+          y2="82"
           stroke="oklch(0.5 0.05 250)"
-          strokeWidth="1.5"
+          strokeWidth="1"
         />
         <line
-          x1="25"
-          y1="25"
-          x2="25"
-          y2="125"
+          x1="18"
+          y1="18"
+          x2="18"
+          y2="82"
           stroke="oklch(0.5 0.05 250)"
-          strokeWidth="1.5"
+          strokeWidth="1"
         />
         
-        <line x1="23" y1="125" x2="27" y2="125" stroke="oklch(0.5 0.05 250)" strokeWidth="1" />
-        <line x1="27" y1="125" x2="125" y2="125" stroke="oklch(0.5 0.05 250)" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.3" />
-        <text x="20" y="127" textAnchor="end" className="text-[8px] fill-muted-foreground font-mono">0</text>
+        <line x1="16.5" y1="82" x2="19.5" y2="82" stroke="oklch(0.5 0.05 250)" strokeWidth="0.7" />
+        <line x1="19.5" y1="82" x2="82" y2="82" stroke="oklch(0.5 0.05 250)" strokeWidth="0.6" strokeDasharray="2 2" opacity="0.3" />
+        <text x="15" y="83" textAnchor="end" className="text-[6px] fill-muted-foreground font-mono">0</text>
         
-        <line x1="23" y1="75" x2="27" y2="75" stroke="oklch(0.5 0.05 250)" strokeWidth="1" />
-        <line x1="27" y1="75" x2="125" y2="75" stroke="oklch(0.5 0.05 250)" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.3" />
-        <text x="20" y="77" textAnchor="end" className="text-[8px] fill-muted-foreground font-mono">0.5</text>
+        <line x1="16.5" y1="50" x2="19.5" y2="50" stroke="oklch(0.5 0.05 250)" strokeWidth="0.7" />
+        <line x1="19.5" y1="50" x2="82" y2="50" stroke="oklch(0.5 0.05 250)" strokeWidth="0.6" strokeDasharray="2 2" opacity="0.3" />
+        <text x="15" y="51" textAnchor="end" className="text-[6px] fill-muted-foreground font-mono">0.5</text>
         
-        <line x1="23" y1="25" x2="27" y2="25" stroke="oklch(0.5 0.05 250)" strokeWidth="1" />
-        <line x1="27" y1="25" x2="125" y2="25" stroke="oklch(0.5 0.05 250)" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.3" />
-        <text x="20" y="27" textAnchor="end" className="text-[8px] fill-muted-foreground font-mono">1</text>
+        <line x1="16.5" y1="18" x2="19.5" y2="18" stroke="oklch(0.5 0.05 250)" strokeWidth="0.7" />
+        <line x1="19.5" y1="18" x2="82" y2="18" stroke="oklch(0.5 0.05 250)" strokeWidth="0.6" strokeDasharray="2 2" opacity="0.3" />
+        <text x="15" y="19" textAnchor="end" className="text-[6px] fill-muted-foreground font-mono">1</text>
         
-        <line x1="25" y1="123" x2="25" y2="127" stroke="oklch(0.5 0.05 250)" strokeWidth="1" />
-        <line x1="25" y1="25" x2="25" y2="123" stroke="oklch(0.5 0.05 250)" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.3" />
-        <text x="25" y="136" textAnchor="middle" className="text-[8px] fill-muted-foreground font-mono">0</text>
+        <line x1="18" y1="80.5" x2="18" y2="83.5" stroke="oklch(0.5 0.05 250)" strokeWidth="0.7" />
+        <line x1="18" y1="18" x2="18" y2="80.5" stroke="oklch(0.5 0.05 250)" strokeWidth="0.6" strokeDasharray="2 2" opacity="0.3" />
+        <text x="18" y="90" textAnchor="middle" className="text-[6px] fill-muted-foreground font-mono">0</text>
         
-        <line x1="75" y1="123" x2="75" y2="127" stroke="oklch(0.5 0.05 250)" strokeWidth="1" />
-        <line x1="75" y1="25" x2="75" y2="123" stroke="oklch(0.5 0.05 250)" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.3" />
-        <text x="75" y="136" textAnchor="middle" className="text-[8px] fill-muted-foreground font-mono">0.50</text>
+        <line x1="50" y1="80.5" x2="50" y2="83.5" stroke="oklch(0.5 0.05 250)" strokeWidth="0.7" />
+        <line x1="50" y1="18" x2="50" y2="80.5" stroke="oklch(0.5 0.05 250)" strokeWidth="0.6" strokeDasharray="2 2" opacity="0.3" />
+        <text x="50" y="90" textAnchor="middle" className="text-[6px] fill-muted-foreground font-mono">0.50</text>
         
-        <line x1="125" y1="123" x2="125" y2="127" stroke="oklch(0.5 0.05 250)" strokeWidth="1" />
-        <line x1="125" y1="25" x2="125" y2="123" stroke="oklch(0.5 0.05 250)" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.3" />
-        <text x="125" y="136" textAnchor="middle" className="text-[8px] fill-muted-foreground font-mono">1.00</text>
+        <line x1="82" y1="80.5" x2="82" y2="83.5" stroke="oklch(0.5 0.05 250)" strokeWidth="0.7" />
+        <line x1="82" y1="18" x2="82" y2="80.5" stroke="oklch(0.5 0.05 250)" strokeWidth="0.6" strokeDasharray="2 2" opacity="0.3" />
+        <text x="82" y="90" textAnchor="middle" className="text-[6px] fill-muted-foreground font-mono">1.00</text>
         
-        <text x="75" y="146" textAnchor="middle" className="text-[9px] fill-muted-foreground font-mono">
+        <text x="50" y="97" textAnchor="middle" className="text-[7px] fill-muted-foreground font-mono">
           Input (x)
         </text>
-        <text x="8" y="75" textAnchor="middle" className="text-[9px] fill-muted-foreground font-mono" transform="rotate(-90 8 75)">
+        <text x="6" y="50" textAnchor="middle" className="text-[7px] fill-muted-foreground font-mono" transform="rotate(-90 6 50)">
           Output (y)
         </text>
         
@@ -221,16 +221,16 @@ export const GraphPreview = memo(function GraphPreview({
           points={originalGraphPath}
           fill="none"
           stroke={ledFunction.color}
-          strokeWidth="1.5"
+          strokeWidth="1"
           opacity="0.2"
-          strokeDasharray="3 3"
+          strokeDasharray="2 2"
         />
         
         <polyline
           points={graphPath}
           fill="none"
           stroke={ledFunction.color}
-          strokeWidth="1.5"
+          strokeWidth="1"
           opacity="0.3"
         />
         
@@ -238,19 +238,19 @@ export const GraphPreview = memo(function GraphPreview({
           points={trailPath}
           fill="none"
           stroke={ledFunction.color}
-          strokeWidth="2"
+          strokeWidth="1.5"
           opacity="0.8"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         
         <rect
-          x={position.x - 4}
-          y={position.y - 4}
-          width="8"
-          height="8"
+          x={position.x - 3}
+          y={position.y - 3}
+          width="6"
+          height="6"
           fill={ledFunction.color}
-          rx="1.5"
+          rx="1"
           filter={`url(#glow-rect-${ledFunction.id})`}
           style={{
             opacity: 0.7 + filteredOutput * 0.3
@@ -260,7 +260,7 @@ export const GraphPreview = memo(function GraphPreview({
         <circle
           cx={position.x}
           cy={position.y}
-          r="2"
+          r="1.5"
           fill="white"
           opacity="0.9"
         />
@@ -271,55 +271,55 @@ export const GraphPreview = memo(function GraphPreview({
               x1={hoverPoint.svgX}
               y1={hoverPoint.svgY}
               x2={hoverPoint.svgX}
-              y2="125"
+              y2="82"
               stroke="oklch(0.75 0.15 200)"
-              strokeWidth="1"
-              strokeDasharray="3 3"
+              strokeWidth="0.8"
+              strokeDasharray="2 2"
               opacity="0.8"
             />
             <line
-              x1="25"
+              x1="18"
               y1={hoverPoint.svgY}
               x2={hoverPoint.svgX}
               y2={hoverPoint.svgY}
               stroke="oklch(0.75 0.15 200)"
-              strokeWidth="1"
-              strokeDasharray="3 3"
+              strokeWidth="0.8"
+              strokeDasharray="2 2"
               opacity="0.8"
             />
             <circle
               cx={hoverPoint.svgX}
               cy={hoverPoint.svgY}
-              r="3.5"
+              r="2.5"
               fill="oklch(0.75 0.15 200)"
               stroke="white"
-              strokeWidth="1.5"
+              strokeWidth="1"
               opacity="0.9"
             />
             <rect
-              x={hoverPoint.svgX - 22}
-              y={hoverPoint.svgY - 24}
-              width="44"
-              height="18"
+              x={hoverPoint.svgX - 16}
+              y={hoverPoint.svgY - 18}
+              width="32"
+              height="14"
               fill="oklch(0.25 0.04 250)"
               stroke="oklch(0.75 0.15 200)"
-              strokeWidth="0.8"
-              rx="3"
+              strokeWidth="0.6"
+              rx="2"
               opacity="0.95"
             />
             <text
               x={hoverPoint.svgX}
-              y={hoverPoint.svgY - 14}
+              y={hoverPoint.svgY - 11}
               textAnchor="middle"
-              className="text-[8px] fill-primary font-mono font-medium"
+              className="text-[6px] fill-primary font-mono font-medium"
             >
               x:{hoverPoint.xValue.toFixed(3)}
             </text>
             <text
               x={hoverPoint.svgX}
-              y={hoverPoint.svgY - 7}
+              y={hoverPoint.svgY - 6}
               textAnchor="middle"
-              className="text-[8px] fill-primary font-mono font-medium"
+              className="text-[6px] fill-primary font-mono font-medium"
             >
               y:{hoverPoint.yValue.toFixed(3)}
             </text>
