@@ -229,17 +229,17 @@ function App() {
     <div className="min-h-screen bg-background text-foreground">
       <Sonner position="top-center" theme="dark" />
       
-      <div className="container mx-auto px-3 py-4 max-w-[100rem]">
-        <header className="mb-4">
-          <h1 className="text-2xl font-bold tracking-tight mb-1" style={{ letterSpacing: '-0.02em' }}>
+      <div className="container mx-auto px-2 py-2 max-w-[100rem]">
+        <header className="mb-2">
+          <h1 className="text-xl font-bold tracking-tight mb-0.5" style={{ letterSpacing: '-0.02em' }}>
             関数比較ビジュアライザー
           </h1>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-xs">
             異なる数学関数の出力を視覚的に比較
           </p>
         </header>
 
-        <div className="space-y-4">
+        <div className="space-y-2">
           <ControlPanel
             isPlaying={isPlaying ?? true}
             speed={speed ?? 1}
@@ -287,7 +287,7 @@ function App() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2">
               {(panels || []).map((panel) => {
                 const func = LED_FUNCTIONS.find(f => f.id === panel.functionId)
                 if (!func) return null

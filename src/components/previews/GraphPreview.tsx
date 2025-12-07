@@ -149,10 +149,11 @@ export const GraphPreview = memo(function GraphPreview({
   }, [input, baseInput, filteredOutput, ledFunction, enabledFilters, filterParams, easeType, isTriangularMode, hoverPosition])
 
   return (
-    <div className="relative w-[200px] h-[200px] flex items-center justify-center bg-secondary/30 rounded-lg border-2 border-border">
+    <div className="relative w-full aspect-square flex items-center justify-center bg-secondary/30 rounded border border-border">
       <svg 
-        width="200" 
-        height="200" 
+        width="100%" 
+        height="100%" 
+        viewBox="0 0 200 200"
         className="absolute inset-0"
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}

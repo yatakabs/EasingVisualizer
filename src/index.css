@@ -81,3 +81,7 @@
 .card-container {
   padding: 0;
 }
+
+body {
+  overflow-x: hidden;
+}
