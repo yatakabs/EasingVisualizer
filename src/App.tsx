@@ -97,10 +97,10 @@ function App() {
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <header className="mb-8">
           <h1 className="text-4xl font-bold tracking-tight mb-2" style={{ letterSpacing: '-0.02em' }}>
-            LED Brightness Control Comparison
+            関数比較ビジュアライザー
           </h1>
           <p className="text-muted-foreground text-lg">
-            Visual comparison of time-output functions for PWM brightness modulation
+            異なる数学関数の出力を視覚的に比較
           </p>
         </header>
 
@@ -118,10 +118,10 @@ function App() {
 
           {(panels || []).length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="text-6xl mb-4">💡</div>
-              <h2 className="text-2xl font-semibold mb-2">No panels yet</h2>
+              <div className="text-6xl mb-4">📊</div>
+              <h2 className="text-2xl font-semibold mb-2">パネルがありません</h2>
               <p className="text-muted-foreground mb-6">
-                Add your first LED panel to start comparing functions
+                最初のパネルを追加して関数の比較を開始
               </p>
             </div>
           ) : (

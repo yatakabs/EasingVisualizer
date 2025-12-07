@@ -6,60 +6,64 @@ export interface LEDFunction {
   color: string
 }
 
-function triangle(t: number): number {
-  return t < 0.5 ? 2 * t : 2 * (1 - t)
-}
-
 export const LED_FUNCTIONS: LEDFunction[] = [
   {
     id: 'linear',
     name: 'Linear',
-    formula: 'triangle(t)',
-    calculate: triangle,
+    formula: 'y = x',
+    calculate: (t: number) => {
+      return t < 0.5 ? 2 * t : 2 * (1 - t)
+    },
     color: 'oklch(0.75 0.15 200)'
   },
   {
     id: 'sine',
     name: 'Sine',
-    formula: 'sin(πt)',
-    calculate: (t: number) => Math.sin(Math.PI * t),
+    formula: 'y = sin(πx)',
+    calculate: (t: number) => {
+      const x = t < 0.5 ? 2 * t : 2 * (1 - t)
+      return Math.sin(Math.PI * x / 2)
+    },
     color: 'oklch(0.75 0.15 280)'
   },
   {
     id: 'quadratic',
     name: 'Quadratic',
-    formula: 'triangle(t)²',
+    formula: 'y = x²',
     calculate: (t: number) => {
-      const v = triangle(t)
-      return v * v
+      const x = t < 0.5 ? 2 * t : 2 * (1 - t)
+      return x * x
     },
     color: 'oklch(0.75 0.15 160)'
   },
   {
     id: 'cubic',
     name: 'Cubic',
-    formula: 'triangle(t)³',
+    formula: 'y = x³',
     calculate: (t: number) => {
-      const v = triangle(t)
-      return v * v * v
+      const x = t < 0.5 ? 2 * t : 2 * (1 - t)
+      return x * x * x
     },
     color: 'oklch(0.75 0.15 120)'
   },
   {
     id: 'quartic',
     name: 'Quartic',
-    formula: 'triangle(t)⁴',
+    formula: 'y = x⁴',
     calculate: (t: number) => {
-      const v = triangle(t)
-      return v * v * v * v
+      const x = t < 0.5 ? 2 * t : 2 * (1 - t)
+      return x * x * x * x
     },
     color: 'oklch(0.75 0.15 80)'
   },
   {
     id: 'sqrt',
     name: 'Square Root',
-    formula: '√triangle(t)',
-    calculate: (t: number) => Math.sqrt(triangle(t)),
+    formula: 'y = √x',
+    calculate: (t: number) => {
+      const x = t < 0.5 ? 2 * t : 2 * (1 - t)
+      return Math.sqrt(x)
+    },
     color: 'oklch(0.75 0.15 40)'
   }
 ]

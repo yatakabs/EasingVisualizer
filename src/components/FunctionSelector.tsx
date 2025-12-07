@@ -27,10 +27,10 @@ export function FunctionSelector({
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">
-            Select LED Function
+            関数を選択
           </DialogTitle>
           <DialogDescription>
-            Choose a brightness control function to add to the comparison
+            比較に追加する関数を選択してください
           </DialogDescription>
         </DialogHeader>
         
@@ -65,7 +65,7 @@ export function FunctionSelector({
                   </span>
                   {isUsed && (
                     <span className="text-xs text-muted-foreground">
-                      (Already in use)
+                      (使用中)
                     </span>
                   )}
                 </Button>

@@ -107,7 +107,7 @@ export function LEDPanel({ ledFunction, brightness, rawBrightness, onRemove }: L
         
         <div className="w-full bg-secondary rounded-lg p-3 space-y-2">
           <div className="flex justify-between text-xs">
-            <span className="text-muted-foreground">PWM Output</span>
+            <span className="text-muted-foreground">Output</span>
             <span className="font-mono font-medium text-primary">
               {(glowIntensity * 100).toFixed(1)}%
             </span>
