@@ -13,9 +13,6 @@ export const LED_FUNCTIONS: LEDFunction[] = [
     formula: 'y = x',
     calculate: (t: number, cycleMultiplier: number = 1) => {
       const x = t * cycleMultiplier
-      if (cycleMultiplier === 1) {
-        return x
-      }
       const normalizedX = x % 2
       return normalizedX < 1 ? normalizedX : 2 - normalizedX
     },
@@ -27,9 +24,6 @@ export const LED_FUNCTIONS: LEDFunction[] = [
     formula: 'y = sin(πx)',
     calculate: (t: number, cycleMultiplier: number = 1) => {
       const x = t * cycleMultiplier
-      if (cycleMultiplier === 1) {
-        return Math.sin(Math.PI * x / 2)
-      }
       const normalizedX = x % 2
       const baseX = normalizedX < 1 ? normalizedX : 2 - normalizedX
       return Math.sin(Math.PI * baseX / 2)
@@ -42,9 +36,6 @@ export const LED_FUNCTIONS: LEDFunction[] = [
     formula: 'y = x²',
     calculate: (t: number, cycleMultiplier: number = 1) => {
       const x = t * cycleMultiplier
-      if (cycleMultiplier === 1) {
-        return x * x
-      }
       const normalizedX = x % 2
       const baseX = normalizedX < 1 ? normalizedX : 2 - normalizedX
       return baseX * baseX
@@ -57,9 +48,6 @@ export const LED_FUNCTIONS: LEDFunction[] = [
     formula: 'y = x³',
     calculate: (t: number, cycleMultiplier: number = 1) => {
       const x = t * cycleMultiplier
-      if (cycleMultiplier === 1) {
-        return x * x * x
-      }
       const normalizedX = x % 2
       const baseX = normalizedX < 1 ? normalizedX : 2 - normalizedX
       return baseX * baseX * baseX
@@ -72,9 +60,6 @@ export const LED_FUNCTIONS: LEDFunction[] = [
     formula: 'y = x⁴',
     calculate: (t: number, cycleMultiplier: number = 1) => {
       const x = t * cycleMultiplier
-      if (cycleMultiplier === 1) {
-        return x * x * x * x
-      }
       const normalizedX = x % 2
       const baseX = normalizedX < 1 ? normalizedX : 2 - normalizedX
       return baseX * baseX * baseX * baseX
@@ -87,9 +72,6 @@ export const LED_FUNCTIONS: LEDFunction[] = [
     formula: 'y = √x',
     calculate: (t: number, cycleMultiplier: number = 1) => {
       const x = t * cycleMultiplier
-      if (cycleMultiplier === 1) {
-        return Math.sqrt(x)
-      }
       const normalizedX = x % 2
       const baseX = normalizedX < 1 ? normalizedX : 2 - normalizedX
       return Math.sqrt(baseX)

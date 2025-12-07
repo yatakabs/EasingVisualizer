@@ -7,7 +7,8 @@ import type { LEDFunction } from '@/lib/ledFunctions'
 interface CombinedPanelProps {
   ledFunction: LEDFunction
   brightness: number
-  rawBrightness: number
+  output: number
+  input: number
   cycleMultiplier: number
   gamma: number
   applyGammaToY: boolean
@@ -17,7 +18,8 @@ interface CombinedPanelProps {
 export const CombinedPanel = memo(function CombinedPanel({ 
   ledFunction, 
   brightness, 
-  rawBrightness, 
+  output,
+  input,
   cycleMultiplier,
   gamma,
   applyGammaToY,
@@ -34,8 +36,6 @@ export const CombinedPanel = memo(function CombinedPanel({
     const innerWidth = graphWidth - padding * 2
     const innerHeight = graphHeight - padding * 2
     
-    const input = rawBrightness
-    const output = ledFunction.calculate(input, cycleMultiplier)
     const displayOutput = applyGammaToY ? Math.pow(output, 1 / gamma) : output
     
     const x = padding + input * innerWidth
@@ -69,7 +69,7 @@ export const CombinedPanel = memo(function CombinedPanel({
       trailPath: trailPoints.join(' '),
       inputValue: input
     }
-  }, [rawBrightness, ledFunction, cycleMultiplier, gamma, applyGammaToY])
+  }, [input, output, ledFunction, cycleMultiplier, gamma, applyGammaToY])
 
   return (
     <Card className="relative overflow-hidden border-2 border-border">
@@ -269,7 +269,7 @@ export const CombinedPanel = memo(function CombinedPanel({
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Input</span>
               <span className="font-mono font-medium text-muted-foreground">
-                {(rawBrightness * 100).toFixed(1)}%
+                {(input * 100).toFixed(1)}%
               </span>
             </div>
             
@@ -277,7 +277,7 @@ export const CombinedPanel = memo(function CombinedPanel({
               <div
                 className="h-full rounded-full will-change-[width]"
                 style={{
-                  width: `${rawBrightness * 100}%`,
+                  width: `${input * 100}%`,
                   backgroundColor: 'oklch(0.65 0.1 250)',
                   boxShadow: `0 0 6px oklch(0.65 0.1 250 / 0.5)`
                 }}

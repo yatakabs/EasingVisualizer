@@ -7,12 +7,13 @@ import type { LEDFunction } from '@/lib/ledFunctions'
 interface LEDPanelProps {
   ledFunction: LEDFunction
   brightness: number
-  rawBrightness: number
+  output: number
+  input: number
   cycleMultiplier: number
   onRemove?: () => void
 }
 
-export const LEDPanel = memo(function LEDPanel({ ledFunction, brightness, rawBrightness, cycleMultiplier, onRemove }: LEDPanelProps) {
+export const LEDPanel = memo(function LEDPanel({ ledFunction, brightness, output, input, cycleMultiplier, onRemove }: LEDPanelProps) {
   const glowIntensity = useMemo(() => {
     return Math.max(0, Math.min(1, brightness))
   }, [brightness])
@@ -111,7 +112,7 @@ export const LEDPanel = memo(function LEDPanel({ ledFunction, brightness, rawBri
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Input</span>
               <span className="font-mono font-medium text-muted-foreground">
-                {(rawBrightness * 100).toFixed(1)}%
+                {(input * 100).toFixed(1)}%
               </span>
             </div>
             
@@ -119,7 +120,7 @@ export const LEDPanel = memo(function LEDPanel({ ledFunction, brightness, rawBri
               <div
                 className="h-full rounded-full will-change-[width]"
                 style={{
-                  width: `${rawBrightness * 100}%`,
+                  width: `${input * 100}%`,
                   backgroundColor: 'oklch(0.65 0.1 250)',
                   boxShadow: `0 0 6px oklch(0.65 0.1 250 / 0.5)`
                 }}

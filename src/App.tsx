@@ -186,8 +186,8 @@ function App() {
                 const func = LED_FUNCTIONS.find(f => f.id === panel.functionId)
                 if (!func) return null
 
-                const rawBrightness = func.calculate(time, cycleMultiplier ?? 1)
-                const brightness = Math.pow(rawBrightness, 1 / (gamma ?? 2.2))
+                const output = func.calculate(time, cycleMultiplier ?? 1)
+                const brightness = Math.pow(output, 1 / (gamma ?? 2.2))
 
                 const bothEnabled = (showLED ?? true) && (showRectangle ?? false)
 
@@ -197,7 +197,8 @@ function App() {
                       <CombinedPanel
                         ledFunction={func}
                         brightness={brightness}
-                        rawBrightness={rawBrightness}
+                        output={output}
+                        input={time}
                         cycleMultiplier={cycleMultiplier ?? 1}
                         gamma={gamma ?? 2.2}
                         applyGammaToY={applyGammaToY ?? false}
@@ -208,7 +209,8 @@ function App() {
                       <LEDPanel
                         ledFunction={func}
                         brightness={brightness}
-                        rawBrightness={rawBrightness}
+                        output={output}
+                        input={time}
                         cycleMultiplier={cycleMultiplier ?? 1}
                         onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
                       />
@@ -217,7 +219,8 @@ function App() {
                       <RectangleMovement
                         ledFunction={func}
                         brightness={brightness}
-                        rawBrightness={rawBrightness}
+                        output={output}
+                        input={time}
                         cycleMultiplier={cycleMultiplier ?? 1}
                         gamma={gamma ?? 2.2}
                         applyGammaToY={applyGammaToY ?? false}

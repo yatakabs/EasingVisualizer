@@ -7,7 +7,8 @@ import type { LEDFunction } from '@/lib/ledFunctions'
 interface RectangleMovementProps {
   ledFunction: LEDFunction
   brightness: number
-  rawBrightness: number
+  output: number
+  input: number
   cycleMultiplier: number
   gamma: number
   applyGammaToY: boolean
@@ -17,7 +18,8 @@ interface RectangleMovementProps {
 export const RectangleMovement = memo(function RectangleMovement({ 
   ledFunction, 
   brightness, 
-  rawBrightness, 
+  output,
+  input,
   cycleMultiplier,
   gamma,
   applyGammaToY,
@@ -30,8 +32,6 @@ export const RectangleMovement = memo(function RectangleMovement({
     const innerWidth = graphWidth - padding * 2
     const innerHeight = graphHeight - padding * 2
     
-    const input = rawBrightness
-    const output = ledFunction.calculate(input, cycleMultiplier)
     const displayOutput = applyGammaToY ? Math.pow(output, 1 / gamma) : output
     
     const x = padding + input * innerWidth
@@ -65,7 +65,7 @@ export const RectangleMovement = memo(function RectangleMovement({
       trailPath: trailPoints.join(' '),
       inputValue: input
     }
-  }, [rawBrightness, ledFunction, cycleMultiplier, gamma, applyGammaToY])
+  }, [input, output, ledFunction, cycleMultiplier, gamma, applyGammaToY])
 
   return (
     <Card className="relative overflow-hidden border-2 border-border">
