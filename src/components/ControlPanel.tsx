@@ -136,6 +136,16 @@ export function ControlPanel({
           </div>
         </div>
         
+        <div className="bg-muted/30 rounded-md p-2 mb-2">
+          <div className="text-xs font-mono text-muted-foreground">
+            {cycleMultiplier === 1 ? (
+              'x = input'
+            ) : (
+              `x = (input × ${cycleMultiplier}) % 2 (triangle wave)`
+            )}
+          </div>
+        </div>
+        
         <Slider
           value={[inputValue]}
           onValueChange={([value]) => onInputValueChange(value)}
