@@ -173,17 +173,17 @@ function App() {
     <div className="min-h-screen bg-background text-foreground">
       <Sonner position="top-center" theme="dark" />
       
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold tracking-tight mb-2" style={{ letterSpacing: '-0.02em' }}>
+      <div className="container mx-auto px-3 py-4 max-w-[100rem]">
+        <header className="mb-4">
+          <h1 className="text-2xl font-bold tracking-tight mb-1" style={{ letterSpacing: '-0.02em' }}>
             関数比較ビジュアライザー
           </h1>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-sm">
             異なる数学関数の出力を視覚的に比較
           </p>
         </header>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           <ControlPanel
             isPlaying={isPlaying ?? true}
             speed={speed ?? 1}
@@ -219,15 +219,15 @@ function App() {
           />
 
           {(panels || []).length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="text-6xl mb-4">📊</div>
-              <h2 className="text-2xl font-semibold mb-2">パネルがありません</h2>
-              <p className="text-muted-foreground mb-6">
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="text-4xl mb-3">📊</div>
+              <h2 className="text-xl font-semibold mb-1">パネルがありません</h2>
+              <p className="text-muted-foreground text-sm mb-4">
                 最初のパネルを追加して関数の比較を開始
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-3">
               {(panels || []).map((panel) => {
                 const func = LED_FUNCTIONS.find(f => f.id === panel.functionId)
                 if (!func) return null
@@ -238,7 +238,7 @@ function App() {
                 const bothEnabled = (showLED ?? true) && (showRectangle ?? false)
 
                 return (
-                  <div key={panel.id} className="flex flex-col gap-6">
+                  <div key={panel.id} className="flex flex-col gap-3">
                     {bothEnabled && (
                       <CombinedPanel
                         ledFunction={func}

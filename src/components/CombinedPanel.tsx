@@ -172,19 +172,19 @@ export const CombinedPanel = memo(function CombinedPanel({
         <Button
           size="icon"
           variant="ghost"
-          className="absolute top-2 right-2 z-10 h-8 w-8 text-muted-foreground hover:text-destructive transition-colors"
+          className="absolute top-1.5 right-1.5 z-10 h-6 w-6 text-muted-foreground hover:text-destructive transition-colors"
           onClick={onRemove}
         >
-          <X size={16} />
+          <X size={14} />
         </Button>
       )}
       
-      <CardHeader className="pb-4">
-        <CardTitle className="text-lg font-semibold tracking-tight">
+      <CardHeader className="pb-2 pt-3 px-3">
+        <CardTitle className="text-sm font-semibold tracking-tight">
           {ledFunction.name}
         </CardTitle>
-        <div className="space-y-2 mt-1">
-          <p className="text-xs font-mono text-muted-foreground">
+        <div className="space-y-1.5 mt-1">
+          <p className="text-[10px] font-mono text-muted-foreground leading-tight">
             {ledFunction.formula}
           </p>
           <ToggleGroup 
@@ -195,23 +195,23 @@ export const CombinedPanel = memo(function CombinedPanel({
             size="sm"
             className="justify-start"
           >
-            <ToggleGroupItem value="easein" aria-label="EaseIn" className="text-xs px-2 h-7">
+            <ToggleGroupItem value="easein" aria-label="EaseIn" className="text-[10px] px-1.5 h-6">
               EaseIn
             </ToggleGroupItem>
-            <ToggleGroupItem value="easeout" aria-label="EaseOut" className="text-xs px-2 h-7">
+            <ToggleGroupItem value="easeout" aria-label="EaseOut" className="text-[10px] px-1.5 h-6">
               EaseOut
             </ToggleGroupItem>
-            <ToggleGroupItem value="easeboth" aria-label="EaseBoth" className="text-xs px-2 h-7">
+            <ToggleGroupItem value="easeboth" aria-label="EaseBoth" className="text-[10px] px-1.5 h-6">
               EaseBoth
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
       </CardHeader>
       
-      <CardContent className="flex flex-col items-center gap-4 pb-8">
-        <div className="flex flex-col gap-4 items-center justify-center w-full">
-          <div className="relative w-32 h-32 flex items-center justify-center flex-shrink-0">
-            <svg width="128" height="128" className="absolute inset-0">
+      <CardContent className="flex flex-col items-center gap-2 pb-3 px-3">
+        <div className="flex flex-col gap-2 items-center justify-center w-full">
+          <div className="relative w-24 h-24 flex items-center justify-center flex-shrink-0">
+            <svg width="96" height="96" className="absolute inset-0">
               <defs>
                 <radialGradient id={`glow-combined-${ledFunction.id}`}>
                   <stop
@@ -250,28 +250,28 @@ export const CombinedPanel = memo(function CombinedPanel({
               </defs>
               
               <circle
-                cx="64"
-                cy="64"
-                r="56"
+                cx="48"
+                cy="48"
+                r="42"
                 fill={`url(#glow-combined-${ledFunction.id})`}
                 className="transition-opacity duration-75"
               />
               
               <circle
-                cx="64"
-                cy="64"
-                r="28"
+                cx="48"
+                cy="48"
+                r="21"
                 fill={`url(#led-combined-${ledFunction.id})`}
                 className="transition-opacity duration-75"
               />
               
               <circle
-                cx="64"
-                cy="64"
-                r="28"
+                cx="48"
+                cy="48"
+                r="21"
                 fill="none"
                 stroke="oklch(0.4 0.03 250)"
-                strokeWidth="2"
+                strokeWidth="1.5"
               />
             </svg>
           </div>

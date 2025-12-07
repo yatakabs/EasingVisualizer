@@ -24,18 +24,18 @@ export function FunctionSelector({
 }: FunctionSelectorProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">
+          <DialogTitle className="text-xl font-bold">
             関数を選択
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm">
             比較に追加する関数を選択してください
           </DialogDescription>
         </DialogHeader>
         
-        <ScrollArea className="max-h-[60vh]">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pr-4">
+        <ScrollArea className="max-h-[70vh]">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pr-3">
             {LED_FUNCTIONS.map((func) => {
               const isUsed = usedFunctionIds.includes(func.id)
               
@@ -43,28 +43,28 @@ export function FunctionSelector({
                 <Button
                   key={func.id}
                   variant="outline"
-                  className="h-auto flex-col items-start p-4 gap-2 hover:border-primary transition-colors"
+                  className="h-auto flex-col items-start p-2 gap-1 hover:border-primary transition-colors"
                   onClick={() => {
                     onSelect(func)
                     onOpenChange(false)
                   }}
                   disabled={isUsed}
                 >
-                  <div className="flex items-center gap-2 w-full">
+                  <div className="flex items-center gap-1.5 w-full">
                     <div
-                      className="w-4 h-4 rounded-full"
+                      className="w-3 h-3 rounded-full flex-shrink-0"
                       style={{
                         backgroundColor: func.color,
-                        boxShadow: `0 0 8px ${func.color}`
+                        boxShadow: `0 0 6px ${func.color}`
                       }}
                     />
-                    <span className="font-semibold text-base">{func.name}</span>
+                    <span className="font-semibold text-xs truncate">{func.name}</span>
                   </div>
-                  <span className="font-mono text-xs text-muted-foreground text-left w-full">
+                  <span className="font-mono text-[10px] text-muted-foreground text-left w-full leading-tight">
                     {func.formula}
                   </span>
                   {isUsed && (
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-[10px] text-muted-foreground">
                       (使用中)
                     </span>
                   )}

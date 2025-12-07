@@ -43,19 +43,19 @@ export const LEDPanel = memo(function LEDPanel({
         <Button
           size="icon"
           variant="ghost"
-          className="absolute top-2 right-2 z-10 h-8 w-8 text-muted-foreground hover:text-destructive transition-colors"
+          className="absolute top-1.5 right-1.5 z-10 h-6 w-6 text-muted-foreground hover:text-destructive transition-colors"
           onClick={onRemove}
         >
-          <X size={16} />
+          <X size={14} />
         </Button>
       )}
       
-      <CardHeader className="pb-4">
-        <CardTitle className="text-lg font-semibold tracking-tight">
+      <CardHeader className="pb-2 pt-3 px-3">
+        <CardTitle className="text-sm font-semibold tracking-tight">
           {ledFunction.name}
         </CardTitle>
-        <div className="space-y-2 mt-1">
-          <p className="text-xs font-mono text-muted-foreground">
+        <div className="space-y-1.5 mt-1">
+          <p className="text-[10px] font-mono text-muted-foreground leading-tight">
             {ledFunction.formula}
           </p>
           <ToggleGroup 
@@ -66,22 +66,22 @@ export const LEDPanel = memo(function LEDPanel({
             size="sm"
             className="justify-start"
           >
-            <ToggleGroupItem value="easein" aria-label="EaseIn" className="text-xs px-2 h-7">
+            <ToggleGroupItem value="easein" aria-label="EaseIn" className="text-[10px] px-1.5 h-6">
               EaseIn
             </ToggleGroupItem>
-            <ToggleGroupItem value="easeout" aria-label="EaseOut" className="text-xs px-2 h-7">
+            <ToggleGroupItem value="easeout" aria-label="EaseOut" className="text-[10px] px-1.5 h-6">
               EaseOut
             </ToggleGroupItem>
-            <ToggleGroupItem value="easeboth" aria-label="EaseBoth" className="text-xs px-2 h-7">
+            <ToggleGroupItem value="easeboth" aria-label="EaseBoth" className="text-[10px] px-1.5 h-6">
               EaseBoth
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
       </CardHeader>
       
-      <CardContent className="flex flex-col items-center gap-4 pb-8">
-        <div className="relative w-40 h-40 flex items-center justify-center">
-          <svg width="160" height="160" className="absolute inset-0">
+      <CardContent className="flex flex-col items-center gap-2 pb-3 px-3">
+        <div className="relative w-32 h-32 flex items-center justify-center">
+          <svg width="128" height="128" className="absolute inset-0">
             <defs>
               <radialGradient id={`glow-${ledFunction.id}`}>
                 <stop
@@ -120,25 +120,25 @@ export const LEDPanel = memo(function LEDPanel({
             </defs>
             
             <circle
-              cx="80"
-              cy="80"
-              r="70"
+              cx="64"
+              cy="64"
+              r="56"
               fill={`url(#glow-${ledFunction.id})`}
               className="transition-opacity duration-75"
             />
             
             <circle
-              cx="80"
-              cy="80"
-              r="35"
+              cx="64"
+              cy="64"
+              r="28"
               fill={`url(#led-${ledFunction.id})`}
               className="transition-opacity duration-75"
             />
             
             <circle
-              cx="80"
-              cy="80"
-              r="35"
+              cx="64"
+              cy="64"
+              r="28"
               fill="none"
               stroke="oklch(0.4 0.03 250)"
               strokeWidth="2"
@@ -146,42 +146,42 @@ export const LEDPanel = memo(function LEDPanel({
           </svg>
         </div>
         
-        <div className="w-full bg-secondary rounded-lg p-3 space-y-3">
-          <div className="space-y-2">
-            <div className="flex justify-between text-xs">
+        <div className="w-full bg-secondary rounded-lg p-2 space-y-2">
+          <div className="space-y-1">
+            <div className="flex justify-between text-[10px]">
               <span className="text-muted-foreground">Input</span>
               <span className="font-mono font-medium text-muted-foreground">
                 {(input * 100).toFixed(1)}%
               </span>
             </div>
             
-            <div className="w-full bg-background rounded-full h-2 overflow-hidden">
+            <div className="w-full bg-background rounded-full h-1.5 overflow-hidden">
               <div
                 className="h-full rounded-full will-change-[width]"
                 style={{
                   width: `${input * 100}%`,
                   backgroundColor: 'oklch(0.65 0.1 250)',
-                  boxShadow: `0 0 6px oklch(0.65 0.1 250 / 0.5)`
+                  boxShadow: `0 0 4px oklch(0.65 0.1 250 / 0.5)`
                 }}
               />
             </div>
           </div>
           
-          <div className="space-y-2">
-            <div className="flex justify-between text-xs">
+          <div className="space-y-1">
+            <div className="flex justify-between text-[10px]">
               <span className="text-muted-foreground">Output</span>
               <span className="font-mono font-medium text-primary">
                 {(displayOutput * 100).toFixed(1)}%
               </span>
             </div>
             
-            <div className="w-full bg-background rounded-full h-2 overflow-hidden">
+            <div className="w-full bg-background rounded-full h-1.5 overflow-hidden">
               <div
                 className="h-full rounded-full will-change-[width]"
                 style={{
                   width: `${displayOutput * 100}%`,
                   backgroundColor: ledFunction.color,
-                  boxShadow: `0 0 8px ${ledFunction.color}`
+                  boxShadow: `0 0 6px ${ledFunction.color}`
                 }}
               />
             </div>
