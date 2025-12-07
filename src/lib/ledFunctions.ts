@@ -11,8 +11,11 @@ export const LED_FUNCTIONS: LEDFunction[] = [
     id: 'linear',
     name: 'Linear',
     formula: 'y = x',
-    calculate: (t: number) => {
-      return t
+    calculate: (t: number, cycleMultiplier: number = 1) => {
+      const x = t * cycleMultiplier
+      const normalizedX = x % 2
+      const baseX = normalizedX < 1 ? normalizedX : 2 - normalizedX
+      return baseX
     },
     color: 'oklch(0.75 0.15 200)'
   },
