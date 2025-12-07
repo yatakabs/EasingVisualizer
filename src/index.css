@@ -44,7 +44,9 @@
   --input: oklch(0.35 0.03 250);
   --ring: oklch(0.75 0.15 200);
   
-  --radius: 0.5rem;
+  --radius: 0.25rem;
+  
+  --spacing: 0.20rem;
 }
 
 @theme {
