@@ -15,8 +15,8 @@ export const LEDPreview = memo(function LEDPreview({
   }, [filteredOutput])
 
   return (
-    <div className="flex flex-col items-center gap-2 w-full">
-      <div className="relative w-32 h-32 flex items-center justify-center">
+    <div className="w-full">
+      <div className="relative w-32 h-32 flex items-center justify-center mx-auto">
         <svg width="128" height="128" className="absolute inset-0">
           <defs>
             <radialGradient id={`glow-${ledFunction.id}`}>
