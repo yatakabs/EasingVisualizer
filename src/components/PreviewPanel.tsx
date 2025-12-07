@@ -118,24 +118,18 @@ export const PreviewPanel = memo(function PreviewPanel({
       </div>
       
       <CardContent className="flex flex-col items-center gap-1.5" style={{ margin: 0, padding: '8px' }}>
-        {enabledPreviews.includes('camera') && (
-          shouldEnableCamera ? (
-            <CameraPreview
-              ledFunction={ledFunction}
-              output={output}
-              filteredOutput={filteredOutput}
-              baseInput={baseInput}
-              enabledFilters={enabledFilters}
-              startPos={cameraStartPos}
-              endPos={cameraEndPos}
-              aspectRatio={cameraAspectRatio}
-              maxPreviews={maxCameraPreviews}
-            />
-          ) : (
-            <div className="w-full rounded border border-border bg-muted/30 flex items-center justify-center text-muted-foreground text-xs p-4" style={{ aspectRatio: cameraAspectRatio }}>
-              3Dプレビュー無効 (最大{maxCameraPreviews}個まで)
-            </div>
-          )
+        {enabledPreviews.includes('camera') && shouldEnableCamera && (
+          <CameraPreview
+            ledFunction={ledFunction}
+            output={output}
+            filteredOutput={filteredOutput}
+            baseInput={baseInput}
+            enabledFilters={enabledFilters}
+            startPos={cameraStartPos}
+            endPos={cameraEndPos}
+            aspectRatio={cameraAspectRatio}
+            maxPreviews={maxCameraPreviews}
+          />
         )}
         
         {enabledPreviews.includes('led') && (
