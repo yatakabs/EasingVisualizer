@@ -29,7 +29,7 @@ export const RectangleMovement = memo(function RectangleMovement({
     return applyGammaToY ? Math.pow(output, 1 / gamma) : output
   }, [output, gamma, applyGammaToY])
 
-  const { position, graphPath, inputValue, trailPath } = useMemo(() => {
+  const { position, graphPath, inputValue, trailPath, originalGraphPath } = useMemo(() => {
     const graphWidth = 200
     const graphHeight = 200
     const padding = 30
@@ -42,11 +42,16 @@ export const RectangleMovement = memo(function RectangleMovement({
     const y = padding + (1 - displayOutput) * innerHeight
     
     const points: string[] = []
+    const originalPoints: string[] = []
     const steps = 100
     for (let i = 0; i <= steps; i++) {
       const t = i / steps
       const xPos = padding + t * innerWidth
       const yVal = ledFunction.calculate(t, cycleMultiplier)
+      
+      const originalYPos = padding + (1 - yVal) * innerHeight
+      originalPoints.push(`${xPos},${originalYPos}`)
+      
       const displayYVal = applyGammaToY ? Math.pow(yVal, 1 / gamma) : yVal
       const yPos = padding + (1 - displayYVal) * innerHeight
       points.push(`${xPos},${yPos}`)
@@ -67,6 +72,7 @@ export const RectangleMovement = memo(function RectangleMovement({
       position: { x, y },
       graphPath: points.join(' '),
       trailPath: trailPoints.join(' '),
+      originalGraphPath: originalPoints.join(' '),
       inputValue: input
     }
   }, [input, output, ledFunction, cycleMultiplier, gamma, applyGammaToY])
@@ -154,6 +160,15 @@ export const RectangleMovement = memo(function RectangleMovement({
             <text x="10" y="100" textAnchor="middle" className="text-[10px] fill-muted-foreground font-mono" transform="rotate(-90 10 100)">
               Output (y)
             </text>
+            
+            <polyline
+              points={originalGraphPath}
+              fill="none"
+              stroke={ledFunction.color}
+              strokeWidth="2"
+              opacity="0.2"
+              strokeDasharray="4 4"
+            />
             
             <polyline
               points={graphPath}

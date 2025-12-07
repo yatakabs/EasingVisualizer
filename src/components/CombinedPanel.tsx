@@ -26,14 +26,16 @@ export const CombinedPanel = memo(function CombinedPanel({
   onRemove 
 }: CombinedPanelProps) {
   const glowIntensity = useMemo(() => {
-    return Math.max(0, Math.min(1, brightness))
-  }, [brightness])
+    const baseOutput = output
+    const displayValue = applyGammaToY ? Math.pow(baseOutput, 1 / gamma) : baseOutput
+    return Math.max(0, Math.min(1, displayValue))
+  }, [output, gamma, applyGammaToY])
   
   const displayOutput = useMemo(() => {
     return applyGammaToY ? Math.pow(output, 1 / gamma) : output
   }, [output, gamma, applyGammaToY])
 
-  const { position, graphPath, inputValue, trailPath } = useMemo(() => {
+  const { position, graphPath, inputValue, trailPath, originalGraphPath } = useMemo(() => {
     const graphWidth = 200
     const graphHeight = 200
     const padding = 30
@@ -46,11 +48,16 @@ export const CombinedPanel = memo(function CombinedPanel({
     const y = padding + (1 - displayOutput) * innerHeight
     
     const points: string[] = []
+    const originalPoints: string[] = []
     const steps = 100
     for (let i = 0; i <= steps; i++) {
       const t = i / steps
       const xPos = padding + t * innerWidth
       const yVal = ledFunction.calculate(t, cycleMultiplier)
+      
+      const originalYPos = padding + (1 - yVal) * innerHeight
+      originalPoints.push(`${xPos},${originalYPos}`)
+      
       const displayYVal = applyGammaToY ? Math.pow(yVal, 1 / gamma) : yVal
       const yPos = padding + (1 - displayYVal) * innerHeight
       points.push(`${xPos},${yPos}`)
@@ -71,6 +78,7 @@ export const CombinedPanel = memo(function CombinedPanel({
       position: { x, y },
       graphPath: points.join(' '),
       trailPath: trailPoints.join(' '),
+      originalGraphPath: originalPoints.join(' '),
       inputValue: input
     }
   }, [input, output, ledFunction, cycleMultiplier, gamma, applyGammaToY])
@@ -225,6 +233,15 @@ export const CombinedPanel = memo(function CombinedPanel({
               <text x="10" y="100" textAnchor="middle" className="text-[10px] fill-muted-foreground font-mono" transform="rotate(-90 10 100)">
                 Output (y)
               </text>
+              
+              <polyline
+                points={originalGraphPath}
+                fill="none"
+                stroke={ledFunction.color}
+                strokeWidth="2"
+                opacity="0.2"
+                strokeDasharray="4 4"
+              />
               
               <polyline
                 points={graphPath}

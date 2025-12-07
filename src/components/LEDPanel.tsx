@@ -17,8 +17,10 @@ interface LEDPanelProps {
 
 export const LEDPanel = memo(function LEDPanel({ ledFunction, brightness, output, input, cycleMultiplier, gamma, applyGammaToY, onRemove }: LEDPanelProps) {
   const glowIntensity = useMemo(() => {
-    return Math.max(0, Math.min(1, brightness))
-  }, [brightness])
+    const baseOutput = output
+    const displayValue = applyGammaToY ? Math.pow(baseOutput, 1 / gamma) : baseOutput
+    return Math.max(0, Math.min(1, displayValue))
+  }, [output, gamma, applyGammaToY])
   
   const displayOutput = useMemo(() => {
     return applyGammaToY ? Math.pow(output, 1 / gamma) : output
