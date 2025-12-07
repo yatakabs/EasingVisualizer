@@ -115,12 +115,11 @@ export const LEDPanel = memo(function LEDPanel({ ledFunction, brightness, rawBri
           
           <div className="w-full bg-background rounded-full h-2 overflow-hidden">
             <div
-              className="h-full rounded-full"
+              className="h-full rounded-full will-change-[width]"
               style={{
                 width: `${glowIntensity * 100}%`,
                 backgroundColor: ledFunction.color,
-                boxShadow: `0 0 8px ${ledFunction.color}`,
-                transition: 'width 0.05s linear'
+                boxShadow: `0 0 8px ${ledFunction.color}`
               }}
             />
           </div>
