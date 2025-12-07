@@ -185,30 +185,45 @@ export const RectangleMovement = memo(function RectangleMovement({
           </svg>
         </div>
         
-        <div className="w-full bg-secondary rounded-lg p-3 space-y-2">
-          <div className="flex justify-between text-xs">
-            <span className="text-muted-foreground">Input (x)</span>
-            <span className="font-mono font-medium text-primary">
-              {(inputValue * 100).toFixed(1)}%
-            </span>
+        <div className="w-full bg-secondary rounded-lg p-3 space-y-3">
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs">
+              <span className="text-muted-foreground">Input (x)</span>
+              <span className="font-mono font-medium text-muted-foreground">
+                {(inputValue * 100).toFixed(1)}%
+              </span>
+            </div>
+            
+            <div className="w-full bg-background rounded-full h-2 overflow-hidden">
+              <div
+                className="h-full rounded-full will-change-[width]"
+                style={{
+                  width: `${inputValue * 100}%`,
+                  backgroundColor: 'oklch(0.65 0.1 250)',
+                  boxShadow: `0 0 6px oklch(0.65 0.1 250 / 0.5)`
+                }}
+              />
+            </div>
           </div>
           
-          <div className="w-full bg-background rounded-full h-2 overflow-hidden">
-            <div
-              className="h-full rounded-full will-change-[width]"
-              style={{
-                width: `${inputValue * 100}%`,
-                backgroundColor: ledFunction.color,
-                boxShadow: `0 0 8px ${ledFunction.color}`
-              }}
-            />
-          </div>
-          
-          <div className="flex justify-between text-xs pt-1">
-            <span className="text-muted-foreground">Output (y)</span>
-            <span className="font-mono font-medium text-muted-foreground">
-              {(brightness * 100).toFixed(1)}%
-            </span>
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs">
+              <span className="text-muted-foreground">Output (y)</span>
+              <span className="font-mono font-medium text-primary">
+                {(brightness * 100).toFixed(1)}%
+              </span>
+            </div>
+            
+            <div className="w-full bg-background rounded-full h-2 overflow-hidden">
+              <div
+                className="h-full rounded-full will-change-[width]"
+                style={{
+                  width: `${brightness * 100}%`,
+                  backgroundColor: ledFunction.color,
+                  boxShadow: `0 0 8px ${ledFunction.color}`
+                }}
+              />
+            </div>
           </div>
         </div>
       </CardContent>
