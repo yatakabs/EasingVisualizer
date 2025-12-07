@@ -27,6 +27,7 @@ function App() {
   const [savedSpeed, setSavedSpeed] = useKV<number>('animation-speed', 1)
   const [savedGamma, setSavedGamma] = useKV<number>('gamma-correction', 2.2)
   const [visualizationMode, setVisualizationMode] = useKV<'led' | 'rectangle'>('visualization-mode', 'led')
+  const [cycleMultiplier, setCycleMultiplier] = useKV<number>('cycle-multiplier', 1)
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
@@ -70,7 +71,8 @@ function App() {
       setFps(Math.round(1000 / avgDelta))
 
       setTime((prevTime) => {
-        const newTime = prevTime + (delta * (speed || 1)) / CYCLE_DURATION
+        const effectiveMultiplier = cycleMultiplier ?? 1
+        const newTime = prevTime + (delta * (speed || 1)) / (CYCLE_DURATION * effectiveMultiplier)
         return newTime % 1
       })
 
@@ -82,7 +84,7 @@ function App() {
     return () => {
       cancelAnimationFrame(animationFrameId)
     }
-  }, [isPlaying, speed])
+  }, [isPlaying, speed, cycleMultiplier])
 
   const handleAddPanel = useCallback(() => {
     if ((panels || []).length >= MAX_PANELS) {
@@ -154,11 +156,13 @@ function App() {
             gamma={gamma ?? 2.2}
             fps={fps}
             visualizationMode={visualizationMode ?? 'led'}
+            cycleMultiplier={cycleMultiplier ?? 1}
             onPlayPause={() => setIsPlaying((current) => !current)}
             onSpeedChange={handleSpeedChange}
             onGammaChange={handleGammaChange}
             onAddPanel={handleAddPanel}
             onVisualizationModeChange={(mode) => setVisualizationMode(() => mode)}
+            onCycleMultiplierChange={(multiplier) => setCycleMultiplier(() => multiplier)}
           />
 
           {(panels || []).length === 0 ? (

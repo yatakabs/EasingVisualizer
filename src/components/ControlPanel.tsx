@@ -10,11 +10,13 @@ interface ControlPanelProps {
   gamma: number
   fps: number
   visualizationMode: 'led' | 'rectangle'
+  cycleMultiplier: number
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
   onGammaChange: (gamma: number) => void
   onAddPanel: () => void
   onVisualizationModeChange: (mode: 'led' | 'rectangle') => void
+  onCycleMultiplierChange: (multiplier: number) => void
 }
 
 export function ControlPanel({
@@ -23,11 +25,13 @@ export function ControlPanel({
   gamma,
   fps,
   visualizationMode,
+  cycleMultiplier,
   onPlayPause,
   onSpeedChange,
   onGammaChange,
   onAddPanel,
-  onVisualizationModeChange
+  onVisualizationModeChange,
+  onCycleMultiplierChange
 }: ControlPanelProps) {
   return (
     <div className="w-full bg-card border-2 border-border rounded-lg p-6 space-y-6">
@@ -57,12 +61,21 @@ export function ControlPanel({
           </Badge>
         </div>
         
-        <Tabs value={visualizationMode} onValueChange={(value) => onVisualizationModeChange(value as 'led' | 'rectangle')}>
-          <TabsList>
-            <TabsTrigger value="led">LED</TabsTrigger>
-            <TabsTrigger value="rectangle">四角形</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="flex flex-wrap gap-3 items-center">
+          <Tabs value={cycleMultiplier.toString()} onValueChange={(value) => onCycleMultiplierChange(parseFloat(value))}>
+            <TabsList>
+              <TabsTrigger value="1">1倍</TabsTrigger>
+              <TabsTrigger value="2">1/2倍</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          
+          <Tabs value={visualizationMode} onValueChange={(value) => onVisualizationModeChange(value as 'led' | 'rectangle')}>
+            <TabsList>
+              <TabsTrigger value="led">LED</TabsTrigger>
+              <TabsTrigger value="rectangle">四角形</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
       </div>
       
       <div className="space-y-3">
