@@ -63,7 +63,7 @@ export const PreviewPanel = memo(function PreviewPanel({
       onDrop={onDrop}
     >
       <div 
-        className="bg-muted/50 border-b border-border px-3 py-1.5 flex items-center justify-between cursor-move active:cursor-grabbing"
+        className="bg-muted/50 border-b border-border px-3 py-1 flex items-center justify-between cursor-move active:cursor-grabbing"
         draggable
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
@@ -85,11 +85,11 @@ export const PreviewPanel = memo(function PreviewPanel({
         )}
       </div>
       
-      <CardHeader className="p-0 px-3 pt-1.5 pb-1">
+      <CardHeader className="p-0 px-3 pt-1 pb-1">
         <CardTitle className="text-sm font-semibold tracking-tight">
           {ledFunction.name}
         </CardTitle>
-        <div className="space-y-1 mt-0.5">
+        <div className="space-y-0.5 mt-0.5">
           <p className="text-[10px] font-mono text-muted-foreground leading-tight">
             {ledFunction.formula}
           </p>
@@ -101,20 +101,20 @@ export const PreviewPanel = memo(function PreviewPanel({
             size="sm"
             className="justify-start"
           >
-            <ToggleGroupItem value="easein" aria-label="EaseIn" className="text-[10px] px-1.5 h-6">
+            <ToggleGroupItem value="easein" aria-label="EaseIn" className="text-[10px] px-1.5 h-5">
               EaseIn
             </ToggleGroupItem>
-            <ToggleGroupItem value="easeout" aria-label="EaseOut" className="text-[10px] px-1.5 h-6">
+            <ToggleGroupItem value="easeout" aria-label="EaseOut" className="text-[10px] px-1.5 h-5">
               EaseOut
             </ToggleGroupItem>
-            <ToggleGroupItem value="easeboth" aria-label="EaseBoth" className="text-[10px] px-1.5 h-6">
+            <ToggleGroupItem value="easeboth" aria-label="EaseBoth" className="text-[10px] px-1.5 h-5">
               EaseBoth
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
       </CardHeader>
       
-      <CardContent className="flex flex-col items-center gap-2 p-0 px-3 pb-1.5">
+      <CardContent className="flex flex-col items-center gap-2 p-0 px-3 pb-1.5 pt-0.5">
         {enabledPreviews.includes('camera') && (
           <CameraPreview
             ledFunction={ledFunction}
