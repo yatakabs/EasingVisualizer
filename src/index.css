@@ -78,10 +78,6 @@
   --radius-full: 9999px;
 }
 
-.card-container {
-  padding: 0;
-}
-
 body {
   overflow-x: hidden;
 }

@@ -58,17 +58,17 @@ export const PreviewPanel = memo(function PreviewPanel({
 }: PreviewPanelProps) {
   return (
     <Card 
-      className="relative overflow-hidden border border-border card-container gap-0 py-0"
+      className="relative overflow-hidden border border-border p-0 gap-0"
       onDragOver={onDragOver}
       onDrop={onDrop}
     >
       <CardHeader 
-        className="bg-muted/50 border-b border-border px-3 py-2 gap-0 cursor-move active:cursor-grabbing card-header"
+        className="bg-muted/50 border-b border-border px-3 py-1.5 gap-0 cursor-move active:cursor-grabbing card-header"
         draggable
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
       >
-        <div className="flex items-center justify-between gap-2 py-0">
+        <div className="flex items-center justify-between gap-2 py-0 my-0">
           <CardTitle className="text-xs font-semibold tracking-tight truncate flex-1 min-w-0 my-0 py-0 leading-none">
             {title || ledFunction.name}
           </CardTitle>
@@ -76,7 +76,7 @@ export const PreviewPanel = memo(function PreviewPanel({
             <Button
               size="icon"
               variant="ghost"
-              className="h-5 w-5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex-shrink-0"
+              className="h-5 w-5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex-shrink-0 my-0"
               onClick={onRemove}
             >
               <X size={12} weight="bold" />
@@ -85,8 +85,8 @@ export const PreviewPanel = memo(function PreviewPanel({
         </div>
       </CardHeader>
       
-      <div className="px-3 py-2 border-b border-border/50 mt-0">
-        <div className="flex items-center justify-between gap-2 py-0">
+      <div className="px-3 py-1.5 border-b border-border/50 mt-0">
+        <div className="flex items-center justify-between gap-2 py-0 my-0">
           <p className="text-[10px] font-mono text-muted-foreground leading-tight my-0 py-0">
             {ledFunction.formula}
           </p>
@@ -111,7 +111,7 @@ export const PreviewPanel = memo(function PreviewPanel({
         </div>
       </div>
       
-      <CardContent className="flex flex-col items-center gap-2 p-0 px-3 pb-2 pt-0 mt-0">
+      <CardContent className="flex flex-col items-center gap-2 p-0 px-3 pb-1.5 pt-0 mt-0">
         {enabledPreviews.includes('camera') && (
           <CameraPreview
             ledFunction={ledFunction}
