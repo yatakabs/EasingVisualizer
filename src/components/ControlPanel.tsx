@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
 import { Play, Pause, Plus } from '@phosphor-icons/react'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -16,6 +17,8 @@ interface ControlPanelProps {
   showRectangle: boolean
   cycleMultiplier: number
   enabledFilters: string[]
+  inputValue: number
+  manualInputMode: boolean
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
   onGammaChange: (gamma: number) => void
@@ -24,6 +27,8 @@ interface ControlPanelProps {
   onToggleRectangle: () => void
   onCycleMultiplierChange: (multiplier: number) => void
   onToggleFilter: (filterId: string) => void
+  onInputValueChange: (value: number) => void
+  onManualInputModeChange: (enabled: boolean) => void
 }
 
 export function ControlPanel({
@@ -35,6 +40,8 @@ export function ControlPanel({
   showRectangle,
   cycleMultiplier,
   enabledFilters,
+  inputValue,
+  manualInputMode,
   onPlayPause,
   onSpeedChange,
   onGammaChange,
@@ -42,7 +49,9 @@ export function ControlPanel({
   onToggleLED,
   onToggleRectangle,
   onCycleMultiplierChange,
-  onToggleFilter
+  onToggleFilter,
+  onInputValueChange,
+  onManualInputModeChange
 }: ControlPanelProps) {
   return (
     <div className="w-full bg-card border-2 border-border rounded-lg p-6 space-y-6">
@@ -52,6 +61,7 @@ export function ControlPanel({
             size="lg"
             onClick={onPlayPause}
             className="gap-2 font-semibold"
+            disabled={manualInputMode}
           >
             {isPlaying ? <Pause size={20} weight="fill" /> : <Play size={20} weight="fill" />}
             {isPlaying ? 'Pause' : 'Play'}
@@ -112,6 +122,65 @@ export function ControlPanel({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <label className="text-sm font-medium text-foreground">
+            Input Value
+          </label>
+          <span className="text-sm font-mono text-primary">
+            {inputValue.toFixed(3)}
+          </span>
+        </div>
+        
+        <Slider
+          value={[inputValue]}
+          onValueChange={([value]) => onInputValueChange(value)}
+          min={0}
+          max={1}
+          step={0.001}
+          className="w-full"
+          disabled={!manualInputMode}
+        />
+        
+        <div className="relative text-xs text-muted-foreground font-mono">
+          <span className="absolute left-0">0.000</span>
+          <span className="absolute left-1/2 -translate-x-1/2">0.500</span>
+          <span className="absolute right-0">1.000</span>
+        </div>
+        
+        <div className="flex items-center gap-4 pt-2">
+          <div className="flex items-center gap-2">
+            <Switch
+              id="manual-input-mode"
+              checked={manualInputMode}
+              onCheckedChange={onManualInputModeChange}
+            />
+            <Label htmlFor="manual-input-mode" className="text-sm font-medium cursor-pointer">
+              手動制御モード
+            </Label>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Input
+              id="input-value-field"
+              type="number"
+              value={inputValue.toFixed(3)}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value)
+                if (!isNaN(value) && value >= 0 && value <= 1) {
+                  onInputValueChange(value)
+                }
+              }}
+              step={0.001}
+              min={0}
+              max={1}
+              className="w-24 font-mono text-sm"
+              disabled={!manualInputMode}
+            />
+          </div>
+        </div>
+      </div>
+      
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium text-foreground">
             Animation Speed
           </label>
           <span className="text-sm font-mono text-primary">
@@ -126,6 +195,7 @@ export function ControlPanel({
           max={3}
           step={0.1}
           className="w-full"
+          disabled={manualInputMode}
         />
         
         <div className="relative text-xs text-muted-foreground font-mono">

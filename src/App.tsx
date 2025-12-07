@@ -32,6 +32,8 @@ function App() {
   const [showRectangle, setShowRectangle] = useKV<boolean>('show-rectangle', false)
   const [cycleMultiplier, setCycleMultiplier] = useKV<number>('cycle-multiplier', 1)
   const [enabledFilters, setEnabledFilters] = useKV<string[]>('enabled-filters', [])
+  const [manualInputMode, setManualInputMode] = useKV<boolean>('manual-input-mode', false)
+  const [manualInputValue, setManualInputValue] = useKV<number>('manual-input-value', 0)
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
@@ -57,7 +59,7 @@ function App() {
   }, [savedGamma])
 
   useEffect(() => {
-    if (!isPlaying) return
+    if (!isPlaying || (manualInputMode ?? false)) return
 
     let animationFrameId: number
 
@@ -88,7 +90,7 @@ function App() {
     return () => {
       cancelAnimationFrame(animationFrameId)
     }
-  }, [isPlaying, speed, cycleMultiplier])
+  }, [isPlaying, speed, cycleMultiplier, manualInputMode])
 
   const handleAddPanel = useCallback(() => {
     if ((panels || []).length >= MAX_PANELS) {
@@ -137,6 +139,19 @@ function App() {
     }, 500)
   }, [setSavedGamma])
 
+  const handleManualInputModeChange = useCallback((enabled: boolean) => {
+    setManualInputMode(() => enabled)
+    if (enabled) {
+      setManualInputValue(() => time)
+    }
+  }, [setManualInputMode, setManualInputValue, time])
+
+  const handleInputValueChange = useCallback((value: number) => {
+    setManualInputValue(() => value)
+    setTime(value)
+  }, [setManualInputValue])
+
+  const currentInputValue = (manualInputMode ?? false) ? (manualInputValue ?? 0) : time
   const usedFunctionIds = (panels || []).map(p => p.functionId)
 
   return (
@@ -163,6 +178,8 @@ function App() {
             showRectangle={showRectangle ?? false}
             cycleMultiplier={cycleMultiplier ?? 1}
             enabledFilters={enabledFilters ?? []}
+            inputValue={currentInputValue}
+            manualInputMode={manualInputMode ?? false}
             onPlayPause={() => setIsPlaying((current) => !current)}
             onSpeedChange={handleSpeedChange}
             onGammaChange={handleGammaChange}
@@ -180,6 +197,8 @@ function App() {
                 }
               })
             }}
+            onInputValueChange={handleInputValueChange}
+            onManualInputModeChange={handleManualInputModeChange}
           />
 
           {(panels || []).length === 0 ? (
@@ -196,7 +215,7 @@ function App() {
                 const func = LED_FUNCTIONS.find(f => f.id === panel.functionId)
                 if (!func) return null
 
-                const output = func.calculate(time, cycleMultiplier ?? 1)
+                const output = func.calculate(currentInputValue, cycleMultiplier ?? 1)
                 const filteredOutput = applyFilters(output, enabledFilters ?? [], { gamma: gamma ?? 2.2 })
 
                 const bothEnabled = (showLED ?? true) && (showRectangle ?? false)
@@ -208,7 +227,7 @@ function App() {
                         ledFunction={func}
                         output={output}
                         filteredOutput={filteredOutput}
-                        input={time}
+                        input={currentInputValue}
                         cycleMultiplier={cycleMultiplier ?? 1}
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}
@@ -220,7 +239,7 @@ function App() {
                         ledFunction={func}
                         output={output}
                         filteredOutput={filteredOutput}
-                        input={time}
+                        input={currentInputValue}
                         cycleMultiplier={cycleMultiplier ?? 1}
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}
@@ -232,7 +251,7 @@ function App() {
                         ledFunction={func}
                         output={output}
                         filteredOutput={filteredOutput}
-                        input={time}
+                        input={currentInputValue}
                         cycleMultiplier={cycleMultiplier ?? 1}
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}
