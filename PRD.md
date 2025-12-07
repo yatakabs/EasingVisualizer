@@ -20,11 +20,11 @@ This app displays multiple animated panels with play/pause controls and function
 - Success criteria: Smooth 60fps animation with synchronized timing across all panels
 
 **Function Comparison**
-- Functionality: Support multiple time-output functions (Linear, Sine, Exponential, Quadratic, Pulse Width)
-- Purpose: Demonstrate how different mathematical approaches affect perceived brightness
+- Functionality: Support multiple bidirectional time-output functions (Linear, Sine, Exponential, Quadratic, Pulse Width) that cycle 0→1→0
+- Purpose: Demonstrate how different mathematical approaches affect perceived brightness in round-trip cycles
 - Trigger: Panels display preset functions on load
 - Progression: User views panels → Observes brightness patterns → Understands function differences
-- Success criteria: Each function produces visually distinct brightness patterns
+- Success criteria: Each function produces visually distinct bidirectional brightness patterns
 
 **Playback Controls**
 - Functionality: Play/pause all animations and adjust animation speed
