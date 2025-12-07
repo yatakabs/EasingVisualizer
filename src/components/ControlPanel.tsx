@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { INPUT_FUNCTIONS } from '@/lib/inputFunctions'
+import { toast } from 'sonner'
 
 interface ControlPanelProps {
   isPlaying: boolean
@@ -33,6 +34,7 @@ interface ControlPanelProps {
   onInputValueChange: (value: number) => void
   onManualInputModeChange: (enabled: boolean) => void
   onInputFunctionChange: (functionId: string) => void
+  onApplyPreset: (presetName: 'easein' | 'easeout' | 'easeboth') => void
 }
 
 export function ControlPanel({
@@ -57,7 +59,8 @@ export function ControlPanel({
   onToggleFilter,
   onInputValueChange,
   onManualInputModeChange,
-  onInputFunctionChange
+  onInputFunctionChange,
+  onApplyPreset
 }: ControlPanelProps) {
   const currentInputFunction = INPUT_FUNCTIONS.find(f => f.id === inputFunctionId) || INPUT_FUNCTIONS[0]
 
@@ -144,6 +147,33 @@ export function ControlPanel({
               ))}
             </SelectContent>
           </Select>
+        </div>
+        
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onApplyPreset('easein')}
+            className="flex-1 font-semibold"
+          >
+            EaseIn
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onApplyPreset('easeout')}
+            className="flex-1 font-semibold"
+          >
+            EaseOut
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onApplyPreset('easeboth')}
+            className="flex-1 font-semibold"
+          >
+            EaseBoth
+          </Button>
         </div>
         
         <div className="bg-muted/30 rounded-md p-2">

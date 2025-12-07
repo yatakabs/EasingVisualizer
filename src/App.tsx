@@ -153,6 +153,43 @@ function App() {
     setTime(value)
   }, [setManualInputValue])
 
+  const handleApplyPreset = useCallback((presetName: 'easein' | 'easeout' | 'easeboth') => {
+    const presets = {
+      easein: { input: 'triangle', output: 'quadratic' },
+      easeout: { input: 'triangle', output: 'sqrt' },
+      easeboth: { input: 'triangle', output: 'sine' }
+    }
+    
+    const preset = presets[presetName]
+    
+    setInputFunctionId(() => preset.input)
+    
+    setPanels((currentPanels) => {
+      const panels = currentPanels || []
+      const outputExists = panels.some(p => p.functionId === preset.output)
+      
+      if (outputExists) {
+        toast.success(`${presetName === 'easein' ? 'EaseIn' : presetName === 'easeout' ? 'EaseOut' : 'EaseBoth'}プリセットを適用しました`)
+        return panels
+      }
+      
+      const outputFunction = LED_FUNCTIONS.find(f => f.id === preset.output)
+      if (!outputFunction) return panels
+      
+      toast.success(`${presetName === 'easein' ? 'EaseIn' : presetName === 'easeout' ? 'EaseOut' : 'EaseBoth'}プリセットを適用しました`, {
+        description: `${outputFunction.name}パネルを追加しました`
+      })
+      
+      return [
+        ...panels,
+        {
+          id: Date.now().toString(),
+          functionId: preset.output
+        }
+      ]
+    })
+  }, [setInputFunctionId, setPanels])
+
   const currentInputValue = (manualInputMode ?? false) ? (manualInputValue ?? 0) : time
   const usedFunctionIds = (panels || []).map(p => p.functionId)
   
@@ -206,6 +243,7 @@ function App() {
             onInputValueChange={handleInputValueChange}
             onManualInputModeChange={handleManualInputModeChange}
             onInputFunctionChange={(functionId) => setInputFunctionId(() => functionId)}
+            onApplyPreset={handleApplyPreset}
           />
 
           {(panels || []).length === 0 ? (
