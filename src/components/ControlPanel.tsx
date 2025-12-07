@@ -72,10 +72,10 @@ export function ControlPanel({
           className="w-full"
         />
         
-        <div className="flex justify-between text-xs text-muted-foreground font-mono">
-          <span>0.1x</span>
-          <span>1.0x</span>
-          <span>3.0x</span>
+        <div className="relative text-xs text-muted-foreground font-mono">
+          <span className="absolute left-0">0.1x</span>
+          <span className="absolute" style={{ left: `${((1.0 - 0.1) / (3.0 - 0.1)) * 100}%`, transform: 'translateX(-50%)' }}>1.0x</span>
+          <span className="absolute right-0">3.0x</span>
         </div>
       </div>
       
@@ -98,10 +98,10 @@ export function ControlPanel({
           className="w-full"
         />
         
-        <div className="flex justify-between text-xs text-muted-foreground font-mono">
-          <span>1.0</span>
-          <span>2.2</span>
-          <span>3.0</span>
+        <div className="relative text-xs text-muted-foreground font-mono">
+          <span className="absolute left-0">1.0</span>
+          <span className="absolute" style={{ left: `${((2.2 - 1.0) / (3.0 - 1.0)) * 100}%`, transform: 'translateX(-50%)' }}>2.2</span>
+          <span className="absolute right-0">3.0</span>
         </div>
       </div>
     </div>
