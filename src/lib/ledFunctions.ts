@@ -12,10 +12,12 @@ export const LED_FUNCTIONS: LEDFunction[] = [
     name: 'Linear',
     formula: 'y = x',
     calculate: (t: number, cycleMultiplier: number = 1) => {
+      const x = t * cycleMultiplier
       if (cycleMultiplier === 1) {
-        return t
+        return x
       }
-      return t < 0.5 ? 2 * t : 2 * (1 - t)
+      const normalizedX = x % 2
+      return normalizedX < 1 ? normalizedX : 2 - normalizedX
     },
     color: 'oklch(0.75 0.15 200)'
   },
@@ -24,11 +26,13 @@ export const LED_FUNCTIONS: LEDFunction[] = [
     name: 'Sine',
     formula: 'y = sin(πx)',
     calculate: (t: number, cycleMultiplier: number = 1) => {
+      const x = t * cycleMultiplier
       if (cycleMultiplier === 1) {
-        return Math.sin(Math.PI * t / 2)
+        return Math.sin(Math.PI * x / 2)
       }
-      const x = t < 0.5 ? 2 * t : 2 * (1 - t)
-      return Math.sin(Math.PI * x / 2)
+      const normalizedX = x % 2
+      const baseX = normalizedX < 1 ? normalizedX : 2 - normalizedX
+      return Math.sin(Math.PI * baseX / 2)
     },
     color: 'oklch(0.75 0.15 280)'
   },
@@ -37,11 +41,13 @@ export const LED_FUNCTIONS: LEDFunction[] = [
     name: 'Quadratic',
     formula: 'y = x²',
     calculate: (t: number, cycleMultiplier: number = 1) => {
+      const x = t * cycleMultiplier
       if (cycleMultiplier === 1) {
-        return t * t
+        return x * x
       }
-      const x = t < 0.5 ? 2 * t : 2 * (1 - t)
-      return x * x
+      const normalizedX = x % 2
+      const baseX = normalizedX < 1 ? normalizedX : 2 - normalizedX
+      return baseX * baseX
     },
     color: 'oklch(0.75 0.15 160)'
   },
@@ -50,11 +56,13 @@ export const LED_FUNCTIONS: LEDFunction[] = [
     name: 'Cubic',
     formula: 'y = x³',
     calculate: (t: number, cycleMultiplier: number = 1) => {
+      const x = t * cycleMultiplier
       if (cycleMultiplier === 1) {
-        return t * t * t
+        return x * x * x
       }
-      const x = t < 0.5 ? 2 * t : 2 * (1 - t)
-      return x * x * x
+      const normalizedX = x % 2
+      const baseX = normalizedX < 1 ? normalizedX : 2 - normalizedX
+      return baseX * baseX * baseX
     },
     color: 'oklch(0.75 0.15 120)'
   },
@@ -63,11 +71,13 @@ export const LED_FUNCTIONS: LEDFunction[] = [
     name: 'Quartic',
     formula: 'y = x⁴',
     calculate: (t: number, cycleMultiplier: number = 1) => {
+      const x = t * cycleMultiplier
       if (cycleMultiplier === 1) {
-        return t * t * t * t
+        return x * x * x * x
       }
-      const x = t < 0.5 ? 2 * t : 2 * (1 - t)
-      return x * x * x * x
+      const normalizedX = x % 2
+      const baseX = normalizedX < 1 ? normalizedX : 2 - normalizedX
+      return baseX * baseX * baseX * baseX
     },
     color: 'oklch(0.75 0.15 80)'
   },
@@ -76,11 +86,13 @@ export const LED_FUNCTIONS: LEDFunction[] = [
     name: 'Square Root',
     formula: 'y = √x',
     calculate: (t: number, cycleMultiplier: number = 1) => {
+      const x = t * cycleMultiplier
       if (cycleMultiplier === 1) {
-        return Math.sqrt(t)
+        return Math.sqrt(x)
       }
-      const x = t < 0.5 ? 2 * t : 2 * (1 - t)
-      return Math.sqrt(x)
+      const normalizedX = x % 2
+      const baseX = normalizedX < 1 ? normalizedX : 2 - normalizedX
+      return Math.sqrt(baseX)
     },
     color: 'oklch(0.75 0.15 40)'
   }

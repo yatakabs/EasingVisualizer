@@ -72,7 +72,7 @@ function App() {
 
       setTime((prevTime) => {
         const effectiveMultiplier = cycleMultiplier ?? 1
-        const newTime = prevTime + (delta * (speed || 1)) / (CYCLE_DURATION * effectiveMultiplier)
+        const newTime = prevTime + (delta * (speed || 1)) / (CYCLE_DURATION / effectiveMultiplier)
         return newTime % 1
       })
 

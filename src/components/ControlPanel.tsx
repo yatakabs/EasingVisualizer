@@ -64,11 +64,11 @@ export function ControlPanel({
         <div className="flex flex-wrap gap-3 items-center">
           <Tabs value={cycleMultiplier.toString()} onValueChange={(value) => onCycleMultiplierChange(parseFloat(value))}>
             <TabsList>
-              <TabsTrigger value="0.25">4倍</TabsTrigger>
-              <TabsTrigger value="0.5">2倍</TabsTrigger>
+              <TabsTrigger value="0.25">1/4倍</TabsTrigger>
+              <TabsTrigger value="0.5">1/2倍</TabsTrigger>
               <TabsTrigger value="1">1倍</TabsTrigger>
-              <TabsTrigger value="2">1/2倍</TabsTrigger>
-              <TabsTrigger value="4">1/4倍</TabsTrigger>
+              <TabsTrigger value="2">2倍</TabsTrigger>
+              <TabsTrigger value="4">4倍</TabsTrigger>
             </TabsList>
           </Tabs>
           
