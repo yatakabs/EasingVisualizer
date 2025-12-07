@@ -99,9 +99,6 @@ export const CombinedPanel = memo(function CombinedPanel({
         </CardTitle>
         <div className="space-y-0.5 mt-1">
           <p className="text-xs font-mono text-muted-foreground">
-            {ledFunction.xFormula(cycleMultiplier)}
-          </p>
-          <p className="text-xs font-mono text-muted-foreground">
             {ledFunction.formula}
           </p>
         </div>
