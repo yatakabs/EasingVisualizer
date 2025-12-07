@@ -25,6 +25,7 @@ interface ControlPanelProps {
   cameraEndPos: { x: number; y: number; z: number }
   cameraAspectRatio: string
   maxCameraPreviews: number
+  cardScale: number
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
   onGammaChange: (gamma: number) => void
@@ -39,6 +40,7 @@ interface ControlPanelProps {
   onCameraEndPosChange: (pos: { x: number; y: number; z: number }) => void
   onCameraAspectRatioChange: (aspectRatio: string) => void
   onMaxCameraPreviewsChange: (max: number) => void
+  onCardScaleChange: (scale: number) => void
 }
 
 export function ControlPanel({
@@ -56,6 +58,7 @@ export function ControlPanel({
   cameraEndPos,
   cameraAspectRatio,
   maxCameraPreviews,
+  cardScale,
   onPlayPause,
   onSpeedChange,
   onGammaChange,
@@ -69,7 +72,8 @@ export function ControlPanel({
   onCameraStartPosChange,
   onCameraEndPosChange,
   onCameraAspectRatioChange,
-  onMaxCameraPreviewsChange
+  onMaxCameraPreviewsChange,
+  onCardScaleChange
 }: ControlPanelProps) {
   return (
     <div className="w-full bg-card border border-border rounded-lg p-4 sm:p-5 space-y-4">
@@ -607,6 +611,84 @@ export function ControlPanel({
           </div>
         </div>
       )}
+      
+      <div className="space-y-3 pt-3 border-t border-border">
+        <div className="text-base font-semibold text-foreground">カードサイズ</div>
+        
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium text-muted-foreground">
+              拡大率
+            </label>
+            <span className="text-base font-mono text-primary font-semibold">
+              {cardScale.toFixed(2)}x
+            </span>
+          </div>
+          
+          <Slider
+            value={[cardScale]}
+            onValueChange={([value]) => onCardScaleChange(value)}
+            min={0.5}
+            max={2.0}
+            step={0.05}
+            className="my-1"
+          />
+          
+          <div className="relative text-[10px] text-muted-foreground font-mono h-5 px-1">
+            <div className="absolute inset-x-1 flex items-start pt-1">
+              {[0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0].map((mark) => {
+                const position = ((mark - 0.5) / (2.0 - 0.5)) * 100
+                const isMajor = mark === 0.5 || mark === 1.0 || mark === 1.5 || mark === 2.0
+                return (
+                  <div
+                    key={mark}
+                    className="absolute flex flex-col items-center gap-0.5"
+                    style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
+                  >
+                    <div className={`w-px ${isMajor ? 'h-2 bg-muted-foreground' : 'h-1.5 bg-muted-foreground/50'}`} />
+                    {isMajor && (
+                      <span className="text-[9px]">{mark.toFixed(1)}x</span>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 pt-1">
+            <Input
+              id="card-scale-field"
+              type="number"
+              value={cardScale.toFixed(2)}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value)
+                if (!isNaN(value) && value >= 0.5 && value <= 2.0) {
+                  onCardScaleChange(value)
+                }
+              }}
+              step={0.05}
+              min={0.5}
+              max={2.0}
+              className="w-28 font-mono text-sm h-9 px-2"
+            />
+            <span className="text-sm text-muted-foreground">直接入力</span>
+          </div>
+          
+          <div className="flex gap-2 pt-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                onCardScaleChange(1.0)
+                toast.success('カードサイズをデフォルトに戻しました')
+              }}
+              className="text-sm h-9"
+            >
+              デフォルトに戻す
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

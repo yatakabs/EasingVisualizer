@@ -39,6 +39,7 @@ function App() {
   const [cameraAspectRatio, setCameraAspectRatio] = useKV<string>('camera-aspect-ratio', '16/9')
   const [maxCameraPreviews, setMaxCameraPreviews] = useKV<number>('max-camera-previews', 6)
   const [activeCameraPanels, setActiveCameraPanels] = useKV<string[]>('active-camera-panels', [])
+  const [cardScale, setCardScale] = useKV<number>('card-scale', 1.0)
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
@@ -332,6 +333,8 @@ function App() {
             onCameraEndPosChange={(pos) => setCameraEndPos(() => pos)}
             onCameraAspectRatioChange={(aspectRatio) => setCameraAspectRatio(() => aspectRatio)}
             onMaxCameraPreviewsChange={(max) => setMaxCameraPreviews(() => max)}
+            cardScale={cardScale ?? 1.0}
+            onCardScaleChange={(scale) => setCardScale(() => scale)}
           />
 
           {(panels || []).length === 0 ? (
@@ -343,7 +346,12 @@ function App() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-3 sm:gap-4">
+            <div 
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-3 sm:gap-4"
+              style={{
+                gridTemplateColumns: `repeat(auto-fill, minmax(${250 * (cardScale ?? 1.0)}px, 1fr))`
+              }}
+            >
               {(panels || []).map((panel, panelIndex) => {
                 const func = LED_FUNCTIONS.find(f => f.id === panel.functionId)
                 if (!func) return null
@@ -355,39 +363,48 @@ function App() {
                 const canActivateCamera = !isCameraActive && (activeCameraPanels || []).length < (maxCameraPreviews ?? 6)
 
                 return (
-                  <PreviewPanel
+                  <div
                     key={panel.id}
-                    ledFunction={func}
-                    output={output}
-                    filteredOutput={filteredOutput}
-                    input={currentInputValue}
-                    baseInput={baseInputValue}
-                    isTriangularMode={isTriangularMode}
-                    easeType={panel.easeType}
-                    enabledFilters={enabledFilters ?? []}
-                    filterParams={{ gamma: gamma ?? 2.2 }}
-                    enabledPreviews={enabledPreviews ?? ['led', 'value']}
-                    cameraStartPos={cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 }}
-                    cameraEndPos={cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }}
-                    cameraAspectRatio={cameraAspectRatio ?? '16/9'}
-                    showCamera={isCameraActive}
-                    canToggleCamera={enabledPreviews?.includes('camera') ?? false}
-                    canActivateCamera={canActivateCamera}
-                    title={panel.title}
-                    onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
-                    onToggleCamera={() => handleToggleCameraForPanel(panel.id)}
-                    onEaseTypeChange={(newEaseType) => {
-                      setPanels((currentPanels) =>
-                        (currentPanels || []).map(p =>
-                          p.id === panel.id ? { ...p, easeType: newEaseType } : p
-                        )
-                      )
+                    style={{
+                      transform: `scale(${cardScale ?? 1.0})`,
+                      transformOrigin: 'top left',
+                      width: `${100 / (cardScale ?? 1.0)}%`,
+                      marginBottom: `${(cardScale ?? 1.0) * 10 - 10}px`
                     }}
-                    onDragStart={handleDragStart(panel.id)}
-                    onDragEnd={handleDragEnd}
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop(panel.id)}
-                  />
+                  >
+                    <PreviewPanel
+                      ledFunction={func}
+                      output={output}
+                      filteredOutput={filteredOutput}
+                      input={currentInputValue}
+                      baseInput={baseInputValue}
+                      isTriangularMode={isTriangularMode}
+                      easeType={panel.easeType}
+                      enabledFilters={enabledFilters ?? []}
+                      filterParams={{ gamma: gamma ?? 2.2 }}
+                      enabledPreviews={enabledPreviews ?? ['led', 'value']}
+                      cameraStartPos={cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 }}
+                      cameraEndPos={cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }}
+                      cameraAspectRatio={cameraAspectRatio ?? '16/9'}
+                      showCamera={isCameraActive}
+                      canToggleCamera={enabledPreviews?.includes('camera') ?? false}
+                      canActivateCamera={canActivateCamera}
+                      title={panel.title}
+                      onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
+                      onToggleCamera={() => handleToggleCameraForPanel(panel.id)}
+                      onEaseTypeChange={(newEaseType) => {
+                        setPanels((currentPanels) =>
+                          (currentPanels || []).map(p =>
+                            p.id === panel.id ? { ...p, easeType: newEaseType } : p
+                          )
+                        )
+                      }}
+                      onDragStart={handleDragStart(panel.id)}
+                      onDragEnd={handleDragEnd}
+                      onDragOver={handleDragOver}
+                      onDrop={handleDrop(panel.id)}
+                    />
+                  </div>
                 )
               })}
             </div>
