@@ -3,7 +3,6 @@ import { Slider } from '@/components/ui/slider'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Play, Pause, Plus } from '@phosphor-icons/react'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
@@ -18,7 +17,6 @@ interface ControlPanelProps {
   fps: number
   showLED: boolean
   showRectangle: boolean
-  cycleMultiplier: number
   enabledFilters: string[]
   inputValue: number
   manualInputMode: boolean
@@ -29,7 +27,6 @@ interface ControlPanelProps {
   onAddPanel: () => void
   onToggleLED: () => void
   onToggleRectangle: () => void
-  onCycleMultiplierChange: (multiplier: number) => void
   onToggleFilter: (filterId: string) => void
   onInputValueChange: (value: number) => void
   onManualInputModeChange: (enabled: boolean) => void
@@ -44,7 +41,6 @@ export function ControlPanel({
   fps,
   showLED,
   showRectangle,
-  cycleMultiplier,
   enabledFilters,
   inputValue,
   manualInputMode,
@@ -55,7 +51,6 @@ export function ControlPanel({
   onAddPanel,
   onToggleLED,
   onToggleRectangle,
-  onCycleMultiplierChange,
   onToggleFilter,
   onInputValueChange,
   onManualInputModeChange,
@@ -94,16 +89,6 @@ export function ControlPanel({
         </div>
         
         <div className="flex flex-wrap gap-3 items-center">
-          <Tabs value={cycleMultiplier.toString()} onValueChange={(value) => onCycleMultiplierChange(parseFloat(value))}>
-            <TabsList>
-              <TabsTrigger value="0.25">1/4倍</TabsTrigger>
-              <TabsTrigger value="0.5">1/2倍</TabsTrigger>
-              <TabsTrigger value="1">1倍</TabsTrigger>
-              <TabsTrigger value="2">2倍</TabsTrigger>
-              <TabsTrigger value="4">4倍</TabsTrigger>
-            </TabsList>
-          </Tabs>
-          
           <ToggleGroup 
             type="multiple" 
             value={[
@@ -188,16 +173,9 @@ export function ControlPanel({
           <label className="text-sm font-medium text-foreground">
             Input Value
           </label>
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-mono text-primary">
-              {inputValue.toFixed(3)}
-            </span>
-            {cycleMultiplier !== 1 && (
-              <span className="text-xs font-mono text-muted-foreground">
-                (× {cycleMultiplier})
-              </span>
-            )}
-          </div>
+          <span className="text-sm font-mono text-primary">
+            {inputValue.toFixed(3)}
+          </span>
         </div>
         
         <Slider

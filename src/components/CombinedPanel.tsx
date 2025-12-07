@@ -10,7 +10,6 @@ interface CombinedPanelProps {
   output: number
   filteredOutput: number
   input: number
-  cycleMultiplier: number
   enabledFilters: string[]
   filterParams: Record<string, number>
   onRemove?: () => void
@@ -21,7 +20,6 @@ export const CombinedPanel = memo(function CombinedPanel({
   output,
   filteredOutput,
   input,
-  cycleMultiplier,
   enabledFilters,
   filterParams,
   onRemove 
@@ -78,7 +76,7 @@ export const CombinedPanel = memo(function CombinedPanel({
       originalGraphPath: originalPoints.join(' '),
       inputValue: input
     }
-  }, [input, filteredOutput, ledFunction, cycleMultiplier, enabledFilters, filterParams])
+  }, [input, filteredOutput, ledFunction, enabledFilters, filterParams])
 
   return (
     <Card className="relative overflow-hidden border-2 border-border">
@@ -220,11 +218,11 @@ export const CombinedPanel = memo(function CombinedPanel({
               
               <line x1="100" y1="168" x2="100" y2="172" stroke="oklch(0.5 0.05 250)" strokeWidth="1.5" />
               <line x1="100" y1="30" x2="100" y2="168" stroke="oklch(0.5 0.05 250)" strokeWidth="1" strokeDasharray="4 4" opacity="0.3" />
-              <text x="100" y="182" textAnchor="middle" className="text-[9px] fill-muted-foreground font-mono">{(0.5 * cycleMultiplier).toFixed(2)}</text>
+              <text x="100" y="182" textAnchor="middle" className="text-[9px] fill-muted-foreground font-mono">0.50</text>
               
               <line x1="170" y1="168" x2="170" y2="172" stroke="oklch(0.5 0.05 250)" strokeWidth="1.5" />
               <line x1="170" y1="30" x2="170" y2="168" stroke="oklch(0.5 0.05 250)" strokeWidth="1" strokeDasharray="4 4" opacity="0.3" />
-              <text x="170" y="182" textAnchor="middle" className="text-[9px] fill-muted-foreground font-mono">{(1.0 * cycleMultiplier).toFixed(2)}</text>
+              <text x="170" y="182" textAnchor="middle" className="text-[9px] fill-muted-foreground font-mono">1.00</text>
               
               <text x="100" y="195" textAnchor="middle" className="text-[10px] fill-muted-foreground font-mono">
                 Input (x)

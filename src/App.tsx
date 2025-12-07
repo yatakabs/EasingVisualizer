@@ -31,7 +31,6 @@ function App() {
   const [savedGamma, setSavedGamma] = useKV<number>('gamma-correction', 2.2)
   const [showLED, setShowLED] = useKV<boolean>('show-led', true)
   const [showRectangle, setShowRectangle] = useKV<boolean>('show-rectangle', false)
-  const [cycleMultiplier, setCycleMultiplier] = useKV<number>('cycle-multiplier', 1)
   const [enabledFilters, setEnabledFilters] = useKV<string[]>('enabled-filters', [])
   const [manualInputMode, setManualInputMode] = useKV<boolean>('manual-input-mode', false)
   const [manualInputValue, setManualInputValue] = useKV<number>('manual-input-value', 0)
@@ -79,8 +78,7 @@ function App() {
       setFps(Math.round(1000 / avgDelta))
 
       setTime((prevTime) => {
-        const effectiveMultiplier = cycleMultiplier ?? 1
-        const newTime = prevTime + (delta * (speed || 1)) / (CYCLE_DURATION / effectiveMultiplier)
+        const newTime = prevTime + (delta * (speed || 1)) / CYCLE_DURATION
         return newTime % 1
       })
 
@@ -92,7 +90,7 @@ function App() {
     return () => {
       cancelAnimationFrame(animationFrameId)
     }
-  }, [isPlaying, speed, cycleMultiplier, manualInputMode])
+  }, [isPlaying, speed, manualInputMode])
 
   const handleAddPanel = useCallback(() => {
     if ((panels || []).length >= MAX_PANELS) {
@@ -194,7 +192,7 @@ function App() {
   const usedFunctionIds = (panels || []).map(p => p.functionId)
   
   const inputFunction = INPUT_FUNCTIONS.find(f => f.id === (inputFunctionId ?? 'triangle')) || INPUT_FUNCTIONS[0]
-  const transformedInput = inputFunction.calculate(currentInputValue, cycleMultiplier ?? 1)
+  const transformedInput = inputFunction.calculate(currentInputValue)
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -218,7 +216,6 @@ function App() {
             fps={fps}
             showLED={showLED ?? true}
             showRectangle={showRectangle ?? false}
-            cycleMultiplier={cycleMultiplier ?? 1}
             enabledFilters={enabledFilters ?? []}
             inputValue={currentInputValue}
             manualInputMode={manualInputMode ?? false}
@@ -229,7 +226,6 @@ function App() {
             onAddPanel={handleAddPanel}
             onToggleLED={() => setShowLED((current) => !current)}
             onToggleRectangle={() => setShowRectangle((current) => !current)}
-            onCycleMultiplierChange={(multiplier) => setCycleMultiplier(() => multiplier)}
             onToggleFilter={(filterId) => {
               setEnabledFilters((current) => {
                 const filters = current ?? []
@@ -273,7 +269,6 @@ function App() {
                         output={output}
                         filteredOutput={filteredOutput}
                         input={transformedInput}
-                        cycleMultiplier={cycleMultiplier ?? 1}
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}
                         onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
@@ -285,7 +280,6 @@ function App() {
                         output={output}
                         filteredOutput={filteredOutput}
                         input={transformedInput}
-                        cycleMultiplier={cycleMultiplier ?? 1}
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}
                         onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
@@ -297,7 +291,6 @@ function App() {
                         output={output}
                         filteredOutput={filteredOutput}
                         input={transformedInput}
-                        cycleMultiplier={cycleMultiplier ?? 1}
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}
                         onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}

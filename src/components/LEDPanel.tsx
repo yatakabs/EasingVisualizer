@@ -9,7 +9,6 @@ interface LEDPanelProps {
   output: number
   filteredOutput: number
   input: number
-  cycleMultiplier: number
   enabledFilters: string[]
   filterParams: Record<string, number>
   onRemove?: () => void
@@ -20,7 +19,6 @@ export const LEDPanel = memo(function LEDPanel({
   output, 
   filteredOutput, 
   input, 
-  cycleMultiplier, 
   enabledFilters, 
   filterParams, 
   onRemove 
