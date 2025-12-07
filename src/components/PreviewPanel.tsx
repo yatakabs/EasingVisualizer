@@ -147,18 +147,20 @@ export const PreviewPanel = memo(function PreviewPanel({
           />
         )}
         
-        {enabledPreviews.includes('input') && (
-          <InputPreview
-            input={input}
-          />
-        )}
-        
-        {enabledPreviews.includes('output') && (
-          <OutputPreview
-            ledFunction={ledFunction}
-            filteredOutput={filteredOutput}
-          />
-        )}
+        <div className="w-full flex flex-col gap-3 mt-auto">
+          {enabledPreviews.includes('input') && (
+            <InputPreview
+              input={input}
+            />
+          )}
+          
+          {enabledPreviews.includes('output') && (
+            <OutputPreview
+              ledFunction={ledFunction}
+              filteredOutput={filteredOutput}
+            />
+          )}
+        </div>
       </CardContent>
     </Card>
   )
