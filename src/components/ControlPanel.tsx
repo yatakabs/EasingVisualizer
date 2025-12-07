@@ -426,6 +426,23 @@ export function ControlPanel({
                 9:16
               </ToggleGroupItem>
             </ToggleGroup>
+            
+            <div className="flex items-center gap-2 pt-1">
+              <Input
+                id="custom-aspect-ratio"
+                type="text"
+                value={cameraAspectRatio}
+                onChange={(e) => {
+                  const value = e.target.value
+                  if (value) {
+                    onCameraAspectRatioChange(value)
+                  }
+                }}
+                placeholder="例: 2.35/1"
+                className="flex-1 font-mono text-xs h-7"
+              />
+              <span className="text-xs text-muted-foreground">カスタム</span>
+            </div>
           </div>
           
           <div className="space-y-2">
