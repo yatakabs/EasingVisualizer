@@ -134,9 +134,6 @@ export const CameraPreview = memo(function CameraPreview({
     cameraRef.current.position.set(cameraX, cameraY, cameraZ)
     cameraRef.current.lookAt(cubeRef.current.position)
     
-    cubeRef.current.rotation.y = baseInput * Math.PI * 2
-    cubeRef.current.rotation.x = Math.sin(baseInput * Math.PI * 4) * 0.2
-    
     rendererRef.current.render(sceneRef.current, cameraRef.current)
   }, [baseInput, filteredOutput, startPos, endPos])
 
@@ -167,10 +164,6 @@ export const CameraPreview = memo(function CameraPreview({
           <span className="font-mono font-medium text-[10px]">
             ({(-(startPos.x + (endPos.x - startPos.x) * filteredOutput)).toFixed(2)}, {(startPos.y + (endPos.y - startPos.y) * filteredOutput).toFixed(2)}, {(startPos.z + (endPos.z - startPos.z) * filteredOutput).toFixed(2)})
           </span>
-        </div>
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">Cube Rotation</span>
-          <span className="font-mono font-medium">{(baseInput * 360).toFixed(1)}°</span>
         </div>
       </div>
     </div>
