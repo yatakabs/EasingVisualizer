@@ -135,12 +135,11 @@ export function ControlPanel({
           min={0}
           max={1}
           step={0.001}
-          className="w-full"
           disabled={!manualInputMode}
         />
         
         <div className="relative text-xs text-muted-foreground font-mono h-8 px-2">
-          <div className="absolute inset-0 flex items-start pt-1 px-2">
+          <div className="absolute inset-x-2 flex items-start pt-1">
             {[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].map((mark) => (
               <div
                 key={mark}
@@ -205,12 +204,11 @@ export function ControlPanel({
           min={0.1}
           max={3}
           step={0.1}
-          className="w-full"
           disabled={manualInputMode}
         />
         
         <div className="relative text-xs text-muted-foreground font-mono h-8 px-2">
-          <div className="absolute inset-0 flex items-start pt-1 px-2">
+          <div className="absolute inset-x-2 flex items-start pt-1">
             {[0.1, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0].map((mark) => {
               const position = ((mark - 0.1) / (3.0 - 0.1)) * 100
               const isMajor = mark === 0.1 || mark === 1.0 || mark === 2.0 || mark === 3.0
@@ -247,11 +245,10 @@ export function ControlPanel({
           min={1.0}
           max={3.0}
           step={0.1}
-          className="w-full"
         />
         
         <div className="relative text-xs text-muted-foreground font-mono h-8 px-2">
-          <div className="absolute inset-0 flex items-start pt-1 px-2">
+          <div className="absolute inset-x-2 flex items-start pt-1">
             {[1.0, 1.4, 1.8, 2.2, 2.6, 3.0].map((mark) => {
               const position = ((mark - 1.0) / (3.0 - 1.0)) * 100
               const isMajor = mark === 1.0 || mark === 2.2 || mark === 3.0
