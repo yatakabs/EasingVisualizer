@@ -6,6 +6,7 @@ import { CombinedPanel } from '@/components/CombinedPanel'
 import { ControlPanel } from '@/components/ControlPanel'
 import { FunctionSelector } from '@/components/FunctionSelector'
 import { LED_FUNCTIONS, type LEDFunction } from '@/lib/ledFunctions'
+import { INPUT_FUNCTIONS } from '@/lib/inputFunctions'
 import { applyFilters } from '@/lib/outputFilters'
 import { Toaster as Sonner } from 'sonner'
 import { toast } from 'sonner'
@@ -34,6 +35,7 @@ function App() {
   const [enabledFilters, setEnabledFilters] = useKV<string[]>('enabled-filters', [])
   const [manualInputMode, setManualInputMode] = useKV<boolean>('manual-input-mode', false)
   const [manualInputValue, setManualInputValue] = useKV<number>('manual-input-value', 0)
+  const [inputFunctionId, setInputFunctionId] = useKV<string>('input-function-id', 'triangle')
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
@@ -153,6 +155,9 @@ function App() {
 
   const currentInputValue = (manualInputMode ?? false) ? (manualInputValue ?? 0) : time
   const usedFunctionIds = (panels || []).map(p => p.functionId)
+  
+  const inputFunction = INPUT_FUNCTIONS.find(f => f.id === (inputFunctionId ?? 'triangle')) || INPUT_FUNCTIONS[0]
+  const transformedInput = inputFunction.calculate(currentInputValue, cycleMultiplier ?? 1)
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -180,6 +185,7 @@ function App() {
             enabledFilters={enabledFilters ?? []}
             inputValue={currentInputValue}
             manualInputMode={manualInputMode ?? false}
+            inputFunctionId={inputFunctionId ?? 'triangle'}
             onPlayPause={() => setIsPlaying((current) => !current)}
             onSpeedChange={handleSpeedChange}
             onGammaChange={handleGammaChange}
@@ -199,6 +205,7 @@ function App() {
             }}
             onInputValueChange={handleInputValueChange}
             onManualInputModeChange={handleManualInputModeChange}
+            onInputFunctionChange={(functionId) => setInputFunctionId(() => functionId)}
           />
 
           {(panels || []).length === 0 ? (
@@ -215,7 +222,7 @@ function App() {
                 const func = LED_FUNCTIONS.find(f => f.id === panel.functionId)
                 if (!func) return null
 
-                const output = func.calculate(currentInputValue, cycleMultiplier ?? 1)
+                const output = func.calculate(transformedInput)
                 const filteredOutput = applyFilters(output, enabledFilters ?? [], { gamma: gamma ?? 2.2 })
 
                 const bothEnabled = (showLED ?? true) && (showRectangle ?? false)
@@ -227,7 +234,7 @@ function App() {
                         ledFunction={func}
                         output={output}
                         filteredOutput={filteredOutput}
-                        input={currentInputValue}
+                        input={transformedInput}
                         cycleMultiplier={cycleMultiplier ?? 1}
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}
@@ -239,7 +246,7 @@ function App() {
                         ledFunction={func}
                         output={output}
                         filteredOutput={filteredOutput}
-                        input={currentInputValue}
+                        input={transformedInput}
                         cycleMultiplier={cycleMultiplier ?? 1}
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}
@@ -251,7 +258,7 @@ function App() {
                         ledFunction={func}
                         output={output}
                         filteredOutput={filteredOutput}
-                        input={currentInputValue}
+                        input={transformedInput}
                         cycleMultiplier={cycleMultiplier ?? 1}
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}

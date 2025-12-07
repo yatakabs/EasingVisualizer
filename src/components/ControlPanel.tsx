@@ -7,6 +7,8 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { INPUT_FUNCTIONS } from '@/lib/inputFunctions'
 
 interface ControlPanelProps {
   isPlaying: boolean
@@ -19,6 +21,7 @@ interface ControlPanelProps {
   enabledFilters: string[]
   inputValue: number
   manualInputMode: boolean
+  inputFunctionId: string
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
   onGammaChange: (gamma: number) => void
@@ -29,6 +32,7 @@ interface ControlPanelProps {
   onToggleFilter: (filterId: string) => void
   onInputValueChange: (value: number) => void
   onManualInputModeChange: (enabled: boolean) => void
+  onInputFunctionChange: (functionId: string) => void
 }
 
 export function ControlPanel({
@@ -42,6 +46,7 @@ export function ControlPanel({
   enabledFilters,
   inputValue,
   manualInputMode,
+  inputFunctionId,
   onPlayPause,
   onSpeedChange,
   onGammaChange,
@@ -51,8 +56,11 @@ export function ControlPanel({
   onCycleMultiplierChange,
   onToggleFilter,
   onInputValueChange,
-  onManualInputModeChange
+  onManualInputModeChange,
+  onInputFunctionChange
 }: ControlPanelProps) {
+  const currentInputFunction = INPUT_FUNCTIONS.find(f => f.id === inputFunctionId) || INPUT_FUNCTIONS[0]
+
   return (
     <div className="w-full bg-card border-2 border-border rounded-lg p-6 space-y-6">
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
@@ -122,6 +130,32 @@ export function ControlPanel({
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <label className="text-sm font-medium text-foreground">
+            Input Function
+          </label>
+          <Select value={inputFunctionId} onValueChange={onInputFunctionChange}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {INPUT_FUNCTIONS.map((func) => (
+                <SelectItem key={func.id} value={func.id}>
+                  {func.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="bg-muted/30 rounded-md p-2">
+          <div className="text-xs font-mono text-muted-foreground">
+            {currentInputFunction.formula}
+          </div>
+        </div>
+      </div>
+      
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium text-foreground">
             Input Value
           </label>
           <div className="flex items-center gap-2">
@@ -130,18 +164,8 @@ export function ControlPanel({
             </span>
             {cycleMultiplier !== 1 && (
               <span className="text-xs font-mono text-muted-foreground">
-                → {(inputValue * cycleMultiplier).toFixed(3)}
+                (× {cycleMultiplier})
               </span>
-            )}
-          </div>
-        </div>
-        
-        <div className="bg-muted/30 rounded-md p-2 mb-2">
-          <div className="text-xs font-mono text-muted-foreground">
-            {cycleMultiplier === 1 ? (
-              'x = input'
-            ) : (
-              `x = (input × ${cycleMultiplier}) % 2 (triangle wave)`
             )}
           </div>
         </div>
