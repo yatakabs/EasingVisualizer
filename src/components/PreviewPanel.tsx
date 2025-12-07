@@ -112,6 +112,18 @@ export const PreviewPanel = memo(function PreviewPanel({
       </CardHeader>
       
       <CardContent className="flex flex-col items-center gap-3 pb-3 px-3">
+        {enabledPreviews.includes('camera') && (
+          <CameraPreview
+            ledFunction={ledFunction}
+            output={output}
+            filteredOutput={filteredOutput}
+            baseInput={baseInput}
+            enabledFilters={enabledFilters}
+            startPos={cameraStartPos}
+            endPos={cameraEndPos}
+          />
+        )}
+        
         {enabledPreviews.includes('led') && (
           <LEDPreview
             ledFunction={ledFunction}
@@ -129,18 +141,6 @@ export const PreviewPanel = memo(function PreviewPanel({
             easeType={easeType}
             enabledFilters={enabledFilters}
             filterParams={filterParams}
-          />
-        )}
-        
-        {enabledPreviews.includes('camera') && (
-          <CameraPreview
-            ledFunction={ledFunction}
-            output={output}
-            filteredOutput={filteredOutput}
-            baseInput={baseInput}
-            enabledFilters={enabledFilters}
-            startPos={cameraStartPos}
-            endPos={cameraEndPos}
           />
         )}
         
