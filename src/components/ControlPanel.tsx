@@ -444,9 +444,9 @@ export function ControlPanel({
                     }
                   }}
                   placeholder="例: 2.35/1"
-                  className="flex-1 font-mono text-xs h-7"
+                  className="w-32 font-mono text-xs h-7"
                 />
-                <span className="text-xs text-muted-foreground">カスタム入力</span>
+                <span className="text-xs text-muted-foreground whitespace-nowrap">カスタム入力</span>
               </div>
             )}
           </div>
