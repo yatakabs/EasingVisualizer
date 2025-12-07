@@ -234,17 +234,17 @@ function App() {
     <div className="min-h-screen bg-background text-foreground">
       <Sonner position="top-center" theme="dark" />
       
-      <div className="container mx-auto px-4 py-4 max-w-[100rem]">
-        <header className="mb-3">
-          <h1 className="text-2xl font-bold tracking-tight mb-1" style={{ letterSpacing: '-0.02em' }}>
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-[120rem]">
+        <header className="mb-4 sm:mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-1.5" style={{ letterSpacing: '-0.02em' }}>
             関数比較ビジュアライザー
           </h1>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-sm sm:text-base">
             異なる数学関数の出力を視覚的に比較
           </p>
         </header>
 
-        <div className="space-y-3">
+        <div className="space-y-4">
           <ControlPanel
             isPlaying={isPlaying ?? true}
             speed={speed ?? 1}
@@ -284,15 +284,15 @@ function App() {
           />
 
           {(panels || []).length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="text-4xl mb-3">📊</div>
-              <h2 className="text-xl font-semibold mb-1">パネルがありません</h2>
-              <p className="text-muted-foreground text-sm mb-4">
+            <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center">
+              <div className="text-5xl sm:text-6xl mb-4">📊</div>
+              <h2 className="text-xl sm:text-2xl font-semibold mb-2">パネルがありません</h2>
+              <p className="text-muted-foreground text-sm sm:text-base mb-6 max-w-md">
                 最初のパネルを追加して関数の比較を開始
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-3 sm:gap-4">
               {(panels || []).map((panel) => {
                 const func = LED_FUNCTIONS.find(f => f.id === panel.functionId)
                 if (!func) return null
