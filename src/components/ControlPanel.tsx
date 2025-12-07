@@ -344,16 +344,16 @@ export function ControlPanel({
         <Slider
           value={[gamma]}
           onValueChange={([value]) => onGammaChange(value)}
-          min={-3.0}
-          max={3.0}
+          min={0.0}
+          max={5.0}
           step={0.1}
         />
         
         <div className="relative text-[10px] text-muted-foreground font-mono h-6 px-1.5">
           <div className="absolute inset-x-1.5 flex items-start pt-0.5">
-            {[-3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0].map((mark) => {
-              const position = ((mark - (-3.0)) / (3.0 - (-3.0))) * 100
-              const isMajor = mark === -3.0 || mark === 0.0 || mark === 3.0
+            {[0.0, 1.0, 2.0, 3.0, 4.0, 5.0].map((mark) => {
+              const position = ((mark - 0.0) / (5.0 - 0.0)) * 100
+              const isMajor = mark === 0.0 || mark === 2.0 || mark === 5.0
               return (
                 <div
                   key={mark}
@@ -378,13 +378,12 @@ export function ControlPanel({
               value={gamma.toFixed(1)}
               onChange={(e) => {
                 const value = parseFloat(e.target.value)
-                if (!isNaN(value) && value >= -3.0 && value <= 3.0) {
+                if (!isNaN(value) && value >= 0.0) {
                   onGammaChange(value)
                 }
               }}
               step={0.1}
-              min={-3.0}
-              max={3.0}
+              min={0.0}
               className="w-20 font-mono text-xs h-7"
             />
             <span className="text-xs text-muted-foreground">直接入力</span>
