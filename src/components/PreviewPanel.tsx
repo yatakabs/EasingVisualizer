@@ -58,25 +58,27 @@ export const PreviewPanel = memo(function PreviewPanel({
 }: PreviewPanelProps) {
   return (
     <Card 
-      className="relative overflow-hidden border border-border p-0 gap-0"
+      className="relative overflow-hidden border-2 border-green-500"
       onDragOver={onDragOver}
       onDrop={onDrop}
+      style={{ padding: 0, gap: 0, backgroundColor: 'red' }}
     >
       <CardHeader 
-        className="bg-muted/50 border-b border-border px-3 py-1.5 gap-0 cursor-move active:cursor-grabbing card-header"
+        className="bg-blue-500 border-b-4 border-yellow-500 cursor-move active:cursor-grabbing"
         draggable
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
+        style={{ margin: 0, padding: '6px 12px', gap: 0 }}
       >
-        <div className="flex items-center justify-between gap-2 py-0 my-0">
-          <CardTitle className="text-xs font-semibold tracking-tight truncate flex-1 min-w-0 my-0 py-0 leading-none">
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle className="text-xs font-semibold tracking-tight truncate flex-1 min-w-0 !leading-none">
             {title || ledFunction.name}
           </CardTitle>
           {onRemove && (
             <Button
               size="icon"
               variant="ghost"
-              className="h-5 w-5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex-shrink-0 my-0"
+              className="h-5 w-5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex-shrink-0"
               onClick={onRemove}
             >
               <X size={12} weight="bold" />
@@ -85,9 +87,9 @@ export const PreviewPanel = memo(function PreviewPanel({
         </div>
       </CardHeader>
       
-      <div className="px-3 py-1.5 border-b border-border/50 mt-0">
-        <div className="flex items-center justify-between gap-2 py-0 my-0">
-          <p className="text-[10px] font-mono text-muted-foreground leading-tight my-0 py-0">
+      <div className="px-3 py-1.5 border-b border-border/50">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-[10px] font-mono text-muted-foreground leading-tight">
             {ledFunction.formula}
           </p>
           <ToggleGroup 
@@ -111,7 +113,7 @@ export const PreviewPanel = memo(function PreviewPanel({
         </div>
       </div>
       
-      <CardContent className="flex flex-col items-center gap-2 p-0 px-3 pb-1.5 pt-0 mt-0">
+      <CardContent className="flex flex-col items-center gap-2 bg-purple-500" style={{ margin: 0, padding: '0 12px 6px 12px' }}>
         {enabledPreviews.includes('camera') && (
           <CameraPreview
             ledFunction={ledFunction}

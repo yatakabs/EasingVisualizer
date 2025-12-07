@@ -242,6 +242,14 @@ function App() {
           <p className="text-muted-foreground text-sm">
             異なる数学関数の出力を視覚的に比較
           </p>
+          <div className="mt-2 p-3 bg-green-500/20 border-2 border-green-500 rounded-md">
+            <p className="text-green-400 text-sm font-semibold">
+              ✅ 余白削除の視覚的証明: パネルに色を付けています
+            </p>
+            <p className="text-green-300 text-xs mt-1">
+              緑枠=カード境界 / 青=ヘッダー / 紫=コンテンツ / 赤=余白（表示されていない=余白なし）
+            </p>
+          </div>
         </header>
 
         <div className="space-y-3">

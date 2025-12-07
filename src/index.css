@@ -81,3 +81,17 @@
 body {
   overflow-x: hidden;
 }
+
+[data-slot="card"] {
+  padding: 0 !important;
+  gap: 0 !important;
+}
+
+[data-slot="card-header"] {
+  padding: 0 !important;
+  gap: 0 !important;
+}
+
+[data-slot="card-content"] {
+  padding: 0 !important;
+}
