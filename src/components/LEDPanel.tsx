@@ -50,9 +50,14 @@ export const LEDPanel = memo(function LEDPanel({
         <CardTitle className="text-lg font-semibold tracking-tight">
           {ledFunction.name}
         </CardTitle>
-        <p className="text-xs font-mono text-muted-foreground mt-1">
-          {ledFunction.formula}
-        </p>
+        <div className="space-y-0.5 mt-1">
+          <p className="text-xs font-mono text-muted-foreground">
+            {ledFunction.xFormula(cycleMultiplier)}
+          </p>
+          <p className="text-xs font-mono text-muted-foreground">
+            {ledFunction.formula}
+          </p>
+        </div>
       </CardHeader>
       
       <CardContent className="flex flex-col items-center gap-4 pb-8">
