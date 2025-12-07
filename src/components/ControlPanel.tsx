@@ -6,18 +6,22 @@ import { Play, Pause, Plus } from '@phosphor-icons/react'
 interface ControlPanelProps {
   isPlaying: boolean
   speed: number
+  gamma: number
   fps: number
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
+  onGammaChange: (gamma: number) => void
   onAddPanel: () => void
 }
 
 export function ControlPanel({
   isPlaying,
   speed,
+  gamma,
   fps,
   onPlayPause,
   onSpeedChange,
+  onGammaChange,
   onAddPanel
 }: ControlPanelProps) {
   return (
@@ -72,6 +76,32 @@ export function ControlPanel({
           <span>0.1x</span>
           <span>1.0x</span>
           <span>3.0x</span>
+        </div>
+      </div>
+      
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium text-foreground">
+            Gamma Correction
+          </label>
+          <span className="text-sm font-mono text-primary">
+            γ = {gamma.toFixed(1)}
+          </span>
+        </div>
+        
+        <Slider
+          value={[gamma]}
+          onValueChange={([value]) => onGammaChange(value)}
+          min={1.0}
+          max={3.0}
+          step={0.1}
+          className="w-full"
+        />
+        
+        <div className="flex justify-between text-xs text-muted-foreground font-mono">
+          <span>1.0</span>
+          <span>2.2</span>
+          <span>3.0</span>
         </div>
       </div>
     </div>

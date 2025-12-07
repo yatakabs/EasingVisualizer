@@ -7,10 +7,11 @@ import type { LEDFunction } from '@/lib/ledFunctions'
 interface LEDPanelProps {
   ledFunction: LEDFunction
   brightness: number
+  rawBrightness: number
   onRemove?: () => void
 }
 
-export function LEDPanel({ ledFunction, brightness, onRemove }: LEDPanelProps) {
+export function LEDPanel({ ledFunction, brightness, rawBrightness, onRemove }: LEDPanelProps) {
   const glowIntensity = useMemo(() => {
     return Math.max(0, Math.min(1, brightness))
   }, [brightness])
@@ -104,9 +105,9 @@ export function LEDPanel({ ledFunction, brightness, onRemove }: LEDPanelProps) {
           </svg>
         </div>
         
-        <div className="w-full bg-secondary rounded-lg p-3 space-y-1">
+        <div className="w-full bg-secondary rounded-lg p-3 space-y-2">
           <div className="flex justify-between text-xs">
-            <span className="text-muted-foreground">Brightness</span>
+            <span className="text-muted-foreground">PWM Output</span>
             <span className="font-mono font-medium text-primary">
               {(glowIntensity * 100).toFixed(1)}%
             </span>
@@ -121,6 +122,13 @@ export function LEDPanel({ ledFunction, brightness, onRemove }: LEDPanelProps) {
                 boxShadow: `0 0 8px ${ledFunction.color}`
               }}
             />
+          </div>
+          
+          <div className="flex justify-between text-xs pt-1">
+            <span className="text-muted-foreground">Raw Value</span>
+            <span className="font-mono font-medium text-muted-foreground">
+              {(rawBrightness * 100).toFixed(1)}%
+            </span>
           </div>
         </div>
       </CardContent>

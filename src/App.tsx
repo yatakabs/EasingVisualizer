@@ -19,11 +19,12 @@ function App() {
   const [panels, setPanels] = useKV<PanelData[]>('led-panels', [
     { id: '1', functionId: 'linear' },
     { id: '2', functionId: 'sine' },
-    { id: '3', functionId: 'exponential' },
-    { id: '4', functionId: 'pulse' }
+    { id: '3', functionId: 'quadratic' },
+    { id: '4', functionId: 'cubic' }
   ])
   const [isPlaying, setIsPlaying] = useKV<boolean>('is-playing', true)
   const [speed, setSpeed] = useKV<number>('animation-speed', 1)
+  const [gamma, setGamma] = useKV<number>('gamma-correction', 2.2)
   const [time, setTime] = useState(0)
   const [fps, setFps] = useState(60)
   const [selectorOpen, setSelectorOpen] = useState(false)
@@ -107,9 +108,11 @@ function App() {
           <ControlPanel
             isPlaying={isPlaying ?? true}
             speed={speed ?? 1}
+            gamma={gamma ?? 2.2}
             fps={fps}
             onPlayPause={() => setIsPlaying((current) => !current)}
             onSpeedChange={setSpeed}
+            onGammaChange={setGamma}
             onAddPanel={handleAddPanel}
           />
 
@@ -127,13 +130,15 @@ function App() {
                 const func = LED_FUNCTIONS.find(f => f.id === panel.functionId)
                 if (!func) return null
 
-                const brightness = func.calculate(time)
+                const rawBrightness = func.calculate(time)
+                const brightness = Math.pow(rawBrightness, 1 / (gamma ?? 2.2))
 
                 return (
                   <LEDPanel
                     key={panel.id}
                     ledFunction={func}
                     brightness={brightness}
+                    rawBrightness={rawBrightness}
                     onRemove={(panels || []).length > 1 ? () => handleRemovePanel(panel.id) : undefined}
                   />
                 )
