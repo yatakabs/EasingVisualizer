@@ -17,12 +17,12 @@ export function LEDPanel({ ledFunction, brightness, rawBrightness, onRemove }: L
   }, [brightness])
 
   return (
-    <Card className="relative overflow-hidden border-2 hover:border-primary/50 transition-all">
+    <Card className="relative overflow-hidden border-2 hover:border-primary/50 transition-colors">
       {onRemove && (
         <Button
           size="icon"
           variant="ghost"
-          className="absolute top-2 right-2 z-10 h-8 w-8 text-muted-foreground hover:text-destructive"
+          className="absolute top-2 right-2 z-10 h-8 w-8 text-muted-foreground hover:text-destructive transition-colors"
           onClick={onRemove}
         >
           <X size={16} />

@@ -43,7 +43,7 @@ export function FunctionSelector({
                 <Button
                   key={func.id}
                   variant="outline"
-                  className="h-auto flex-col items-start p-4 gap-2 hover:border-primary"
+                  className="h-auto flex-col items-start p-4 gap-2 hover:border-primary transition-colors"
                   onClick={() => {
                     onSelect(func)
                     onOpenChange(false)
