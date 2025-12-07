@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, memo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { X } from '@phosphor-icons/react'
@@ -11,13 +11,13 @@ interface LEDPanelProps {
   onRemove?: () => void
 }
 
-export function LEDPanel({ ledFunction, brightness, rawBrightness, onRemove }: LEDPanelProps) {
+export const LEDPanel = memo(function LEDPanel({ ledFunction, brightness, rawBrightness, onRemove }: LEDPanelProps) {
   const glowIntensity = useMemo(() => {
     return Math.max(0, Math.min(1, brightness))
   }, [brightness])
 
   return (
-    <Card className="relative overflow-hidden border-2 hover:border-primary/50 transition-colors">
+    <Card className="relative overflow-hidden border-2 border-border hover:border-primary/50 transition-[border-color] duration-200">
       {onRemove && (
         <Button
           size="icon"
@@ -134,4 +134,4 @@ export function LEDPanel({ ledFunction, brightness, rawBrightness, onRemove }: L
       </CardContent>
     </Card>
   )
-}
+})

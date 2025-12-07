@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { LEDPanel } from '@/components/LEDPanel'
 import { ControlPanel } from '@/components/ControlPanel'
@@ -65,15 +65,15 @@ function App() {
     }
   }, [isPlaying, speed])
 
-  const handleAddPanel = () => {
+  const handleAddPanel = useCallback(() => {
     if ((panels || []).length >= MAX_PANELS) {
       toast.error(`Maximum ${MAX_PANELS} panels allowed`)
       return
     }
     setSelectorOpen(true)
-  }
+  }, [panels])
 
-  const handleSelectFunction = (func: LEDFunction) => {
+  const handleSelectFunction = useCallback((func: LEDFunction) => {
     setPanels((currentPanels) => [
       ...(currentPanels || []),
       {
@@ -82,11 +82,11 @@ function App() {
       }
     ])
     toast.success(`Added ${func.name} panel`)
-  }
+  }, [setPanels])
 
-  const handleRemovePanel = (id: string) => {
+  const handleRemovePanel = useCallback((id: string) => () => {
     setPanels((currentPanels) => (currentPanels || []).filter(panel => panel.id !== id))
-  }
+  }, [setPanels])
 
   const usedFunctionIds = (panels || []).map(p => p.functionId)
 
@@ -139,7 +139,7 @@ function App() {
                     ledFunction={func}
                     brightness={brightness}
                     rawBrightness={rawBrightness}
-                    onRemove={(panels || []).length > 1 ? () => handleRemovePanel(panel.id) : undefined}
+                    onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
                   />
                 )
               })}
