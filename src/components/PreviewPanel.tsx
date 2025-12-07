@@ -69,14 +69,9 @@ export const PreviewPanel = memo(function PreviewPanel({
         onDragEnd={onDragEnd}
       >
         <div className="flex items-center justify-between gap-2">
-          <div className="flex-1 min-w-0">
-            <CardTitle className="text-xs font-semibold tracking-tight truncate mb-0.5">
-              {title || ledFunction.name}
-            </CardTitle>
-            <p className="text-[10px] font-mono text-muted-foreground leading-tight">
-              {ledFunction.formula}
-            </p>
-          </div>
+          <CardTitle className="text-xs font-semibold tracking-tight truncate flex-1 min-w-0">
+            {title || ledFunction.name}
+          </CardTitle>
           {onRemove && (
             <Button
               size="icon"
@@ -88,25 +83,33 @@ export const PreviewPanel = memo(function PreviewPanel({
             </Button>
           )}
         </div>
-        <ToggleGroup 
-          type="single" 
-          value={easeType}
-          onValueChange={(value) => value && onEaseTypeChange(value as EaseType)}
-          variant="outline"
-          size="sm"
-          className="justify-start mt-1.5"
-        >
-          <ToggleGroupItem value="easein" aria-label="EaseIn" className="text-[10px] px-1.5 h-5">
-            EaseIn
-          </ToggleGroupItem>
-          <ToggleGroupItem value="easeout" aria-label="EaseOut" className="text-[10px] px-1.5 h-5">
-            EaseOut
-          </ToggleGroupItem>
-          <ToggleGroupItem value="easeboth" aria-label="EaseBoth" className="text-[10px] px-1.5 h-5">
-            EaseBoth
-          </ToggleGroupItem>
-        </ToggleGroup>
       </CardHeader>
+      
+      <div className="px-3 py-2 border-b border-border/50">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-[10px] font-mono text-muted-foreground leading-tight">
+            {ledFunction.formula}
+          </p>
+          <ToggleGroup 
+            type="single" 
+            value={easeType}
+            onValueChange={(value) => value && onEaseTypeChange(value as EaseType)}
+            variant="outline"
+            size="sm"
+            className="flex-shrink-0"
+          >
+            <ToggleGroupItem value="easein" aria-label="EaseIn" className="text-[10px] px-1.5 h-5">
+              In
+            </ToggleGroupItem>
+            <ToggleGroupItem value="easeout" aria-label="EaseOut" className="text-[10px] px-1.5 h-5">
+              Out
+            </ToggleGroupItem>
+            <ToggleGroupItem value="easeboth" aria-label="EaseBoth" className="text-[10px] px-1.5 h-5">
+              Both
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+      </div>
       
       <CardContent className="flex flex-col items-center gap-2 p-0 px-3 pb-2 pt-0">
         {enabledPreviews.includes('camera') && (
