@@ -39,6 +39,8 @@ function App() {
   const [manualInputMode, setManualInputMode] = useKV<boolean>('manual-input-mode', false)
   const [manualInputValue, setManualInputValue] = useKV<number>('manual-input-value', 0)
   const [triangularWaveMode, setTriangularWaveMode] = useKV<boolean>('triangular-wave-mode', false)
+  const [cameraStartPos, setCameraStartPos] = useKV<{ x: number; y: number; z: number }>('camera-start-pos', { x: 0, y: 2, z: 5 })
+  const [cameraEndPos, setCameraEndPos] = useKV<{ x: number; y: number; z: number }>('camera-end-pos', { x: 0, y: 5, z: 8 })
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
@@ -264,6 +266,10 @@ function App() {
             onManualInputModeChange={handleManualInputModeChange}
             onTriangularWaveModeChange={(enabled) => setTriangularWaveMode(() => enabled)}
             onSetAllEaseType={handleSetAllEaseType}
+            cameraStartPos={cameraStartPos ?? { x: 0, y: 2, z: 5 }}
+            cameraEndPos={cameraEndPos ?? { x: 0, y: 5, z: 8 }}
+            onCameraStartPosChange={(pos) => setCameraStartPos(() => pos)}
+            onCameraEndPosChange={(pos) => setCameraEndPos(() => pos)}
           />
 
           {(panels || []).length === 0 ? (
@@ -380,6 +386,8 @@ function App() {
                         enabledFilters={enabledFilters ?? []}
                         filterParams={{ gamma: gamma ?? 2.2 }}
                         title={panel.title}
+                        startPos={cameraStartPos ?? { x: 0, y: 2, z: 5 }}
+                        endPos={cameraEndPos ?? { x: 0, y: 5, z: 8 }}
                         onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
                         onEaseTypeChange={(newEaseType) => {
                           setPanels((currentPanels) =>

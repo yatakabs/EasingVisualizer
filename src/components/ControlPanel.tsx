@@ -22,6 +22,8 @@ interface ControlPanelProps {
   baseInputValue: number
   manualInputMode: boolean
   triangularWaveMode: boolean
+  cameraStartPos: { x: number; y: number; z: number }
+  cameraEndPos: { x: number; y: number; z: number }
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
   onGammaChange: (gamma: number) => void
@@ -34,6 +36,8 @@ interface ControlPanelProps {
   onManualInputModeChange: (enabled: boolean) => void
   onTriangularWaveModeChange: (enabled: boolean) => void
   onSetAllEaseType?: (easeType: EaseType) => void
+  onCameraStartPosChange: (pos: { x: number; y: number; z: number }) => void
+  onCameraEndPosChange: (pos: { x: number; y: number; z: number }) => void
 }
 
 export function ControlPanel({
@@ -49,6 +53,8 @@ export function ControlPanel({
   baseInputValue,
   manualInputMode,
   triangularWaveMode,
+  cameraStartPos,
+  cameraEndPos,
   onPlayPause,
   onSpeedChange,
   onGammaChange,
@@ -60,7 +66,9 @@ export function ControlPanel({
   onInputValueChange,
   onManualInputModeChange,
   onTriangularWaveModeChange,
-  onSetAllEaseType
+  onSetAllEaseType,
+  onCameraStartPosChange,
+  onCameraEndPosChange
 }: ControlPanelProps) {
   return (
     <div className="w-full bg-card border-2 border-border rounded-lg p-3 space-y-3">
@@ -393,6 +401,127 @@ export function ControlPanel({
           </div>
         </div>
       </div>
+      
+      {showCamera && (
+        <div className="space-y-3 pt-2 border-t border-border">
+          <div className="text-xs font-medium text-foreground">カメラ座標設定</div>
+          
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-muted-foreground">
+              開始位置 (X, Y, Z)
+            </label>
+            <div className="flex gap-2">
+              <Input
+                id="camera-start-x"
+                type="number"
+                value={cameraStartPos.x.toFixed(1)}
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value)
+                  if (!isNaN(value)) {
+                    onCameraStartPosChange({ ...cameraStartPos, x: value })
+                  }
+                }}
+                step={0.5}
+                className="flex-1 font-mono text-xs h-8"
+                placeholder="X"
+              />
+              <Input
+                id="camera-start-y"
+                type="number"
+                value={cameraStartPos.y.toFixed(1)}
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value)
+                  if (!isNaN(value)) {
+                    onCameraStartPosChange({ ...cameraStartPos, y: value })
+                  }
+                }}
+                step={0.5}
+                className="flex-1 font-mono text-xs h-8"
+                placeholder="Y"
+              />
+              <Input
+                id="camera-start-z"
+                type="number"
+                value={cameraStartPos.z.toFixed(1)}
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value)
+                  if (!isNaN(value)) {
+                    onCameraStartPosChange({ ...cameraStartPos, z: value })
+                  }
+                }}
+                step={0.5}
+                className="flex-1 font-mono text-xs h-8"
+                placeholder="Z"
+              />
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-muted-foreground">
+              終了位置 (X, Y, Z)
+            </label>
+            <div className="flex gap-2">
+              <Input
+                id="camera-end-x"
+                type="number"
+                value={cameraEndPos.x.toFixed(1)}
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value)
+                  if (!isNaN(value)) {
+                    onCameraEndPosChange({ ...cameraEndPos, x: value })
+                  }
+                }}
+                step={0.5}
+                className="flex-1 font-mono text-xs h-8"
+                placeholder="X"
+              />
+              <Input
+                id="camera-end-y"
+                type="number"
+                value={cameraEndPos.y.toFixed(1)}
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value)
+                  if (!isNaN(value)) {
+                    onCameraEndPosChange({ ...cameraEndPos, y: value })
+                  }
+                }}
+                step={0.5}
+                className="flex-1 font-mono text-xs h-8"
+                placeholder="Y"
+              />
+              <Input
+                id="camera-end-z"
+                type="number"
+                value={cameraEndPos.z.toFixed(1)}
+                onChange={(e) => {
+                  const value = parseFloat(e.target.value)
+                  if (!isNaN(value)) {
+                    onCameraEndPosChange({ ...cameraEndPos, z: value })
+                  }
+                }}
+                step={0.5}
+                className="flex-1 font-mono text-xs h-8"
+                placeholder="Z"
+              />
+            </div>
+          </div>
+          
+          <div className="flex gap-2 pt-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                onCameraStartPosChange({ x: 0, y: 2, z: 5 })
+                onCameraEndPosChange({ x: 0, y: 5, z: 8 })
+                toast.success('カメラ座標をデフォルトに戻しました')
+              }}
+              className="text-xs h-7"
+            >
+              デフォルトに戻す
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -17,6 +17,8 @@ interface CameraViewProps {
   easeType: EaseType
   enabledFilters: string[]
   filterParams: Record<string, number>
+  startPos: { x: number; y: number; z: number }
+  endPos: { x: number; y: number; z: number }
   title?: string
   onRemove?: () => void
   onEaseTypeChange: (easeType: EaseType) => void
@@ -36,6 +38,8 @@ export const CameraView = memo(function CameraView({
   easeType,
   enabledFilters,
   filterParams,
+  startPos,
+  endPos,
   title,
   onRemove,
   onEaseTypeChange,
@@ -132,23 +136,18 @@ export const CameraView = memo(function CameraView({
   useEffect(() => {
     if (!cameraRef.current || !cubeRef.current || !rendererRef.current || !sceneRef.current) return
 
-    const minRadius = 2.5
-    const maxRadius = 7
-    const radius = minRadius + (maxRadius - minRadius) * filteredOutput
-    const angle = baseInput * Math.PI * 2
-    
-    const cameraX = Math.sin(angle) * radius
-    const cameraZ = Math.cos(angle) * radius
-    const cameraY = 2 + filteredOutput * 1.5
+    const cameraX = startPos.x + (endPos.x - startPos.x) * filteredOutput
+    const cameraY = startPos.y + (endPos.y - startPos.y) * filteredOutput
+    const cameraZ = startPos.z + (endPos.z - startPos.z) * filteredOutput
     
     cameraRef.current.position.set(cameraX, cameraY, cameraZ)
     cameraRef.current.lookAt(cubeRef.current.position)
     
-    cubeRef.current.rotation.y = angle * 0.5
+    cubeRef.current.rotation.y = baseInput * Math.PI * 2
     cubeRef.current.rotation.x = Math.sin(baseInput * Math.PI * 4) * 0.2
     
     rendererRef.current.render(sceneRef.current, cameraRef.current)
-  }, [baseInput, filteredOutput])
+  }, [baseInput, filteredOutput, startPos, endPos])
 
   return (
     <Card 
@@ -204,16 +203,14 @@ export const CameraView = memo(function CameraView({
             </div>
           </div>
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Camera Angle</span>
+            <span className="text-muted-foreground">Camera Position</span>
+            <span className="font-mono font-medium">
+              ({(startPos.x + (endPos.x - startPos.x) * filteredOutput).toFixed(2)}, {(startPos.y + (endPos.y - startPos.y) * filteredOutput).toFixed(2)}, {(startPos.z + (endPos.z - startPos.z) * filteredOutput).toFixed(2)})
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Cube Rotation</span>
             <span className="font-mono font-medium">{(baseInput * 360).toFixed(1)}°</span>
-          </div>
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Camera Distance</span>
-            <span className="font-mono font-medium">{(2.5 + (7 - 2.5) * filteredOutput).toFixed(2)}</span>
-          </div>
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Camera Height</span>
-            <span className="font-mono font-medium">{(2 + filteredOutput * 1.5).toFixed(2)}</span>
           </div>
         </div>
 
