@@ -17,7 +17,7 @@ export const LEDPanel = memo(function LEDPanel({ ledFunction, brightness, rawBri
   }, [brightness])
 
   return (
-    <Card className="relative overflow-hidden border-2 border-border hover:border-primary/50 transition-[border-color] duration-200">
+    <Card className="relative overflow-hidden border-2 border-border">
       {onRemove && (
         <Button
           size="icon"
