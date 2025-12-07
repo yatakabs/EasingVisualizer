@@ -6,8 +6,6 @@ import { Play, Pause, Plus } from '@phosphor-icons/react'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { INPUT_FUNCTIONS } from '@/lib/inputFunctions'
 import { toast } from 'sonner'
 
 interface ControlPanelProps {
@@ -20,7 +18,6 @@ interface ControlPanelProps {
   enabledFilters: string[]
   inputValue: number
   manualInputMode: boolean
-  inputFunctionId: string
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
   onGammaChange: (gamma: number) => void
@@ -30,7 +27,6 @@ interface ControlPanelProps {
   onToggleFilter: (filterId: string) => void
   onInputValueChange: (value: number) => void
   onManualInputModeChange: (enabled: boolean) => void
-  onInputFunctionChange: (functionId: string) => void
   onApplyPreset: (presetName: 'easein' | 'easeout' | 'easeboth') => void
 }
 
@@ -44,7 +40,6 @@ export function ControlPanel({
   enabledFilters,
   inputValue,
   manualInputMode,
-  inputFunctionId,
   onPlayPause,
   onSpeedChange,
   onGammaChange,
@@ -54,11 +49,8 @@ export function ControlPanel({
   onToggleFilter,
   onInputValueChange,
   onManualInputModeChange,
-  onInputFunctionChange,
   onApplyPreset
 }: ControlPanelProps) {
-  const currentInputFunction = INPUT_FUNCTIONS.find(f => f.id === inputFunctionId) || INPUT_FUNCTIONS[0]
-
   return (
     <div className="w-full bg-card border-2 border-border rounded-lg p-6 space-y-6">
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
@@ -120,18 +112,9 @@ export function ControlPanel({
           <label className="text-sm font-medium text-foreground">
             Input Function
           </label>
-          <Select value={inputFunctionId} onValueChange={onInputFunctionChange}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {INPUT_FUNCTIONS.map((func) => (
-                <SelectItem key={func.id} value={func.id}>
-                  {func.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Badge variant="secondary" className="text-sm px-3 py-1.5 font-mono">
+            Linear (x = t)
+          </Badge>
         </div>
         
         <div className="flex gap-2">
@@ -159,12 +142,6 @@ export function ControlPanel({
           >
             EaseBoth
           </Button>
-        </div>
-        
-        <div className="bg-muted/30 rounded-md p-2">
-          <div className="text-xs font-mono text-muted-foreground">
-            {currentInputFunction.formula}
-          </div>
         </div>
       </div>
       

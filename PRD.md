@@ -20,11 +20,11 @@ This app displays multiple animated panels with play/pause controls and function
 - Success criteria: Smooth 60fps animation with synchronized timing across all panels
 
 **Function Comparison**
-- Functionality: Support multiple bidirectional time-output functions (Linear, Sine, Exponential, Quadratic, Pulse Width) that cycle 0→1→0
-- Purpose: Demonstrate how different mathematical approaches affect perceived brightness in round-trip cycles
+- Functionality: Support multiple output functions (Linear, Sine, Quadratic, Square Root, etc.) with a fixed Linear input function (x = t)
+- Purpose: Demonstrate how different mathematical approaches affect perceived brightness
 - Trigger: Panels display preset functions on load
 - Progression: User views panels → Observes brightness patterns → Understands function differences
-- Success criteria: Each function produces visually distinct bidirectional brightness patterns
+- Success criteria: Each function produces visually distinct brightness patterns with Linear input
 
 **Playback Controls**
 - Functionality: Play/pause all animations and adjust animation speed
@@ -34,11 +34,11 @@ This app displays multiple animated panels with play/pause controls and function
 - Success criteria: Immediate response to controls affecting all panels simultaneously
 
 **Function Customization**
-- Functionality: Add/remove panels with different functions
-- Purpose: Let users create custom comparisons
-- Trigger: Click add/remove buttons
-- Progression: User clicks add → Dialog appears → Selects function → New panel appears
-- Success criteria: Panels can be added up to 12, removed individually
+- Functionality: Add/remove panels with different functions; apply preset easing functions (EaseIn, EaseOut, EaseBoth) with Linear input
+- Purpose: Let users create custom comparisons and quickly apply common easing patterns
+- Trigger: Click add/remove buttons or preset buttons
+- Progression: User clicks add → Dialog appears → Selects function → New panel appears; OR User clicks preset → Appropriate output function panel is added
+- Success criteria: Panels can be added up to 12, removed individually; presets add Quadratic (EaseIn), Square Root (EaseOut), or Sine (EaseBoth) panels
 
 **Output Filtering System**
 - Functionality: Apply configurable filters (e.g., gamma correction) to function outputs before visualization

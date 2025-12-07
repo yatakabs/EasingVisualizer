@@ -34,7 +34,6 @@ function App() {
   const [enabledFilters, setEnabledFilters] = useKV<string[]>('enabled-filters', [])
   const [manualInputMode, setManualInputMode] = useKV<boolean>('manual-input-mode', false)
   const [manualInputValue, setManualInputValue] = useKV<number>('manual-input-value', 0)
-  const [inputFunctionId, setInputFunctionId] = useKV<string>('input-function-id', 'triangle')
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
@@ -153,26 +152,24 @@ function App() {
 
   const handleApplyPreset = useCallback((presetName: 'easein' | 'easeout' | 'easeboth') => {
     const presets = {
-      easein: { input: 'triangle', output: 'quadratic' },
-      easeout: { input: 'triangle', output: 'sqrt' },
-      easeboth: { input: 'triangle', output: 'sine' }
+      easein: 'quadratic',
+      easeout: 'sqrt',
+      easeboth: 'sine'
     }
     
-    const preset = presets[presetName]
+    const outputFunctionId = presets[presetName]
+    const outputFunction = LED_FUNCTIONS.find(f => f.id === outputFunctionId)
     
-    setInputFunctionId(() => preset.input)
+    if (!outputFunction) return
     
     setPanels((currentPanels) => {
       const panels = currentPanels || []
-      const outputExists = panels.some(p => p.functionId === preset.output)
+      const outputExists = panels.some(p => p.functionId === outputFunctionId)
       
       if (outputExists) {
         toast.success(`${presetName === 'easein' ? 'EaseIn' : presetName === 'easeout' ? 'EaseOut' : 'EaseBoth'}プリセットを適用しました`)
         return panels
       }
-      
-      const outputFunction = LED_FUNCTIONS.find(f => f.id === preset.output)
-      if (!outputFunction) return panels
       
       toast.success(`${presetName === 'easein' ? 'EaseIn' : presetName === 'easeout' ? 'EaseOut' : 'EaseBoth'}プリセットを適用しました`, {
         description: `${outputFunction.name}パネルを追加しました`
@@ -182,16 +179,16 @@ function App() {
         ...panels,
         {
           id: Date.now().toString(),
-          functionId: preset.output
+          functionId: outputFunctionId
         }
       ]
     })
-  }, [setInputFunctionId, setPanels])
+  }, [setPanels])
 
   const currentInputValue = (manualInputMode ?? false) ? (manualInputValue ?? 0) : time
   const usedFunctionIds = (panels || []).map(p => p.functionId)
   
-  const inputFunction = INPUT_FUNCTIONS.find(f => f.id === (inputFunctionId ?? 'triangle')) || INPUT_FUNCTIONS[0]
+  const inputFunction = INPUT_FUNCTIONS.find(f => f.id === 'linear') || INPUT_FUNCTIONS[1]
   const transformedInput = inputFunction.calculate(currentInputValue)
 
   return (
@@ -219,7 +216,6 @@ function App() {
             enabledFilters={enabledFilters ?? []}
             inputValue={currentInputValue}
             manualInputMode={manualInputMode ?? false}
-            inputFunctionId={inputFunctionId ?? 'triangle'}
             onPlayPause={() => setIsPlaying((current) => !current)}
             onSpeedChange={handleSpeedChange}
             onGammaChange={handleGammaChange}
@@ -238,7 +234,6 @@ function App() {
             }}
             onInputValueChange={handleInputValueChange}
             onManualInputModeChange={handleManualInputModeChange}
-            onInputFunctionChange={(functionId) => setInputFunctionId(() => functionId)}
             onApplyPreset={handleApplyPreset}
           />
 
