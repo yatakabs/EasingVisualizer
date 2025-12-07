@@ -35,6 +35,7 @@ function App() {
   const [enabledFilters, setEnabledFilters] = useKV<string[]>('enabled-filters', [])
   const [manualInputMode, setManualInputMode] = useKV<boolean>('manual-input-mode', false)
   const [manualInputValue, setManualInputValue] = useKV<number>('manual-input-value', 0)
+  const [triangularWaveMode, setTriangularWaveMode] = useKV<boolean>('triangular-wave-mode', false)
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
@@ -91,6 +92,11 @@ function App() {
       cancelAnimationFrame(animationFrameId)
     }
   }, [isPlaying, speed, manualInputMode])
+
+  const getTriangularWave = (t: number): number => {
+    const normalized = t % 1
+    return normalized < 0.5 ? normalized * 2 : 2 - normalized * 2
+  }
 
   const handleAddPanel = useCallback(() => {
     if ((panels || []).length >= MAX_PANELS) {
@@ -158,7 +164,8 @@ function App() {
     )
   }, [setPanels])
 
-  const currentInputValue = (manualInputMode ?? false) ? (manualInputValue ?? 0) : time
+  const baseInputValue = (manualInputMode ?? false) ? (manualInputValue ?? 0) : time
+  const currentInputValue = (triangularWaveMode ?? false) ? getTriangularWave(baseInputValue) : baseInputValue
   const usedFunctionIds = (panels || []).map(p => p.functionId)
 
   return (
@@ -185,7 +192,9 @@ function App() {
             showRectangle={showRectangle ?? false}
             enabledFilters={enabledFilters ?? []}
             inputValue={currentInputValue}
+            baseInputValue={baseInputValue}
             manualInputMode={manualInputMode ?? false}
+            triangularWaveMode={triangularWaveMode ?? false}
             onPlayPause={() => setIsPlaying((current) => !current)}
             onSpeedChange={handleSpeedChange}
             onGammaChange={handleGammaChange}
@@ -204,6 +213,7 @@ function App() {
             }}
             onInputValueChange={handleInputValueChange}
             onManualInputModeChange={handleManualInputModeChange}
+            onTriangularWaveModeChange={(enabled) => setTriangularWaveMode(() => enabled)}
             onSetAllEaseType={handleSetAllEaseType}
           />
 

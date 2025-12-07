@@ -18,7 +18,9 @@ interface ControlPanelProps {
   showRectangle: boolean
   enabledFilters: string[]
   inputValue: number
+  baseInputValue: number
   manualInputMode: boolean
+  triangularWaveMode: boolean
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
   onGammaChange: (gamma: number) => void
@@ -28,6 +30,7 @@ interface ControlPanelProps {
   onToggleFilter: (filterId: string) => void
   onInputValueChange: (value: number) => void
   onManualInputModeChange: (enabled: boolean) => void
+  onTriangularWaveModeChange: (enabled: boolean) => void
   onSetAllEaseType?: (easeType: EaseType) => void
 }
 
@@ -40,7 +43,9 @@ export function ControlPanel({
   showRectangle,
   enabledFilters,
   inputValue,
+  baseInputValue,
   manualInputMode,
+  triangularWaveMode,
   onPlayPause,
   onSpeedChange,
   onGammaChange,
@@ -50,6 +55,7 @@ export function ControlPanel({
   onToggleFilter,
   onInputValueChange,
   onManualInputModeChange,
+  onTriangularWaveModeChange,
   onSetAllEaseType
 }: ControlPanelProps) {
   return (
@@ -157,13 +163,20 @@ export function ControlPanel({
           <label className="text-sm font-medium text-foreground">
             Input Value
           </label>
-          <span className="text-sm font-mono text-primary">
-            {inputValue.toFixed(3)}
-          </span>
+          <div className="flex items-center gap-2">
+            {triangularWaveMode && (
+              <Badge variant="outline" className="text-xs font-mono">
+                Base: {baseInputValue.toFixed(3)}
+              </Badge>
+            )}
+            <span className="text-sm font-mono text-primary">
+              {inputValue.toFixed(3)}
+            </span>
+          </div>
         </div>
         
         <Slider
-          value={[inputValue]}
+          value={[baseInputValue]}
           onValueChange={([value]) => onInputValueChange(value)}
           min={0}
           max={1}
@@ -188,7 +201,7 @@ export function ControlPanel({
           </div>
         </div>
         
-        <div className="flex items-center gap-4 pt-2">
+        <div className="flex flex-wrap items-center gap-4 pt-2">
           <div className="flex items-center gap-2">
             <Switch
               id="manual-input-mode"
@@ -201,10 +214,21 @@ export function ControlPanel({
           </div>
           
           <div className="flex items-center gap-2">
+            <Switch
+              id="triangular-wave-mode"
+              checked={triangularWaveMode}
+              onCheckedChange={onTriangularWaveModeChange}
+            />
+            <Label htmlFor="triangular-wave-mode" className="text-sm font-medium cursor-pointer">
+              三角波モード
+            </Label>
+          </div>
+          
+          <div className="flex items-center gap-2">
             <Input
               id="input-value-field"
               type="number"
-              value={inputValue.toFixed(3)}
+              value={baseInputValue.toFixed(3)}
               onChange={(e) => {
                 const value = parseFloat(e.target.value)
                 if (!isNaN(value) && value >= 0 && value <= 1) {
