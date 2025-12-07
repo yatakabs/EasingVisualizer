@@ -153,17 +153,53 @@ export const PreviewPanel = memo(function PreviewPanel({
       </div>
       
       <CardContent className="flex flex-col items-center gap-1.5" style={{ margin: 0, padding: '8px' }}>
-        {enabledPreviews.includes('camera') && showCamera && (
-          <CameraPreview
-            ledFunction={ledFunction}
-            output={output}
-            filteredOutput={filteredOutput}
-            baseInput={baseInput}
-            enabledFilters={enabledFilters}
-            startPos={cameraStartPos}
-            endPos={cameraEndPos}
-            aspectRatio={cameraAspectRatio}
-          />
+        {enabledPreviews.includes('camera') && (
+          showCamera ? (
+            <CameraPreview
+              ledFunction={ledFunction}
+              output={output}
+              filteredOutput={filteredOutput}
+              baseInput={baseInput}
+              enabledFilters={enabledFilters}
+              startPos={cameraStartPos}
+              endPos={cameraEndPos}
+              aspectRatio={cameraAspectRatio}
+            />
+          ) : (
+            <div className="w-full relative bg-card border border-border/50 rounded-md flex items-center justify-center" 
+                 style={{ 
+                   aspectRatio: cameraAspectRatio.includes('/') 
+                     ? cameraAspectRatio.replace('/', ' / ')
+                     : cameraAspectRatio 
+                 }}>
+              <div className="flex flex-col items-center justify-center gap-2 p-4">
+                <Video size={32} weight="duotone" className="text-muted-foreground/50" />
+                <p className="text-xs text-muted-foreground text-center">
+                  カメラプレビュー無効
+                </p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-xs h-7"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (canActivateCamera) {
+                      onToggleCamera()
+                    }
+                  }}
+                  disabled={!canActivateCamera}
+                >
+                  <Eye size={14} weight="bold" className="mr-1" />
+                  表示を有効化
+                </Button>
+                {!canActivateCamera && (
+                  <p className="text-[10px] text-muted-foreground/70 text-center max-w-[200px]">
+                    最大表示数に達しています
+                  </p>
+                )}
+              </div>
+            </div>
+          )
         )}
         
         {enabledPreviews.includes('led') && (
