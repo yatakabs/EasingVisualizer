@@ -74,10 +74,10 @@ export function ControlPanel({
           <Button
             size="sm"
             onClick={onPlayPause}
-            className="gap-1.5 font-semibold text-xs h-9 px-4"
+            className="gap-1.5 font-semibold text-sm h-10 px-4"
             disabled={manualInputMode}
           >
-            {isPlaying ? <Pause size={16} weight="fill" /> : <Play size={16} weight="fill" />}
+            {isPlaying ? <Pause size={18} weight="fill" /> : <Play size={18} weight="fill" />}
             {isPlaying ? 'Pause' : 'Play'}
           </Button>
           
@@ -85,19 +85,19 @@ export function ControlPanel({
             size="sm"
             variant="outline"
             onClick={onAddPanel}
-            className="gap-1.5 font-semibold text-xs h-9 px-4"
+            className="gap-1.5 font-semibold text-sm h-10 px-4"
           >
-            <Plus size={16} />
+            <Plus size={18} />
             Add Panel
           </Button>
           
-          <Badge variant="secondary" className="text-xs px-2.5 py-1 font-mono">
+          <Badge variant="secondary" className="text-sm px-3 py-1.5 font-mono">
             {fps} FPS
           </Badge>
         </div>
         
         <div className="flex flex-wrap gap-2 items-center">
-          <span className="text-xs font-medium text-muted-foreground mr-1">表示:</span>
+          <span className="text-sm font-medium text-muted-foreground mr-1">表示:</span>
           <ToggleGroup 
             type="multiple" 
             value={enabledPreviews}
@@ -108,7 +108,7 @@ export function ControlPanel({
               value="led" 
               aria-label="LED表示"
               onClick={() => onTogglePreview('led')}
-              className="text-xs h-8 px-3"
+              className="text-sm h-9 px-3"
             >
               LED
             </ToggleGroupItem>
@@ -116,7 +116,7 @@ export function ControlPanel({
               value="graph" 
               aria-label="グラフ表示"
               onClick={() => onTogglePreview('graph')}
-              className="text-xs h-8 px-3"
+              className="text-sm h-9 px-3"
             >
               グラフ
             </ToggleGroupItem>
@@ -124,7 +124,7 @@ export function ControlPanel({
               value="camera" 
               aria-label="カメラ表示"
               onClick={() => onTogglePreview('camera')}
-              className="text-xs h-8 px-3"
+              className="text-sm h-9 px-3"
             >
               カメラ
             </ToggleGroupItem>
@@ -132,7 +132,7 @@ export function ControlPanel({
               value="value" 
               aria-label="値表示"
               onClick={() => onTogglePreview('value')}
-              className="text-xs h-8 px-3"
+              className="text-sm h-9 px-3"
             >
               値
             </ToggleGroupItem>
@@ -142,7 +142,7 @@ export function ControlPanel({
       
       {onSetAllEaseType && (
         <div className="space-y-2.5">
-          <label className="text-xs font-semibold text-foreground block">
+          <label className="text-sm font-semibold text-foreground block">
             全パネル一括設定
           </label>
           
@@ -154,7 +154,7 @@ export function ControlPanel({
                 onSetAllEaseType('easein')
                 toast.success('全パネルをEaseInに設定しました')
               }}
-              className="font-semibold text-xs h-8 px-4"
+              className="font-semibold text-sm h-9 px-4"
             >
               全てIn
             </Button>
@@ -165,7 +165,7 @@ export function ControlPanel({
                 onSetAllEaseType('easeout')
                 toast.success('全パネルをEaseOutに設定しました')
               }}
-              className="font-semibold text-xs h-8 px-4"
+              className="font-semibold text-sm h-9 px-4"
             >
               全てOut
             </Button>
@@ -176,7 +176,7 @@ export function ControlPanel({
                 onSetAllEaseType('easeboth')
                 toast.success('全パネルをEaseBothに設定しました')
               }}
-              className="font-semibold text-xs h-8 px-4"
+              className="font-semibold text-sm h-9 px-4"
             >
               全てBoth
             </Button>
@@ -186,16 +186,16 @@ export function ControlPanel({
       
       <div className="space-y-2.5">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-semibold text-foreground">
+          <label className="text-sm font-semibold text-foreground">
             Input Value
           </label>
           <div className="flex items-center gap-2">
             {triangularWaveMode && (
-              <Badge variant="outline" className="text-[10px] font-mono px-2 py-0.5">
+              <Badge variant="outline" className="text-xs font-mono px-2 py-0.5">
                 Base: {baseInputValue.toFixed(3)}
               </Badge>
             )}
-            <span className="text-sm font-mono text-primary font-semibold">
+            <span className="text-base font-mono text-primary font-semibold">
               {inputValue.toFixed(3)}
             </span>
           </div>
@@ -211,7 +211,7 @@ export function ControlPanel({
           className="my-1"
         />
         
-        <div className="relative text-[9px] text-muted-foreground font-mono h-5 px-1">
+        <div className="relative text-[10px] text-muted-foreground font-mono h-5 px-1">
           <div className="absolute inset-x-1 flex items-start pt-1">
             {[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].map((mark) => (
               <div
@@ -221,7 +221,7 @@ export function ControlPanel({
               >
                 <div className={`w-px ${mark % 0.5 === 0 ? 'h-2 bg-muted-foreground' : mark % 0.1 === 0 ? 'h-1.5 bg-muted-foreground/50' : 'h-1 bg-muted-foreground/30'}`} />
                 {mark % 0.5 === 0 && (
-                  <span className="text-[8px]">{mark.toFixed(1)}</span>
+                  <span className="text-[9px]">{mark.toFixed(1)}</span>
                 )}
               </div>
             ))}
@@ -235,7 +235,7 @@ export function ControlPanel({
               checked={manualInputMode}
               onCheckedChange={onManualInputModeChange}
             />
-            <Label htmlFor="manual-input-mode" className="text-xs font-medium cursor-pointer">
+            <Label htmlFor="manual-input-mode" className="text-sm font-medium cursor-pointer">
               手動制御
             </Label>
           </div>
@@ -246,7 +246,7 @@ export function ControlPanel({
               checked={triangularWaveMode}
               onCheckedChange={onTriangularWaveModeChange}
             />
-            <Label htmlFor="triangular-wave-mode" className="text-xs font-medium cursor-pointer">
+            <Label htmlFor="triangular-wave-mode" className="text-sm font-medium cursor-pointer">
               三角波
             </Label>
           </div>
@@ -265,7 +265,7 @@ export function ControlPanel({
               step={0.001}
               min={0}
               max={1}
-              className="w-24 font-mono text-xs h-8 px-2"
+              className="w-28 font-mono text-sm h-9 px-2"
               disabled={!manualInputMode}
             />
           </div>
@@ -274,10 +274,10 @@ export function ControlPanel({
       
       <div className="space-y-2.5">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-semibold text-foreground">
+          <label className="text-sm font-semibold text-foreground">
             Animation Speed
           </label>
-          <span className="text-sm font-mono text-primary font-semibold">
+          <span className="text-base font-mono text-primary font-semibold">
             {speed.toFixed(1)}x
           </span>
         </div>
@@ -292,7 +292,7 @@ export function ControlPanel({
           className="my-1"
         />
         
-        <div className="relative text-[9px] text-muted-foreground font-mono h-5 px-1">
+        <div className="relative text-[10px] text-muted-foreground font-mono h-5 px-1">
           <div className="absolute inset-x-1 flex items-start pt-1">
             {[0.1, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0].map((mark) => {
               const position = ((mark - 0.1) / (3.0 - 0.1)) * 100
@@ -305,7 +305,7 @@ export function ControlPanel({
                 >
                   <div className={`w-px ${isMajor ? 'h-2 bg-muted-foreground' : 'h-1.5 bg-muted-foreground/50'}`} />
                   {isMajor && (
-                    <span className="text-[8px]">{mark.toFixed(1)}x</span>
+                    <span className="text-[9px]">{mark.toFixed(1)}x</span>
                   )}
                 </div>
               )
@@ -327,19 +327,19 @@ export function ControlPanel({
             step={0.1}
             min={0.1}
             max={3}
-            className="w-24 font-mono text-xs h-8 px-2"
+            className="w-28 font-mono text-sm h-9 px-2"
             disabled={manualInputMode}
           />
-          <span className="text-xs text-muted-foreground">直接入力</span>
+          <span className="text-sm text-muted-foreground">直接入力</span>
         </div>
       </div>
       
       <div className="space-y-2.5">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-semibold text-foreground">
+          <label className="text-sm font-semibold text-foreground">
             Gamma Correction
           </label>
-          <span className="text-sm font-mono text-primary font-semibold">
+          <span className="text-base font-mono text-primary font-semibold">
             γ = {gamma.toFixed(1)}
           </span>
         </div>
@@ -353,7 +353,7 @@ export function ControlPanel({
           className="my-1"
         />
         
-        <div className="relative text-[9px] text-muted-foreground font-mono h-5 px-1">
+        <div className="relative text-[10px] text-muted-foreground font-mono h-5 px-1">
           <div className="absolute inset-x-1 flex items-start pt-1">
             {[0.0, 1.0, 2.0, 3.0, 4.0, 5.0].map((mark) => {
               const position = ((mark - 0.0) / (5.0 - 0.0)) * 100
@@ -366,7 +366,7 @@ export function ControlPanel({
                 >
                   <div className={`w-px ${isMajor ? 'h-2 bg-muted-foreground' : 'h-1.5 bg-muted-foreground/50'}`} />
                   {isMajor && (
-                    <span className="text-[8px]">{mark.toFixed(1)}</span>
+                    <span className="text-[9px]">{mark.toFixed(1)}</span>
                   )}
                 </div>
               )
@@ -388,9 +388,9 @@ export function ControlPanel({
               }}
               step={0.1}
               min={0.0}
-              className="w-24 font-mono text-xs h-8 px-2"
+              className="w-28 font-mono text-sm h-9 px-2"
             />
-            <span className="text-xs text-muted-foreground">直接入力</span>
+            <span className="text-sm text-muted-foreground">直接入力</span>
           </div>
           
           <div className="flex items-center gap-2">
@@ -399,7 +399,7 @@ export function ControlPanel({
               checked={enabledFilters.includes('gamma')}
               onCheckedChange={() => onToggleFilter('gamma')}
             />
-            <Label htmlFor="apply-gamma-filter" className="text-xs font-medium cursor-pointer">
+            <Label htmlFor="apply-gamma-filter" className="text-sm font-medium cursor-pointer">
               補正適用
             </Label>
           </div>
@@ -408,10 +408,10 @@ export function ControlPanel({
       
       {enabledPreviews.includes('camera') && (
         <div className="space-y-3 pt-3 border-t border-border">
-          <div className="text-sm font-semibold text-foreground">カメラ設定</div>
+          <div className="text-base font-semibold text-foreground">カメラ設定</div>
           
           <div className="space-y-2.5">
-            <label className="text-xs font-medium text-muted-foreground block">
+            <label className="text-sm font-medium text-muted-foreground block">
               アスペクト比
             </label>
             <ToggleGroup 
@@ -422,22 +422,22 @@ export function ControlPanel({
               className="justify-start flex-wrap"
               size="sm"
             >
-              <ToggleGroupItem value="16/9" className="text-xs px-3 h-8">
+              <ToggleGroupItem value="16/9" className="text-sm px-3 h-9">
                 16:9
               </ToggleGroupItem>
-              <ToggleGroupItem value="4/3" className="text-xs px-3 h-8">
+              <ToggleGroupItem value="4/3" className="text-sm px-3 h-9">
                 4:3
               </ToggleGroupItem>
-              <ToggleGroupItem value="1/1" className="text-xs px-3 h-8">
+              <ToggleGroupItem value="1/1" className="text-sm px-3 h-9">
                 1:1
               </ToggleGroupItem>
-              <ToggleGroupItem value="21/9" className="text-xs px-3 h-8">
+              <ToggleGroupItem value="21/9" className="text-sm px-3 h-9">
                 21:9
               </ToggleGroupItem>
-              <ToggleGroupItem value="9/16" className="text-xs px-3 h-8">
+              <ToggleGroupItem value="9/16" className="text-sm px-3 h-9">
                 9:16
               </ToggleGroupItem>
-              <ToggleGroupItem value="custom" className="text-xs px-3 h-8">
+              <ToggleGroupItem value="custom" className="text-sm px-3 h-9">
                 カスタム
               </ToggleGroupItem>
             </ToggleGroup>
@@ -455,15 +455,15 @@ export function ControlPanel({
                     }
                   }}
                   placeholder="例: 2.35/1"
-                  className="w-32 font-mono text-xs h-8"
+                  className="w-36 font-mono text-sm h-9"
                 />
-                <span className="text-xs text-muted-foreground whitespace-nowrap">カスタム入力</span>
+                <span className="text-sm text-muted-foreground whitespace-nowrap">カスタム入力</span>
               </div>
             )}
           </div>
           
           <div className="space-y-2.5">
-            <label className="text-xs font-medium text-muted-foreground block">
+            <label className="text-sm font-medium text-muted-foreground block">
               開始位置 (X, Y, Z)
             </label>
             <div className="flex gap-2">
@@ -478,7 +478,7 @@ export function ControlPanel({
                   }
                 }}
                 step={0.5}
-                className="flex-1 font-mono text-xs h-9"
+                className="flex-1 font-mono text-sm h-10"
                 placeholder="X"
               />
               <Input
@@ -492,7 +492,7 @@ export function ControlPanel({
                   }
                 }}
                 step={0.5}
-                className="flex-1 font-mono text-xs h-9"
+                className="flex-1 font-mono text-sm h-10"
                 placeholder="Y"
               />
               <Input
@@ -506,14 +506,14 @@ export function ControlPanel({
                   }
                 }}
                 step={0.5}
-                className="flex-1 font-mono text-xs h-9"
+                className="flex-1 font-mono text-sm h-10"
                 placeholder="Z"
               />
             </div>
           </div>
           
           <div className="space-y-2.5">
-            <label className="text-xs font-medium text-muted-foreground block">
+            <label className="text-sm font-medium text-muted-foreground block">
               終了位置 (X, Y, Z)
             </label>
             <div className="flex gap-2">
@@ -528,7 +528,7 @@ export function ControlPanel({
                   }
                 }}
                 step={0.5}
-                className="flex-1 font-mono text-xs h-9"
+                className="flex-1 font-mono text-sm h-10"
                 placeholder="X"
               />
               <Input
@@ -542,7 +542,7 @@ export function ControlPanel({
                   }
                 }}
                 step={0.5}
-                className="flex-1 font-mono text-xs h-9"
+                className="flex-1 font-mono text-sm h-10"
                 placeholder="Y"
               />
               <Input
@@ -556,7 +556,7 @@ export function ControlPanel({
                   }
                 }}
                 step={0.5}
-                className="flex-1 font-mono text-xs h-9"
+                className="flex-1 font-mono text-sm h-10"
                 placeholder="Z"
               />
             </div>
@@ -572,7 +572,7 @@ export function ControlPanel({
                 onCameraAspectRatioChange('16/9')
                 toast.success('カメラ設定をデフォルトに戻しました')
               }}
-              className="text-xs h-8"
+              className="text-sm h-9"
             >
               デフォルトに戻す
             </Button>

@@ -236,10 +236,10 @@ function App() {
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-[120rem]">
         <header className="mb-4 sm:mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-1.5" style={{ letterSpacing: '-0.02em' }}>
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-1.5" style={{ letterSpacing: '-0.02em' }}>
             関数比較ビジュアライザー
           </h1>
-          <p className="text-muted-foreground text-sm sm:text-base">
+          <p className="text-muted-foreground text-base sm:text-lg">
             異なる数学関数の出力を視覚的に比較
           </p>
         </header>
@@ -285,9 +285,9 @@ function App() {
 
           {(panels || []).length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center">
-              <div className="text-5xl sm:text-6xl mb-4">📊</div>
-              <h2 className="text-xl sm:text-2xl font-semibold mb-2">パネルがありません</h2>
-              <p className="text-muted-foreground text-sm sm:text-base mb-6 max-w-md">
+              <div className="text-6xl sm:text-7xl mb-4">📊</div>
+              <h2 className="text-2xl sm:text-3xl font-semibold mb-2">パネルがありません</h2>
+              <p className="text-muted-foreground text-base sm:text-lg mb-6 max-w-md">
                 最初のパネルを追加して関数の比較を開始
               </p>
             </div>

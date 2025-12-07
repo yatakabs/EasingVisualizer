@@ -26,16 +26,16 @@ export function FunctionSelector({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold">
+          <DialogTitle className="text-xl font-bold">
             関数を選択
           </DialogTitle>
-          <DialogDescription className="text-xs">
+          <DialogDescription className="text-sm">
             比較に追加する関数を選択してください
           </DialogDescription>
         </DialogHeader>
         
         <ScrollArea className="max-h-[70vh]">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 pr-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pr-2">
             {LED_FUNCTIONS.map((func) => {
               const isUsed = usedFunctionIds.includes(func.id)
               
@@ -43,28 +43,28 @@ export function FunctionSelector({
                 <Button
                   key={func.id}
                   variant="outline"
-                  className="h-auto flex-col items-start p-1.5 gap-0.5 hover:border-primary transition-colors"
+                  className="h-auto flex-col items-start p-2 gap-1 hover:border-primary transition-colors"
                   onClick={() => {
                     onSelect(func)
                     onOpenChange(false)
                   }}
                   disabled={isUsed}
                 >
-                  <div className="flex items-center gap-1 w-full">
+                  <div className="flex items-center gap-1.5 w-full">
                     <div
-                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                      className="w-3 h-3 rounded-full flex-shrink-0"
                       style={{
                         backgroundColor: func.color,
                         boxShadow: `0 0 4px ${func.color}`
                       }}
                     />
-                    <span className="font-semibold text-[10px] truncate">{func.name}</span>
+                    <span className="font-semibold text-xs truncate">{func.name}</span>
                   </div>
-                  <span className="font-mono text-[9px] text-muted-foreground text-left w-full leading-tight">
+                  <span className="font-mono text-[10px] text-muted-foreground text-left w-full leading-tight">
                     {func.formula}
                   </span>
                   {isUsed && (
-                    <span className="text-[8px] text-muted-foreground">
+                    <span className="text-[9px] text-muted-foreground">
                       (使用中)
                     </span>
                   )}
