@@ -139,10 +139,21 @@ export function ControlPanel({
           disabled={!manualInputMode}
         />
         
-        <div className="relative text-xs text-muted-foreground font-mono">
-          <span className="absolute left-0">0.000</span>
-          <span className="absolute left-1/2 -translate-x-1/2">0.500</span>
-          <span className="absolute right-0">1.000</span>
+        <div className="relative text-xs text-muted-foreground font-mono h-8">
+          <div className="absolute inset-0 flex items-start pt-1">
+            {[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].map((mark) => (
+              <div
+                key={mark}
+                className="absolute flex flex-col items-center gap-1"
+                style={{ left: `${mark * 100}%`, transform: 'translateX(-50%)' }}
+              >
+                <div className={`w-px ${mark % 0.5 === 0 ? 'h-3 bg-muted-foreground' : mark % 0.1 === 0 ? 'h-2 bg-muted-foreground/50' : 'h-1 bg-muted-foreground/30'}`} />
+                {mark % 0.5 === 0 && (
+                  <span className="text-[10px]">{mark.toFixed(1)}</span>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
         
         <div className="flex items-center gap-4 pt-2">
@@ -198,10 +209,25 @@ export function ControlPanel({
           disabled={manualInputMode}
         />
         
-        <div className="relative text-xs text-muted-foreground font-mono">
-          <span className="absolute left-0">0.1x</span>
-          <span className="absolute" style={{ left: `${((1.0 - 0.1) / (3.0 - 0.1)) * 100}%`, transform: 'translateX(-50%)' }}>1.0x</span>
-          <span className="absolute right-0">3.0x</span>
+        <div className="relative text-xs text-muted-foreground font-mono h-8">
+          <div className="absolute inset-0 flex items-start pt-1">
+            {[0.1, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0].map((mark) => {
+              const position = ((mark - 0.1) / (3.0 - 0.1)) * 100
+              const isMajor = mark === 0.1 || mark === 1.0 || mark === 2.0 || mark === 3.0
+              return (
+                <div
+                  key={mark}
+                  className="absolute flex flex-col items-center gap-1"
+                  style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
+                >
+                  <div className={`w-px ${isMajor ? 'h-3 bg-muted-foreground' : 'h-2 bg-muted-foreground/50'}`} />
+                  {isMajor && (
+                    <span className="text-[10px]">{mark.toFixed(1)}x</span>
+                  )}
+                </div>
+              )
+            })}
+          </div>
         </div>
       </div>
       
@@ -224,10 +250,25 @@ export function ControlPanel({
           className="w-full"
         />
         
-        <div className="relative text-xs text-muted-foreground font-mono">
-          <span className="absolute left-0">1.0</span>
-          <span className="absolute" style={{ left: `${((2.2 - 1.0) / (3.0 - 1.0)) * 100}%`, transform: 'translateX(-50%)' }}>2.2</span>
-          <span className="absolute right-0">3.0</span>
+        <div className="relative text-xs text-muted-foreground font-mono h-8">
+          <div className="absolute inset-0 flex items-start pt-1">
+            {[1.0, 1.4, 1.8, 2.2, 2.6, 3.0].map((mark) => {
+              const position = ((mark - 1.0) / (3.0 - 1.0)) * 100
+              const isMajor = mark === 1.0 || mark === 2.2 || mark === 3.0
+              return (
+                <div
+                  key={mark}
+                  className="absolute flex flex-col items-center gap-1"
+                  style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
+                >
+                  <div className={`w-px ${isMajor ? 'h-3 bg-muted-foreground' : 'h-2 bg-muted-foreground/50'}`} />
+                  {isMajor && (
+                    <span className="text-[10px]">{mark.toFixed(1)}</span>
+                  )}
+                </div>
+              )
+            })}
+          </div>
         </div>
         
         <div className="flex items-center gap-2 pt-2">
