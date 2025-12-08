@@ -310,11 +310,11 @@ export function ControlPanel({
       {/* Advanced Settings（アコーディオン形式） */}
       {/* ============================================= */}
       <Accordion type="single" collapsible className="w-full">
-        <AccordionItem value="advanced-settings" className="border rounded-lg px-4">
-          <AccordionTrigger className="hover:no-underline">
-            <div className="flex items-center gap-2">
-              <GearSix size={18} className="text-muted-foreground" />
-              <span className="text-sm font-semibold">Advanced Settings</span>
+        <AccordionItem value="advanced-settings" className="border rounded-lg px-3">
+          <AccordionTrigger className="hover:no-underline py-2">
+            <div className="flex items-center gap-1.5">
+              <GearSix size={16} className="text-muted-foreground" />
+              <span className="text-xs font-semibold">Advanced Settings</span>
             </div>
           </AccordionTrigger>
           <AccordionContent>
