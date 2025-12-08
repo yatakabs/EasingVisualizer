@@ -2,10 +2,11 @@ import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Play, Pause, Plus } from '@phosphor-icons/react'
+import { Play, Pause, Plus, GearSix } from '@phosphor-icons/react'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { toast } from 'sonner'
 import { type EaseType } from '@/lib/easeTypes'
 import { type PreviewType } from '@/lib/previewTypes'
@@ -76,7 +77,12 @@ export function ControlPanel({
   onCardScaleChange
 }: ControlPanelProps) {
   return (
-    <div className="w-full bg-card border border-border rounded-lg p-4 sm:p-5 space-y-4">
+    <div className="w-full bg-card border border-border rounded-lg p-4 sm:p-5 space-y-5">
+      {/* ============================================= */}
+      {/* 基本設定（常に表示） */}
+      {/* ============================================= */}
+      
+      {/* Play/Pause, Add Panel, FPS, 表示切替 */}
       <div className="flex flex-col lg:flex-row gap-3 items-start lg:items-center justify-between">
         <div className="flex flex-wrap gap-2 items-center">
           <Button
@@ -148,50 +154,7 @@ export function ControlPanel({
         </div>
       </div>
       
-      {onSetAllEaseType && (
-        <div className="space-y-2.5">
-          <label className="text-sm font-semibold text-foreground block">
-            全パネル一括設定
-          </label>
-          
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                onSetAllEaseType('easein')
-                toast.success('全パネルをEaseInに設定しました')
-              }}
-              className="font-semibold text-sm h-9 px-4"
-            >
-              全てIn
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                onSetAllEaseType('easeout')
-                toast.success('全パネルをEaseOutに設定しました')
-              }}
-              className="font-semibold text-sm h-9 px-4"
-            >
-              全てOut
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                onSetAllEaseType('easeboth')
-                toast.success('全パネルをEaseBothに設定しました')
-              }}
-              className="font-semibold text-sm h-9 px-4"
-            >
-              全てBoth
-            </Button>
-          </div>
-        </div>
-      )}
-      
+      {/* Input Value スライダー + 手動制御 + 三角波 */}
       <div className="space-y-2.5">
         <div className="flex items-center justify-between">
           <label className="text-sm font-semibold text-foreground">
@@ -280,6 +243,7 @@ export function ControlPanel({
         </div>
       </div>
       
+      {/* Animation Speed スライダー */}
       <div className="space-y-2.5">
         <div className="flex items-center justify-between">
           <label className="text-sm font-semibold text-foreground">
@@ -342,353 +306,418 @@ export function ControlPanel({
         </div>
       </div>
       
-      <div className="space-y-2.5">
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-semibold text-foreground">
-            Gamma Correction
-          </label>
-          <span className="text-base font-mono text-primary font-semibold">
-            γ = {gamma.toFixed(1)}
-          </span>
-        </div>
-        
-        <Slider
-          value={[gamma]}
-          onValueChange={([value]) => onGammaChange(value)}
-          min={0.0}
-          max={5.0}
-          step={0.1}
-          className="my-1"
-        />
-        
-        <div className="relative text-[10px] text-muted-foreground font-mono h-5 px-1">
-          <div className="absolute inset-x-1 flex items-start pt-1">
-            {[0.0, 1.0, 2.0, 3.0, 4.0, 5.0].map((mark) => {
-              const position = ((mark - 0.0) / (5.0 - 0.0)) * 100
-              const isMajor = mark === 0.0 || mark === 2.0 || mark === 5.0
-              return (
-                <div
-                  key={mark}
-                  className="absolute flex flex-col items-center gap-0.5"
-                  style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
-                >
-                  <div className={`w-px ${isMajor ? 'h-2 bg-muted-foreground' : 'h-1.5 bg-muted-foreground/50'}`} />
-                  {isMajor && (
-                    <span className="text-[9px]">{mark.toFixed(1)}</span>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </div>
-        
-        <div className="flex flex-wrap items-center gap-3 pt-1">
-          <div className="flex items-center gap-2">
-            <Input
-              id="gamma-value-field"
-              type="number"
-              value={gamma.toFixed(1)}
-              onChange={(e) => {
-                const value = parseFloat(e.target.value)
-                if (!isNaN(value) && value >= 0.0) {
-                  onGammaChange(value)
-                }
-              }}
-              step={0.1}
-              min={0.0}
-              className="w-28 font-mono text-sm h-9 px-2"
-            />
-            <span className="text-sm text-muted-foreground">直接入力</span>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Switch
-              id="apply-gamma-filter"
-              checked={enabledFilters.includes('gamma')}
-              onCheckedChange={() => onToggleFilter('gamma')}
-            />
-            <Label htmlFor="apply-gamma-filter" className="text-sm font-medium cursor-pointer">
-              補正適用
-            </Label>
-          </div>
-        </div>
-      </div>
-      
-      {enabledPreviews.includes('camera') && (
-        <div className="space-y-3 pt-3 border-t border-border">
-          <div className="text-base font-semibold text-foreground">カメラ設定</div>
-          
-          <div className="space-y-2.5">
-            <label className="text-sm font-medium text-muted-foreground block">
-              最大表示数
-            </label>
+      {/* ============================================= */}
+      {/* Advanced Settings（アコーディオン形式） */}
+      {/* ============================================= */}
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="advanced-settings" className="border rounded-lg px-4">
+          <AccordionTrigger className="hover:no-underline">
             <div className="flex items-center gap-2">
-              <Input
-                id="max-camera-previews"
-                type="number"
-                value={maxCameraPreviews}
-                onChange={(e) => {
-                  const value = parseInt(e.target.value)
-                  if (!isNaN(value) && value >= 1 && value <= 24) {
-                    onMaxCameraPreviewsChange(value)
-                  }
-                }}
-                step={1}
-                min={1}
-                max={24}
-                className="w-28 font-mono text-sm h-9 px-2"
-              />
-              <span className="text-sm text-muted-foreground">個まで同時表示</span>
+              <GearSix size={18} className="text-muted-foreground" />
+              <span className="text-sm font-semibold">Advanced Settings</span>
             </div>
-          </div>
-          
-          <div className="space-y-2.5">
-            <label className="text-sm font-medium text-muted-foreground block">
-              アスペクト比
-            </label>
-            <ToggleGroup 
-              type="single" 
-              value={cameraAspectRatio} 
-              onValueChange={(value) => value && onCameraAspectRatioChange(value)}
-              variant="outline"
-              className="justify-start flex-wrap"
-              size="sm"
-            >
-              <ToggleGroupItem value="16/9" className="text-sm px-3 h-9">
-                16:9
-              </ToggleGroupItem>
-              <ToggleGroupItem value="4/3" className="text-sm px-3 h-9">
-                4:3
-              </ToggleGroupItem>
-              <ToggleGroupItem value="1/1" className="text-sm px-3 h-9">
-                1:1
-              </ToggleGroupItem>
-              <ToggleGroupItem value="21/9" className="text-sm px-3 h-9">
-                21:9
-              </ToggleGroupItem>
-              <ToggleGroupItem value="9/16" className="text-sm px-3 h-9">
-                9:16
-              </ToggleGroupItem>
-              <ToggleGroupItem value="custom" className="text-sm px-3 h-9">
-                カスタム
-              </ToggleGroupItem>
-            </ToggleGroup>
-            
-            {cameraAspectRatio === 'custom' && (
-              <div className="flex items-center gap-2 pt-1">
-                <Input
-                  id="custom-aspect-ratio"
-                  type="text"
-                  defaultValue=""
-                  onChange={(e) => {
-                    const value = e.target.value
-                    if (value && value !== 'custom') {
-                      onCameraAspectRatioChange(value)
-                    }
-                  }}
-                  placeholder="例: 2.35/1"
-                  className="w-36 font-mono text-sm h-9"
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-6 pt-2">
+              {/* 全パネル一括設定 */}
+              {onSetAllEaseType && (
+                <div className="space-y-2.5">
+                  <label className="text-sm font-semibold text-foreground block">
+                    全パネル一括設定
+                  </label>
+                  
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        onSetAllEaseType('easein')
+                        toast.success('全パネルをEaseInに設定しました')
+                      }}
+                      className="font-semibold text-sm h-9 px-4"
+                    >
+                      全てIn
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        onSetAllEaseType('easeout')
+                        toast.success('全パネルをEaseOutに設定しました')
+                      }}
+                      className="font-semibold text-sm h-9 px-4"
+                    >
+                      全てOut
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        onSetAllEaseType('easeboth')
+                        toast.success('全パネルをEaseBothに設定しました')
+                      }}
+                      className="font-semibold text-sm h-9 px-4"
+                    >
+                      全てBoth
+                    </Button>
+                  </div>
+                </div>
+              )}
+              
+              {/* Gamma Correction */}
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-semibold text-foreground">
+                    Gamma Correction
+                  </label>
+                  <span className="text-base font-mono text-primary font-semibold">
+                    γ = {gamma.toFixed(1)}
+                  </span>
+                </div>
+                
+                <Slider
+                  value={[gamma]}
+                  onValueChange={([value]) => onGammaChange(value)}
+                  min={0.0}
+                  max={5.0}
+                  step={0.1}
+                  className="my-1"
                 />
-                <span className="text-sm text-muted-foreground whitespace-nowrap">カスタム入力</span>
+                
+                <div className="relative text-[10px] text-muted-foreground font-mono h-5 px-1">
+                  <div className="absolute inset-x-1 flex items-start pt-1">
+                    {[0.0, 1.0, 2.0, 3.0, 4.0, 5.0].map((mark) => {
+                      const position = ((mark - 0.0) / (5.0 - 0.0)) * 100
+                      const isMajor = mark === 0.0 || mark === 2.0 || mark === 5.0
+                      return (
+                        <div
+                          key={mark}
+                          className="absolute flex flex-col items-center gap-0.5"
+                          style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
+                        >
+                          <div className={`w-px ${isMajor ? 'h-2 bg-muted-foreground' : 'h-1.5 bg-muted-foreground/50'}`} />
+                          {isMajor && (
+                            <span className="text-[9px]">{mark.toFixed(1)}</span>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-3 pt-1">
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="gamma-value-field"
+                      type="number"
+                      value={gamma.toFixed(1)}
+                      onChange={(e) => {
+                        const value = parseFloat(e.target.value)
+                        if (!isNaN(value) && value >= 0.0) {
+                          onGammaChange(value)
+                        }
+                      }}
+                      step={0.1}
+                      min={0.0}
+                      className="w-28 font-mono text-sm h-9 px-2"
+                    />
+                    <span className="text-sm text-muted-foreground">直接入力</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      id="apply-gamma-filter"
+                      checked={enabledFilters.includes('gamma')}
+                      onCheckedChange={() => onToggleFilter('gamma')}
+                    />
+                    <Label htmlFor="apply-gamma-filter" className="text-sm font-medium cursor-pointer">
+                      補正適用
+                    </Label>
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
-          
-          <div className="space-y-2.5">
-            <label className="text-sm font-medium text-muted-foreground block">
-              開始位置 (X, Y, Z)
-            </label>
-            <div className="flex gap-2">
-              <Input
-                id="camera-start-x"
-                type="number"
-                value={cameraStartPos.x.toFixed(1)}
-                onChange={(e) => {
-                  const value = parseFloat(e.target.value)
-                  if (!isNaN(value)) {
-                    onCameraStartPosChange({ ...cameraStartPos, x: value })
-                  }
-                }}
-                step={0.5}
-                className="flex-1 font-mono text-sm h-10"
-                placeholder="X"
-              />
-              <Input
-                id="camera-start-y"
-                type="number"
-                value={cameraStartPos.y.toFixed(1)}
-                onChange={(e) => {
-                  const value = parseFloat(e.target.value)
-                  if (!isNaN(value)) {
-                    onCameraStartPosChange({ ...cameraStartPos, y: value })
-                  }
-                }}
-                step={0.5}
-                className="flex-1 font-mono text-sm h-10"
-                placeholder="Y"
-              />
-              <Input
-                id="camera-start-z"
-                type="number"
-                value={cameraStartPos.z.toFixed(1)}
-                onChange={(e) => {
-                  const value = parseFloat(e.target.value)
-                  if (!isNaN(value)) {
-                    onCameraStartPosChange({ ...cameraStartPos, z: value })
-                  }
-                }}
-                step={0.5}
-                className="flex-1 font-mono text-sm h-10"
-                placeholder="Z"
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-2.5">
-            <label className="text-sm font-medium text-muted-foreground block">
-              終了位置 (X, Y, Z)
-            </label>
-            <div className="flex gap-2">
-              <Input
-                id="camera-end-x"
-                type="number"
-                value={cameraEndPos.x.toFixed(1)}
-                onChange={(e) => {
-                  const value = parseFloat(e.target.value)
-                  if (!isNaN(value)) {
-                    onCameraEndPosChange({ ...cameraEndPos, x: value })
-                  }
-                }}
-                step={0.5}
-                className="flex-1 font-mono text-sm h-10"
-                placeholder="X"
-              />
-              <Input
-                id="camera-end-y"
-                type="number"
-                value={cameraEndPos.y.toFixed(1)}
-                onChange={(e) => {
-                  const value = parseFloat(e.target.value)
-                  if (!isNaN(value)) {
-                    onCameraEndPosChange({ ...cameraEndPos, y: value })
-                  }
-                }}
-                step={0.5}
-                className="flex-1 font-mono text-sm h-10"
-                placeholder="Y"
-              />
-              <Input
-                id="camera-end-z"
-                type="number"
-                value={cameraEndPos.z.toFixed(1)}
-                onChange={(e) => {
-                  const value = parseFloat(e.target.value)
-                  if (!isNaN(value)) {
-                    onCameraEndPosChange({ ...cameraEndPos, z: value })
-                  }
-                }}
-                step={0.5}
-                className="flex-1 font-mono text-sm h-10"
-                placeholder="Z"
-              />
-            </div>
-          </div>
-          
-          <div className="flex gap-2 pt-1">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                onCameraStartPosChange({ x: 2.0, y: 1.0, z: -5.0 })
-                onCameraEndPosChange({ x: 2.0, y: 1.0, z: 5.0 })
-                onCameraAspectRatioChange('16/9')
-                toast.success('カメラ設定をデフォルトに戻しました')
-              }}
-              className="text-sm h-9"
-            >
-              デフォルトに戻す
-            </Button>
-          </div>
-        </div>
-      )}
-      
-      <div className="space-y-3 pt-3 border-t border-border">
-        <div className="text-base font-semibold text-foreground">カードサイズ</div>
-        
-        <div className="space-y-2.5">
-          <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-muted-foreground">
-              拡大率
-            </label>
-            <span className="text-base font-mono text-primary font-semibold">
-              {cardScale.toFixed(2)}x
-            </span>
-          </div>
-          
-          <Slider
-            value={[cardScale]}
-            onValueChange={([value]) => onCardScaleChange(value)}
-            min={0.5}
-            max={2.0}
-            step={0.05}
-            className="my-1"
-          />
-          
-          <div className="relative text-[10px] text-muted-foreground font-mono h-5 px-1">
-            <div className="absolute inset-x-1 flex items-start pt-1">
-              {[0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0].map((mark) => {
-                const position = ((mark - 0.5) / (2.0 - 0.5)) * 100
-                const isMajor = mark === 0.5 || mark === 1.0 || mark === 1.5 || mark === 2.0
-                return (
-                  <div
-                    key={mark}
-                    className="absolute flex flex-col items-center gap-0.5"
-                    style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
-                  >
-                    <div className={`w-px ${isMajor ? 'h-2 bg-muted-foreground' : 'h-1.5 bg-muted-foreground/50'}`} />
-                    {isMajor && (
-                      <span className="text-[9px]">{mark.toFixed(1)}x</span>
+              
+              {/* カメラ設定（カメラプレビュー有効時のみ表示） */}
+              {enabledPreviews.includes('camera') && (
+                <div className="space-y-3 pt-3 border-t border-border">
+                  <div className="text-sm font-semibold text-foreground">カメラ設定</div>
+                  
+                  <div className="space-y-2.5">
+                    <label className="text-sm font-medium text-muted-foreground block">
+                      最大表示数
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="max-camera-previews"
+                        type="number"
+                        value={maxCameraPreviews}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value)
+                          if (!isNaN(value) && value >= 1 && value <= 24) {
+                            onMaxCameraPreviewsChange(value)
+                          }
+                        }}
+                        step={1}
+                        min={1}
+                        max={24}
+                        className="w-28 font-mono text-sm h-9 px-2"
+                      />
+                      <span className="text-sm text-muted-foreground">個まで同時表示</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2.5">
+                    <label className="text-sm font-medium text-muted-foreground block">
+                      アスペクト比
+                    </label>
+                    <ToggleGroup 
+                      type="single" 
+                      value={cameraAspectRatio} 
+                      onValueChange={(value) => value && onCameraAspectRatioChange(value)}
+                      variant="outline"
+                      className="justify-start flex-wrap"
+                      size="sm"
+                    >
+                      <ToggleGroupItem value="16/9" className="text-sm px-3 h-9">
+                        16:9
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="4/3" className="text-sm px-3 h-9">
+                        4:3
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="1/1" className="text-sm px-3 h-9">
+                        1:1
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="21/9" className="text-sm px-3 h-9">
+                        21:9
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="9/16" className="text-sm px-3 h-9">
+                        9:16
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="custom" className="text-sm px-3 h-9">
+                        カスタム
+                      </ToggleGroupItem>
+                    </ToggleGroup>
+                    
+                    {cameraAspectRatio === 'custom' && (
+                      <div className="flex items-center gap-2 pt-1">
+                        <Input
+                          id="custom-aspect-ratio"
+                          type="text"
+                          defaultValue=""
+                          onChange={(e) => {
+                            const value = e.target.value
+                            if (value && value !== 'custom') {
+                              onCameraAspectRatioChange(value)
+                            }
+                          }}
+                          placeholder="例: 2.35/1"
+                          className="w-36 font-mono text-sm h-9"
+                        />
+                        <span className="text-sm text-muted-foreground whitespace-nowrap">カスタム入力</span>
+                      </div>
                     )}
                   </div>
-                )
-              })}
+                  
+                  <div className="space-y-2.5">
+                    <label className="text-sm font-medium text-muted-foreground block">
+                      開始位置 (X, Y, Z)
+                    </label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="camera-start-x"
+                        type="number"
+                        value={cameraStartPos.x.toFixed(1)}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value)
+                          if (!isNaN(value)) {
+                            onCameraStartPosChange({ ...cameraStartPos, x: value })
+                          }
+                        }}
+                        step={0.5}
+                        className="flex-1 font-mono text-sm h-10"
+                        placeholder="X"
+                      />
+                      <Input
+                        id="camera-start-y"
+                        type="number"
+                        value={cameraStartPos.y.toFixed(1)}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value)
+                          if (!isNaN(value)) {
+                            onCameraStartPosChange({ ...cameraStartPos, y: value })
+                          }
+                        }}
+                        step={0.5}
+                        className="flex-1 font-mono text-sm h-10"
+                        placeholder="Y"
+                      />
+                      <Input
+                        id="camera-start-z"
+                        type="number"
+                        value={cameraStartPos.z.toFixed(1)}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value)
+                          if (!isNaN(value)) {
+                            onCameraStartPosChange({ ...cameraStartPos, z: value })
+                          }
+                        }}
+                        step={0.5}
+                        className="flex-1 font-mono text-sm h-10"
+                        placeholder="Z"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2.5">
+                    <label className="text-sm font-medium text-muted-foreground block">
+                      終了位置 (X, Y, Z)
+                    </label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="camera-end-x"
+                        type="number"
+                        value={cameraEndPos.x.toFixed(1)}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value)
+                          if (!isNaN(value)) {
+                            onCameraEndPosChange({ ...cameraEndPos, x: value })
+                          }
+                        }}
+                        step={0.5}
+                        className="flex-1 font-mono text-sm h-10"
+                        placeholder="X"
+                      />
+                      <Input
+                        id="camera-end-y"
+                        type="number"
+                        value={cameraEndPos.y.toFixed(1)}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value)
+                          if (!isNaN(value)) {
+                            onCameraEndPosChange({ ...cameraEndPos, y: value })
+                          }
+                        }}
+                        step={0.5}
+                        className="flex-1 font-mono text-sm h-10"
+                        placeholder="Y"
+                      />
+                      <Input
+                        id="camera-end-z"
+                        type="number"
+                        value={cameraEndPos.z.toFixed(1)}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value)
+                          if (!isNaN(value)) {
+                            onCameraEndPosChange({ ...cameraEndPos, z: value })
+                          }
+                        }}
+                        step={0.5}
+                        className="flex-1 font-mono text-sm h-10"
+                        placeholder="Z"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-2 pt-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        onCameraStartPosChange({ x: 2.0, y: 1.0, z: -5.0 })
+                        onCameraEndPosChange({ x: 2.0, y: 1.0, z: 5.0 })
+                        onCameraAspectRatioChange('16/9')
+                        toast.success('カメラ設定をデフォルトに戻しました')
+                      }}
+                      className="text-sm h-9"
+                    >
+                      デフォルトに戻す
+                    </Button>
+                  </div>
+                </div>
+              )}
+              
+              {/* カードサイズ */}
+              <div className="space-y-3 pt-3 border-t border-border">
+                <div className="text-sm font-semibold text-foreground">カードサイズ</div>
+                
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-muted-foreground">
+                      拡大率
+                    </label>
+                    <span className="text-base font-mono text-primary font-semibold">
+                      {cardScale.toFixed(2)}x
+                    </span>
+                  </div>
+                  
+                  <Slider
+                    value={[cardScale]}
+                    onValueChange={([value]) => onCardScaleChange(value)}
+                    min={0.5}
+                    max={2.0}
+                    step={0.05}
+                    className="my-1"
+                  />
+                  
+                  <div className="relative text-[10px] text-muted-foreground font-mono h-5 px-1">
+                    <div className="absolute inset-x-1 flex items-start pt-1">
+                      {[0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0].map((mark) => {
+                        const position = ((mark - 0.5) / (2.0 - 0.5)) * 100
+                        const isMajor = mark === 0.5 || mark === 1.0 || mark === 1.5 || mark === 2.0
+                        return (
+                          <div
+                            key={mark}
+                            className="absolute flex flex-col items-center gap-0.5"
+                            style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
+                          >
+                            <div className={`w-px ${isMajor ? 'h-2 bg-muted-foreground' : 'h-1.5 bg-muted-foreground/50'}`} />
+                            {isMajor && (
+                              <span className="text-[9px]">{mark.toFixed(1)}x</span>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 pt-1">
+                    <Input
+                      id="card-scale-field"
+                      type="number"
+                      value={cardScale.toFixed(2)}
+                      onChange={(e) => {
+                        const value = parseFloat(e.target.value)
+                        if (!isNaN(value) && value >= 0.5 && value <= 2.0) {
+                          onCardScaleChange(value)
+                        }
+                      }}
+                      step={0.05}
+                      min={0.5}
+                      max={2.0}
+                      className="w-28 font-mono text-sm h-9 px-2"
+                    />
+                    <span className="text-sm text-muted-foreground">直接入力</span>
+                  </div>
+                  
+                  <div className="flex gap-2 pt-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        onCardScaleChange(1.0)
+                        toast.success('カードサイズをデフォルトに戻しました')
+                      }}
+                      className="text-sm h-9"
+                    >
+                      デフォルトに戻す
+                    </Button>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-          
-          <div className="flex items-center gap-2 pt-1">
-            <Input
-              id="card-scale-field"
-              type="number"
-              value={cardScale.toFixed(2)}
-              onChange={(e) => {
-                const value = parseFloat(e.target.value)
-                if (!isNaN(value) && value >= 0.5 && value <= 2.0) {
-                  onCardScaleChange(value)
-                }
-              }}
-              step={0.05}
-              min={0.5}
-              max={2.0}
-              className="w-28 font-mono text-sm h-9 px-2"
-            />
-            <span className="text-sm text-muted-foreground">直接入力</span>
-          </div>
-          
-          <div className="flex gap-2 pt-1">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                onCardScaleChange(1.0)
-                toast.success('カードサイズをデフォルトに戻しました')
-              }}
-              className="text-sm h-9"
-            >
-              デフォルトに戻す
-            </Button>
-          </div>
-        </div>
-      </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   )
 }

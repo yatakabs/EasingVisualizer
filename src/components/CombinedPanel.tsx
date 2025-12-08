@@ -199,11 +199,6 @@ export const CombinedPanel = memo(function CombinedPanel({
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
       >
-        {title && (
-          <div className="text-[10px] font-medium text-muted-foreground mb-1 uppercase tracking-wider">
-            {title}
-          </div>
-        )}
         <CardTitle className="text-sm font-semibold tracking-tight">
           {ledFunction.name}
         </CardTitle>

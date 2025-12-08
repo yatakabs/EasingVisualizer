@@ -22,9 +22,9 @@ interface PanelData {
 
 function App() {
   const [panels, setPanels] = useKV<PanelData[]>('led-panels', [
-    { id: '1', functionId: 'linear', easeType: 'easein', title: 'Panel 1' },
-    { id: '2', functionId: 'quadratic', easeType: 'easein', title: 'Panel 2' },
-    { id: '3', functionId: 'sine', easeType: 'easein', title: 'Panel 3' }
+    { id: '1', functionId: 'linear', easeType: 'easein' },
+    { id: '2', functionId: 'quadratic', easeType: 'easein' },
+    { id: '3', functionId: 'sine', easeType: 'easein' }
   ])
   const [isPlaying, setIsPlaying] = useKV<boolean>('is-playing', true)
   const [savedSpeed, setSavedSpeed] = useKV<number>('animation-speed', 1)
@@ -151,8 +151,7 @@ function App() {
         {
           id: newPanelId,
           functionId: func.id,
-          easeType: 'easein' as EaseType,
-          title: `Panel ${nextPanelNumber}`
+          easeType: 'easein' as EaseType
         }
       ]
     })
@@ -389,7 +388,6 @@ function App() {
                       showCamera={isCameraActive}
                       canToggleCamera={enabledPreviews?.includes('camera') ?? false}
                       canActivateCamera={canActivateCamera}
-                      title={panel.title}
                       onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
                       onToggleCamera={() => handleToggleCameraForPanel(panel.id)}
                       onEaseTypeChange={(newEaseType) => {
