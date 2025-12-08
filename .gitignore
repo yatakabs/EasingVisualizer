@@ -33,3 +33,6 @@ pids
 
 .spark-workbench-id
 .playwright-mcp/*
+.github/agents/*
+.github/instructions/*
+.github/prompts/*
