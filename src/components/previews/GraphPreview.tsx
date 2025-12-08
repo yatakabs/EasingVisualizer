@@ -149,15 +149,16 @@ export const GraphPreview = memo(function GraphPreview({
   }, [input, baseInput, filteredOutput, ledFunction, enabledFilters, filterParams, easeType, isTriangularMode, hoverPosition])
 
   return (
-    <div className="relative w-full aspect-square flex items-center justify-center bg-secondary/30 rounded border border-border p-1.5">
-      <svg 
-        width="100%" 
-        height="100%" 
-        viewBox="0 0 100 100"
-        className="absolute inset-0"
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-      >
+    <div className="w-full py-3">
+      <div className="relative w-full aspect-square flex items-center justify-center bg-secondary/30 rounded border border-border p-1.5">
+        <svg 
+          width="100%" 
+          height="100%" 
+          viewBox="0 0 100 100"
+          className="absolute inset-0"
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
         <defs>
           <filter id={`glow-rect-${ledFunction.id}`}>
             <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
@@ -326,6 +327,7 @@ export const GraphPreview = memo(function GraphPreview({
           </g>
         )}
       </svg>
+      </div>
     </div>
   )
 })
