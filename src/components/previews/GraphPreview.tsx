@@ -189,32 +189,32 @@ export const GraphPreview = memo(function GraphPreview({
         
         <line x1="16.5" y1="82" x2="19.5" y2="82" stroke="oklch(0.5 0.05 250)" strokeWidth="0.7" />
         <line x1="19.5" y1="82" x2="82" y2="82" stroke="oklch(0.5 0.05 250)" strokeWidth="0.6" strokeDasharray="2 2" opacity="0.3" />
-        <text x="15" y="83.5" textAnchor="end" className="text-[9px] fill-muted-foreground font-mono">0</text>
+        <text x="15" y="83.5" textAnchor="end" className="text-[11px] fill-muted-foreground font-mono">0</text>
         
         <line x1="16.5" y1="50" x2="19.5" y2="50" stroke="oklch(0.5 0.05 250)" strokeWidth="0.7" />
         <line x1="19.5" y1="50" x2="82" y2="50" stroke="oklch(0.5 0.05 250)" strokeWidth="0.6" strokeDasharray="2 2" opacity="0.3" />
-        <text x="15" y="51.5" textAnchor="end" className="text-[9px] fill-muted-foreground font-mono">0.5</text>
+        <text x="15" y="51.5" textAnchor="end" className="text-[11px] fill-muted-foreground font-mono">0.5</text>
         
         <line x1="16.5" y1="18" x2="19.5" y2="18" stroke="oklch(0.5 0.05 250)" strokeWidth="0.7" />
         <line x1="19.5" y1="18" x2="82" y2="18" stroke="oklch(0.5 0.05 250)" strokeWidth="0.6" strokeDasharray="2 2" opacity="0.3" />
-        <text x="15" y="19.5" textAnchor="end" className="text-[9px] fill-muted-foreground font-mono">1</text>
+        <text x="15" y="19.5" textAnchor="end" className="text-[11px] fill-muted-foreground font-mono">1</text>
         
         <line x1="18" y1="80.5" x2="18" y2="83.5" stroke="oklch(0.5 0.05 250)" strokeWidth="0.7" />
         <line x1="18" y1="18" x2="18" y2="80.5" stroke="oklch(0.5 0.05 250)" strokeWidth="0.6" strokeDasharray="2 2" opacity="0.3" />
-        <text x="18" y="91" textAnchor="middle" className="text-[9px] fill-muted-foreground font-mono">0</text>
+        <text x="18" y="91" textAnchor="middle" className="text-[11px] fill-muted-foreground font-mono">0</text>
         
         <line x1="50" y1="80.5" x2="50" y2="83.5" stroke="oklch(0.5 0.05 250)" strokeWidth="0.7" />
         <line x1="50" y1="18" x2="50" y2="80.5" stroke="oklch(0.5 0.05 250)" strokeWidth="0.6" strokeDasharray="2 2" opacity="0.3" />
-        <text x="50" y="91" textAnchor="middle" className="text-[9px] fill-muted-foreground font-mono">0.50</text>
+        <text x="50" y="91" textAnchor="middle" className="text-[11px] fill-muted-foreground font-mono">0.50</text>
         
         <line x1="82" y1="80.5" x2="82" y2="83.5" stroke="oklch(0.5 0.05 250)" strokeWidth="0.7" />
         <line x1="82" y1="18" x2="82" y2="80.5" stroke="oklch(0.5 0.05 250)" strokeWidth="0.6" strokeDasharray="2 2" opacity="0.3" />
-        <text x="82" y="91" textAnchor="middle" className="text-[9px] fill-muted-foreground font-mono">1.00</text>
+        <text x="82" y="91" textAnchor="middle" className="text-[11px] fill-muted-foreground font-mono">1.00</text>
         
-        <text x="50" y="98" textAnchor="middle" className="text-[10px] fill-muted-foreground font-mono">
+        <text x="50" y="98" textAnchor="middle" className="text-[12px] fill-muted-foreground font-mono">
           Input (x)
         </text>
-        <text x="6" y="50" textAnchor="middle" className="text-[10px] fill-muted-foreground font-mono" transform="rotate(-90 6 50)">
+        <text x="6" y="50" textAnchor="middle" className="text-[12px] fill-muted-foreground font-mono" transform="rotate(-90 6 50)">
           Output (y)
         </text>
         
@@ -312,7 +312,7 @@ export const GraphPreview = memo(function GraphPreview({
               x={hoverPoint.svgX}
               y={hoverPoint.svgY - 12}
               textAnchor="middle"
-              className="text-[9px] fill-primary font-mono font-medium"
+              className="text-[10px] fill-primary font-mono font-medium"
             >
               x:{hoverPoint.xValue.toFixed(3)}
             </text>
@@ -320,7 +320,7 @@ export const GraphPreview = memo(function GraphPreview({
               x={hoverPoint.svgX}
               y={hoverPoint.svgY - 6}
               textAnchor="middle"
-              className="text-[9px] fill-primary font-mono font-medium"
+              className="text-[10px] fill-primary font-mono font-medium"
             >
               y:{hoverPoint.yValue.toFixed(3)}
             </text>
