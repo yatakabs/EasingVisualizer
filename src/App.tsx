@@ -3,6 +3,8 @@ import { useKV } from '@github/spark/hooks'
 import { PreviewPanel } from '@/components/PreviewPanel'
 import { ControlPanel } from '@/components/ControlPanel'
 import { FunctionSelector } from '@/components/FunctionSelector'
+import { Button } from '@/components/ui/button'
+import { GearSix } from '@phosphor-icons/react'
 import { EASING_FUNCTIONS, type EasingFunction } from '@/lib/easingFunctions'
 import { applyFilters } from '@/lib/outputFilters'
 import { type EaseType } from '@/lib/easeTypes'
@@ -29,7 +31,7 @@ function App() {
   const [isPlaying, setIsPlaying] = useKV<boolean>('is-playing', true)
   const [savedSpeed, setSavedSpeed] = useKV<number>('animation-speed', 1)
   const [savedGamma, setSavedGamma] = useKV<number>('gamma-correction', 2.2)
-  const [enabledPreviews, setEnabledPreviews] = useKV<PreviewType[]>('enabled-previews', ['glow', 'value'])
+  const [enabledPreviews, setEnabledPreviews] = useKV<PreviewType[]>('enabled-previews', ['camera', 'graph', 'value'])
   const [enabledFilters, setEnabledFilters] = useKV<string[]>('enabled-filters', [])
   const [manualInputMode, setManualInputMode] = useKV<boolean>('manual-input-mode', false)
   const [manualInputValue, setManualInputValue] = useKV<number>('manual-input-value', 0)
@@ -41,6 +43,7 @@ function App() {
   const [activeCameraPanels, setActiveCameraPanels] = useKV<string[]>('active-camera-panels', [])
   const [cardScale, setCardScale] = useKV<number>('card-scale', 1.0)
   const [coordinateSystem, setCoordinateSystem] = useKV<'left-handed' | 'right-handed'>('coordinate-system', 'left-handed')
+  const [showControlPanel, setShowControlPanel] = useKV<boolean>('show-control-panel', true)
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
@@ -292,49 +295,60 @@ function App() {
         </header>
 
         <div className="space-y-4">
-          <ControlPanel
-            isPlaying={isPlaying ?? true}
-            speed={speed ?? 1}
-            gamma={gamma ?? 2.2}
-            fps={fps}
-            enabledPreviews={enabledPreviews ?? ['glow', 'value']}
-            enabledFilters={enabledFilters ?? []}
-            inputValue={currentInputValue}
-            baseInputValue={baseInputValue}
-            manualInputMode={manualInputMode ?? false}
-            triangularWaveMode={triangularWaveMode ?? false}
-            onPlayPause={() => setIsPlaying((current) => !current)}
-            onSpeedChange={handleSpeedChange}
-            onGammaChange={handleGammaChange}
-            onAddPanel={handleAddPanel}
-            onTogglePreview={handleTogglePreview}
-            onToggleFilter={(filterId) => {
-              setEnabledFilters((current) => {
-                const filters = current ?? []
-                if (filters.includes(filterId)) {
-                  return filters.filter(id => id !== filterId)
-                } else {
-                  return [...filters, filterId]
-                }
-              })
-            }}
-            onInputValueChange={handleInputValueChange}
-            onManualInputModeChange={handleManualInputModeChange}
-            onTriangularWaveModeChange={(enabled) => setTriangularWaveMode(() => enabled)}
-            onSetAllEaseType={handleSetAllEaseType}
-            cameraStartPos={cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 }}
-            cameraEndPos={cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }}
-            cameraAspectRatio={cameraAspectRatio ?? '16/9'}
-            maxCameraPreviews={maxCameraPreviews ?? 6}
-            onCameraStartPosChange={(pos) => setCameraStartPos(() => pos)}
-            onCameraEndPosChange={(pos) => setCameraEndPos(() => pos)}
-            onCameraAspectRatioChange={(aspectRatio) => setCameraAspectRatio(() => aspectRatio)}
-            onMaxCameraPreviewsChange={(max) => setMaxCameraPreviews(() => max)}
-            cardScale={cardScale ?? 1.0}
-            onCardScaleChange={(scale) => setCardScale(() => scale)}
-            coordinateSystem={coordinateSystem ?? 'left-handed'}
-            onCoordinateSystemChange={(system) => setCoordinateSystem(() => system)}
-          />
+          {!(showControlPanel ?? true) && (
+            <div className="flex justify-end mb-2">
+              <Button variant="outline" size="sm" onClick={() => setShowControlPanel(() => true)}>
+                <GearSix className="h-4 w-4 mr-2" />
+                コントロールを表示
+              </Button>
+            </div>
+          )}
+          {(showControlPanel ?? true) && (
+            <ControlPanel
+              isPlaying={isPlaying ?? true}
+              speed={speed ?? 1}
+              gamma={gamma ?? 2.2}
+              fps={fps}
+              enabledPreviews={enabledPreviews ?? ['glow', 'value']}
+              enabledFilters={enabledFilters ?? []}
+              inputValue={currentInputValue}
+              baseInputValue={baseInputValue}
+              manualInputMode={manualInputMode ?? false}
+              triangularWaveMode={triangularWaveMode ?? false}
+              onPlayPause={() => setIsPlaying((current) => !current)}
+              onSpeedChange={handleSpeedChange}
+              onGammaChange={handleGammaChange}
+              onAddPanel={handleAddPanel}
+              onTogglePreview={handleTogglePreview}
+              onToggleFilter={(filterId) => {
+                setEnabledFilters((current) => {
+                  const filters = current ?? []
+                  if (filters.includes(filterId)) {
+                    return filters.filter(id => id !== filterId)
+                  } else {
+                    return [...filters, filterId]
+                  }
+                })
+              }}
+              onInputValueChange={handleInputValueChange}
+              onManualInputModeChange={handleManualInputModeChange}
+              onTriangularWaveModeChange={(enabled) => setTriangularWaveMode(() => enabled)}
+              onSetAllEaseType={handleSetAllEaseType}
+              cameraStartPos={cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 }}
+              cameraEndPos={cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }}
+              cameraAspectRatio={cameraAspectRatio ?? '16/9'}
+              maxCameraPreviews={maxCameraPreviews ?? 6}
+              onCameraStartPosChange={(pos) => setCameraStartPos(() => pos)}
+              onCameraEndPosChange={(pos) => setCameraEndPos(() => pos)}
+              onCameraAspectRatioChange={(aspectRatio) => setCameraAspectRatio(() => aspectRatio)}
+              onMaxCameraPreviewsChange={(max) => setMaxCameraPreviews(() => max)}
+              cardScale={cardScale ?? 1.0}
+              onCardScaleChange={(scale) => setCardScale(() => scale)}
+              coordinateSystem={coordinateSystem ?? 'left-handed'}
+              onCoordinateSystemChange={(system) => setCoordinateSystem(() => system)}
+              onHideControlPanel={() => setShowControlPanel(() => false)}
+            />
+          )}
 
           {(panels || []).length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center">
@@ -348,7 +362,7 @@ function App() {
             <div 
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-3 sm:gap-4"
               style={{
-                gridTemplateColumns: `repeat(auto-fill, minmax(${250 * (cardScale ?? 1.0)}px, 1fr))`
+                gridTemplateColumns: `repeat(auto-fill, minmax(${200 * (cardScale ?? 1.0)}px, 1fr))`
               }}
             >
               {(panels || []).map((panel, panelIndex) => {
