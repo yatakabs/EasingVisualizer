@@ -11,6 +11,7 @@ interface CameraPreviewProps {
   startPos: { x: number; y: number; z: number }
   endPos: { x: number; y: number; z: number }
   aspectRatio: string
+  coordinateSystem: 'left-handed' | 'right-handed'
 }
 
 export const CameraPreview = memo(function CameraPreview({
@@ -21,7 +22,8 @@ export const CameraPreview = memo(function CameraPreview({
   enabledFilters,
   startPos,
   endPos,
-  aspectRatio
+  aspectRatio,
+  coordinateSystem
 }: CameraPreviewProps) {
   const mountRef = useRef<HTMLDivElement>(null)
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
@@ -75,8 +77,13 @@ export const CameraPreview = memo(function CameraPreview({
     gridHelper.position.y = -1
     scene.add(gridHelper)
 
+    // 座標系に応じてAxesHelperのスケールを設定
+    // 左手座標系: X軸を反転 (Beat Saber, Unity)
+    // 右手座標系: そのまま (Three.js, Blender)
     const axesHelper = new THREE.AxesHelper(2)
-    axesHelper.scale.x = -1
+    if (coordinateSystem === 'left-handed') {
+      axesHelper.scale.x = -1
+    }
     scene.add(axesHelper)
 
     const handleResize = () => {
@@ -113,7 +120,7 @@ export const CameraPreview = memo(function CameraPreview({
         }
       }
     }
-  }, [])
+  }, [coordinateSystem])
 
   useEffect(() => {
     if (!mountRef.current || !cameraRef.current || !rendererRef.current) return
@@ -138,15 +145,23 @@ export const CameraPreview = memo(function CameraPreview({
     const renderer = rendererRef.current
     const mainCube = cubeRef.current
     
-    const cameraX = startPos.x + (endPos.x - startPos.x) * filteredOutput
-    const cameraY = startPos.y + (endPos.y - startPos.y) * filteredOutput
-    const cameraZ = startPos.z + (endPos.z - startPos.z) * filteredOutput
+    // 論理座標系でのカメラ位置を計算
+    const logicalCameraX = startPos.x + (endPos.x - startPos.x) * filteredOutput
+    const logicalCameraY = startPos.y + (endPos.y - startPos.y) * filteredOutput
+    const logicalCameraZ = startPos.z + (endPos.z - startPos.z) * filteredOutput
+    
+    // 座標系に応じてThree.js（右手座標系）に変換
+    // 左手座標系（Beat Saber, Unity）: X軸を反転してThree.jsに渡す
+    // 右手座標系（Three.js, Blender）: そのまま
+    const cameraX = coordinateSystem === 'left-handed' ? -logicalCameraX : logicalCameraX
+    const cameraY = logicalCameraY
+    const cameraZ = logicalCameraZ
     
     camera.position.set(cameraX, cameraY, cameraZ)
     camera.lookAt(mainCube.position)
     
     renderer.render(scene, camera)
-  }, [baseInput, filteredOutput, startPos, endPos])
+  }, [baseInput, filteredOutput, startPos, endPos, coordinateSystem])
 
   return (
     <div className="flex flex-col items-center gap-2 w-full">

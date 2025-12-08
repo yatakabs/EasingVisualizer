@@ -25,6 +25,7 @@ interface PreviewPanelProps {
   cameraStartPos: { x: number; y: number; z: number }
   cameraEndPos: { x: number; y: number; z: number }
   cameraAspectRatio: string
+  coordinateSystem: 'left-handed' | 'right-handed'
   showCamera: boolean
   canToggleCamera: boolean
   canActivateCamera: boolean
@@ -52,6 +53,7 @@ export const PreviewPanel = memo(function PreviewPanel({
   cameraStartPos,
   cameraEndPos,
   cameraAspectRatio,
+  coordinateSystem,
   showCamera,
   canToggleCamera,
   canActivateCamera,
@@ -164,6 +166,7 @@ export const PreviewPanel = memo(function PreviewPanel({
               startPos={cameraStartPos}
               endPos={cameraEndPos}
               aspectRatio={cameraAspectRatio}
+              coordinateSystem={coordinateSystem}
             />
           ) : (
             <div className="w-full relative bg-card border border-border/50 rounded-md flex items-center justify-center" 

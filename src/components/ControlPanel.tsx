@@ -42,6 +42,8 @@ interface ControlPanelProps {
   onCameraAspectRatioChange: (aspectRatio: string) => void
   onMaxCameraPreviewsChange: (max: number) => void
   onCardScaleChange: (scale: number) => void
+  coordinateSystem: 'left-handed' | 'right-handed'
+  onCoordinateSystemChange: (system: 'left-handed' | 'right-handed') => void
 }
 
 export function ControlPanel({
@@ -74,7 +76,9 @@ export function ControlPanel({
   onCameraEndPosChange,
   onCameraAspectRatioChange,
   onMaxCameraPreviewsChange,
-  onCardScaleChange
+  onCardScaleChange,
+  coordinateSystem,
+  onCoordinateSystemChange
 }: ControlPanelProps) {
   return (
     <div className="w-full bg-card border border-border rounded-lg p-4 sm:p-5 space-y-5">
@@ -441,6 +445,30 @@ export function ControlPanel({
               {enabledPreviews.includes('camera') && (
                 <div className="space-y-3 pt-3 border-t border-border">
                   <div className="text-sm font-semibold text-foreground">カメラ設定</div>
+                  
+                  <div className="space-y-2.5">
+                    <label className="text-sm font-medium text-muted-foreground block">
+                      座標系
+                    </label>
+                    <ToggleGroup 
+                      type="single" 
+                      value={coordinateSystem} 
+                      onValueChange={(value) => value && onCoordinateSystemChange(value as 'left-handed' | 'right-handed')}
+                      variant="outline"
+                      className="justify-start"
+                      size="sm"
+                    >
+                      <ToggleGroupItem value="left-handed" className="text-sm px-3 h-9">
+                        左手座標系
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="right-handed" className="text-sm px-3 h-9">
+                        右手座標系
+                      </ToggleGroupItem>
+                    </ToggleGroup>
+                    <p className="text-xs text-muted-foreground">
+                      {coordinateSystem === 'left-handed' ? 'Beat Saber, Unity (デフォルト)' : 'Three.js, Blender'}
+                    </p>
+                  </div>
                   
                   <div className="space-y-2.5">
                     <label className="text-sm font-medium text-muted-foreground block">

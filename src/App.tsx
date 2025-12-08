@@ -40,6 +40,7 @@ function App() {
   const [maxCameraPreviews, setMaxCameraPreviews] = useKV<number>('max-camera-previews', 6)
   const [activeCameraPanels, setActiveCameraPanels] = useKV<string[]>('active-camera-panels', [])
   const [cardScale, setCardScale] = useKV<number>('card-scale', 1.0)
+  const [coordinateSystem, setCoordinateSystem] = useKV<'left-handed' | 'right-handed'>('coordinate-system', 'left-handed')
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
@@ -296,7 +297,7 @@ function App() {
             speed={speed ?? 1}
             gamma={gamma ?? 2.2}
             fps={fps}
-            enabledPreviews={enabledPreviews ?? ['led', 'value']}
+            enabledPreviews={enabledPreviews ?? ['glow', 'value']}
             enabledFilters={enabledFilters ?? []}
             inputValue={currentInputValue}
             baseInputValue={baseInputValue}
@@ -331,6 +332,8 @@ function App() {
             onMaxCameraPreviewsChange={(max) => setMaxCameraPreviews(() => max)}
             cardScale={cardScale ?? 1.0}
             onCardScaleChange={(scale) => setCardScale(() => scale)}
+            coordinateSystem={coordinateSystem ?? 'left-handed'}
+            onCoordinateSystemChange={(system) => setCoordinateSystem(() => system)}
           />
 
           {(panels || []).length === 0 ? (
@@ -382,6 +385,7 @@ function App() {
                       cameraStartPos={cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 }}
                       cameraEndPos={cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }}
                       cameraAspectRatio={cameraAspectRatio ?? '16/9'}
+                      coordinateSystem={coordinateSystem ?? 'left-handed'}
                       showCamera={isCameraActive}
                       canToggleCamera={enabledPreviews?.includes('camera') ?? false}
                       canActivateCamera={canActivateCamera}
