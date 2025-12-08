@@ -149,8 +149,8 @@ export const GraphPreview = memo(function GraphPreview({
   }, [input, baseInput, filteredOutput, ledFunction, enabledFilters, filterParams, easeType, isTriangularMode, hoverPosition])
 
   return (
-    <div className="w-full py-3">
-      <div className="relative w-full aspect-square flex items-center justify-center bg-secondary/30 rounded border border-border p-1.5">
+    <div className="w-full bg-secondary rounded px-4 py-3">
+      <div className="relative w-full aspect-square flex items-center justify-center bg-background rounded p-1.5">
         <svg 
           width="100%" 
           height="100%" 
