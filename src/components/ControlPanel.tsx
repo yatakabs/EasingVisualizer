@@ -341,57 +341,132 @@ export function ControlPanel({
           </AccordionTrigger>
           <AccordionContent>
             <div className="space-y-3 pt-1">
-              {/* 全パネル一括設定 */}
-              {onSetAllEaseType && (
-                <div className="space-y-1.5">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <label className="text-sm font-semibold text-foreground whitespace-nowrap">
-                      全パネル一括設定
-                    </label>
-                    <div className="flex flex-wrap gap-1.5">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        onSetAllEaseType('easein')
-                        toast.success('全パネルをEaseInに設定しました')
-                      }}
-                      className="font-semibold text-sm h-8 px-3"
-                    >
-                      全てIn
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        onSetAllEaseType('easeout')
-                        toast.success('全パネルをEaseOutに設定しました')
-                      }}
-                      className="font-semibold text-sm h-8 px-3"
-                    >
-                      全てOut
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        onSetAllEaseType('easeboth')
-                        toast.success('全パネルをEaseBothに設定しました')
-                      }}
-                      className="font-semibold text-sm h-8 px-3"
-                    >
-                      全てBoth
-                    </Button>
+              {/* プレビュー詳細設定グループ */}
+              <div className="bg-secondary rounded-lg p-3 space-y-3">
+                <div className="text-sm font-semibold text-foreground">プレビュー詳細設定</div>
+                
+                {/* 全パネル一括設定 */}
+                {onSetAllEaseType && (
+                  <div className="space-y-1.5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <label className="text-xs font-medium text-muted-foreground whitespace-nowrap">
+                        全パネル一括設定
+                      </label>
+                      <div className="flex flex-wrap gap-1.5">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            onSetAllEaseType('easein')
+                            toast.success('全パネルをEaseInに設定しました')
+                          }}
+                          className="font-semibold text-xs h-7 px-2"
+                        >
+                          全てIn
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            onSetAllEaseType('easeout')
+                            toast.success('全パネルをEaseOutに設定しました')
+                          }}
+                          className="font-semibold text-xs h-7 px-2"
+                        >
+                          全てOut
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            onSetAllEaseType('easeboth')
+                            toast.success('全パネルをEaseBothに設定しました')
+                          }}
+                          className="font-semibold text-xs h-7 px-2"
+                        >
+                          全てBoth
+                        </Button>
+                      </div>
                     </div>
                   </div>
+                )}
+                
+                {/* カードサイズ */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-medium text-muted-foreground">カードサイズ</label>
+                    <span className="text-sm font-mono text-primary font-semibold">
+                      {cardScale.toFixed(2)}x
+                    </span>
+                  </div>
+                  
+                  <Slider
+                    value={[cardScale]}
+                    onValueChange={([value]) => onCardScaleChange(value)}
+                    min={0.5}
+                    max={2.0}
+                    step={0.05}
+                    className="my-0.5"
+                  />
+                  
+                  <div className="relative text-[10px] text-muted-foreground font-mono h-4 px-1">
+                    <div className="absolute inset-x-1 flex items-start pt-1">
+                      {[0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0].map((mark) => {
+                        const position = ((mark - 0.5) / (2.0 - 0.5)) * 100
+                        const isMajor = mark === 0.5 || mark === 1.0 || mark === 1.5 || mark === 2.0
+                        return (
+                          <div
+                            key={mark}
+                            className="absolute flex flex-col items-center gap-0.5"
+                            style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
+                          >
+                            <div className={`w-px ${isMajor ? 'h-2 bg-muted-foreground' : 'h-1.5 bg-muted-foreground/50'}`} />
+                            {isMajor && (
+                              <span className="text-[9px]">{mark.toFixed(1)}x</span>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                    <Input
+                      id="card-scale-field"
+                      type="number"
+                      value={cardScale.toFixed(2)}
+                      onChange={(e) => {
+                        const value = parseFloat(e.target.value)
+                        if (!isNaN(value) && value >= 0.5 && value <= 2.0) {
+                          onCardScaleChange(value)
+                        }
+                      }}
+                      step={0.05}
+                      min={0.5}
+                      max={2.0}
+                      className="w-20 font-mono text-xs h-7 px-2"
+                    />
+                    <span className="text-xs text-muted-foreground">直接入力</span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        onCardScaleChange(1.0)
+                        toast.success('カードサイズをデフォルトに戻しました')
+                      }}
+                      className="text-xs h-7 ml-auto"
+                    >
+                      デフォルト
+                    </Button>
+                  </div>
                 </div>
-              )}
+              </div>
               
-              {/* Gamma Correction */}
-              <div className="space-y-1.5">
+              {/* ガンマ補正グループ */}
+              <div className="bg-secondary rounded-lg p-3 space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-semibold text-foreground">
-                    Gamma Correction
+                    ガンマ補正
                   </label>
                   <span className="text-base font-mono text-primary font-semibold">
                     γ = {gamma.toFixed(1)}
@@ -460,13 +535,13 @@ export function ControlPanel({
                 </div>
               </div>
               
-              {/* カメラ設定（カメラプレビュー有効時のみ表示） */}
+              {/* カメラ設定グループ（カメラプレビュー有効時のみ表示） */}
               {enabledPreviews.includes('camera') && (
-                <div className="space-y-1.5 pt-1.5 border-t border-border">
+                <div className="bg-secondary rounded-lg p-3 space-y-2">
                   <div className="text-sm font-semibold text-foreground">カメラ設定</div>
                   
-                  {/* 座標系と最大表示数を2カラムグリッド化 */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* 座標系と最大表示数を横並び */}
+                  <div className="flex flex-wrap items-end gap-3">
                     {/* 座標系 */}
                     <div className="space-y-1">
                       <label className="text-xs font-medium text-muted-foreground block">
@@ -570,8 +645,8 @@ export function ControlPanel({
                     )}
                   </div>
                   
-                  {/* 開始/終了位置のグリッドレイアウト */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-1">
+                  {/* 開始/終了位置を縦並び */}
+                  <div className="space-y-2">
                     {/* 開始位置 */}
                     <div className="space-y-1">
                       <label className="text-xs font-medium text-muted-foreground block">
@@ -692,78 +767,6 @@ export function ControlPanel({
                   </div>
                 </div>
               )}
-              
-              {/* カードサイズ */}
-              <div className="space-y-1.5 pt-1.5 border-t border-border">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-semibold text-foreground">カードサイズ</div>
-                  <span className="text-sm font-mono text-primary font-semibold">
-                    {cardScale.toFixed(2)}x
-                  </span>
-                </div>
-                
-                <div className="space-y-1.5">
-                  <Slider
-                    value={[cardScale]}
-                    onValueChange={([value]) => onCardScaleChange(value)}
-                    min={0.5}
-                    max={2.0}
-                    step={0.05}
-                    className="my-0.5"
-                  />
-                  
-                  <div className="relative text-[10px] text-muted-foreground font-mono h-4 px-1">
-                    <div className="absolute inset-x-1 flex items-start pt-1">
-                      {[0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0].map((mark) => {
-                        const position = ((mark - 0.5) / (2.0 - 0.5)) * 100
-                        const isMajor = mark === 0.5 || mark === 1.0 || mark === 1.5 || mark === 2.0
-                        return (
-                          <div
-                            key={mark}
-                            className="absolute flex flex-col items-center gap-0.5"
-                            style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
-                          >
-                            <div className={`w-px ${isMajor ? 'h-2 bg-muted-foreground' : 'h-1.5 bg-muted-foreground/50'}`} />
-                            {isMajor && (
-                              <span className="text-[9px]">{mark.toFixed(1)}x</span>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-wrap items-center gap-2 pt-0.5">
-                    <Input
-                      id="card-scale-field"
-                      type="number"
-                      value={cardScale.toFixed(2)}
-                      onChange={(e) => {
-                        const value = parseFloat(e.target.value)
-                        if (!isNaN(value) && value >= 0.5 && value <= 2.0) {
-                          onCardScaleChange(value)
-                        }
-                      }}
-                      step={0.05}
-                      min={0.5}
-                      max={2.0}
-                      className="w-20 font-mono text-xs h-7 px-2"
-                    />
-                    <span className="text-xs text-muted-foreground">直接入力</span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        onCardScaleChange(1.0)
-                        toast.success('カードサイズをデフォルトに戻しました')
-                      }}
-                      className="text-xs h-7 ml-auto"
-                    >
-                      デフォルト
-                    </Button>
-                  </div>
-                </div>
-              </div>
             </div>
           </AccordionContent>
         </AccordionItem>
