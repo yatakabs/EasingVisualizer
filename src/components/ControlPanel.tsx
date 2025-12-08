@@ -340,9 +340,11 @@ export function ControlPanel({
             </div>
           </AccordionTrigger>
           <AccordionContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-              {/* プレビュー詳細設定グループ */}
-              <div className="bg-secondary rounded-lg p-3 space-y-3">
+            <div className="flex flex-col md:flex-row gap-3 pt-1">
+              {/* 左側カラム: プレビュー詳細設定 + ガンマ補正 */}
+              <div className="flex flex-col gap-3 md:w-1/2">
+                {/* プレビュー詳細設定グループ */}
+                <div className="bg-muted/50 rounded-lg p-3 space-y-3">
                 <div className="text-sm font-semibold text-foreground">プレビュー詳細設定</div>
                 
                 {/* 全パネル一括設定 */}
@@ -445,10 +447,10 @@ export function ControlPanel({
                     </Button>
                   </div>
                 </div>
-              </div>
+                </div>
               
-              {/* ガンマ補正グループ */}
-              <div className="bg-secondary rounded-lg p-3 space-y-1.5">
+                {/* ガンマ補正グループ */}
+                <div className="bg-muted/50 rounded-lg p-3 space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-semibold text-foreground">
                     ガンマ補正
@@ -505,11 +507,12 @@ export function ControlPanel({
                     </Label>
                   </div>
                 </div>
+                </div>
               </div>
               
-              {/* カメラ設定グループ（カメラプレビュー有効時のみ表示） */}
+              {/* 右側カラム: カメラ設定グループ（カメラプレビュー有効時のみ表示） */}
               {enabledPreviews.includes('camera') && (
-                <div className="bg-secondary rounded-lg p-3 space-y-3 md:col-span-2">
+                <div className="bg-muted/50 rounded-lg p-3 space-y-3 md:flex-1">
                   <div className="text-sm font-semibold text-foreground">カメラ設定</div>
                   
                   {/* 設定項目を2列グリッドで配置 */}
@@ -549,22 +552,22 @@ export function ControlPanel({
                         value={cameraAspectRatio} 
                         onValueChange={(value) => value && onCameraAspectRatioChange(value)}
                         variant="outline"
-                        className="justify-start flex-wrap"
+                        className="flex flex-col items-stretch gap-1"
                         size="sm"
                       >
-                        <ToggleGroupItem value="16/9" className="text-xs px-2 h-7">
+                        <ToggleGroupItem value="16/9" className="text-xs px-2 h-7 w-full justify-center">
                           16:9
                         </ToggleGroupItem>
-                        <ToggleGroupItem value="4/3" className="text-xs px-2 h-7">
+                        <ToggleGroupItem value="4/3" className="text-xs px-2 h-7 w-full justify-center">
                           4:3
                         </ToggleGroupItem>
-                        <ToggleGroupItem value="1/1" className="text-xs px-2 h-7">
+                        <ToggleGroupItem value="1/1" className="text-xs px-2 h-7 w-full justify-center">
                           1:1
                         </ToggleGroupItem>
-                        <ToggleGroupItem value="21/9" className="text-xs px-2 h-7">
+                        <ToggleGroupItem value="21/9" className="text-xs px-2 h-7 w-full justify-center">
                           21:9
                         </ToggleGroupItem>
-                        <ToggleGroupItem value="custom" className="text-xs px-2 h-7">
+                        <ToggleGroupItem value="custom" className="text-xs px-2 h-7 w-full justify-center">
                           他
                         </ToggleGroupItem>
                       </ToggleGroup>

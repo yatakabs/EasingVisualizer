@@ -86,21 +86,24 @@ export const CameraPreview = memo(function CameraPreview({
     }
     scene.add(axesHelper)
 
-    const handleResize = () => {
-      if (!mountRef.current || !cameraRef.current || !rendererRef.current) return
-      
-      const newWidth = mountRef.current.clientWidth
-      const newHeight = mountRef.current.clientHeight
-      
-      cameraRef.current.aspect = newWidth / newHeight
-      cameraRef.current.updateProjectionMatrix()
-      rendererRef.current.setSize(newWidth, newHeight)
-    }
-
-    window.addEventListener('resize', handleResize)
+    // ResizeObserverでコンテナサイズ変更を監視（カードサイズ変更時も追従）
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (!cameraRef.current || !rendererRef.current) return
+        
+        const { width, height } = entry.contentRect
+        if (width > 0 && height > 0) {
+          cameraRef.current.aspect = width / height
+          cameraRef.current.updateProjectionMatrix()
+          rendererRef.current.setSize(width, height)
+        }
+      }
+    })
+    
+    resizeObserver.observe(mountRef.current)
 
     return () => {
-      window.removeEventListener('resize', handleResize)
+      resizeObserver.disconnect()
       
       if (frameIdRef.current !== null) {
         cancelAnimationFrame(frameIdRef.current)
@@ -122,20 +125,8 @@ export const CameraPreview = memo(function CameraPreview({
     }
   }, [coordinateSystem])
 
-  useEffect(() => {
-    if (!mountRef.current || !cameraRef.current || !rendererRef.current) return
-    
-    requestAnimationFrame(() => {
-      if (!mountRef.current || !cameraRef.current || !rendererRef.current) return
-      
-      const newWidth = mountRef.current.clientWidth
-      const newHeight = mountRef.current.clientHeight
-      
-      cameraRef.current.aspect = newWidth / newHeight
-      cameraRef.current.updateProjectionMatrix()
-      rendererRef.current.setSize(newWidth, newHeight)
-    })
-  }, [aspectRatio])
+  // Note: aspectRatio変更時のリサイズはResizeObserverで自動的に処理される
+  // （親がaspect-ratioを変更 → コンテナサイズ変更 → ResizeObserverがトリガー）
 
   useEffect(() => {
     if (!cameraRef.current || !cubeRef.current || !rendererRef.current || !sceneRef.current) return
