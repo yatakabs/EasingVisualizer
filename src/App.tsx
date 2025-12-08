@@ -56,6 +56,8 @@ function App() {
   const fpsFrames = useRef<number[]>([])
   const speedTimeoutRef = useRef<number | undefined>(undefined)
   const gammaTimeoutRef = useRef<number | undefined>(undefined)
+  const gridContainerRef = useRef<HTMLDivElement>(null)
+  const [scaledGridHeight, setScaledGridHeight] = useState<number>(0)
 
   useEffect(() => {
     if (savedSpeed !== undefined && savedSpeed !== null) {
@@ -122,6 +124,22 @@ function App() {
       cancelAnimationFrame(animationFrameId)
     }
   }, [isPlaying, speed, manualInputMode])
+
+  // ResizeObserver to measure grid height and compensate for scaling
+  useEffect(() => {
+    const gridContainer = gridContainerRef.current
+    if (!gridContainer) return
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const height = entry.contentRect.height
+        setScaledGridHeight(height * (cardScale ?? 1.0))
+      }
+    })
+
+    observer.observe(gridContainer)
+    return () => observer.disconnect()
+  }, [cardScale])
 
   const getTriangularWave = (t: number): number => {
     const normalized = t % 1
@@ -360,66 +378,73 @@ function App() {
             </div>
           ) : (
             <div 
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-3 sm:gap-4"
-              style={{
-                gridTemplateColumns: `repeat(auto-fill, minmax(${200 * (cardScale ?? 1.0)}px, 1fr))`
+              style={{ 
+                minHeight: scaledGridHeight > 0 ? scaledGridHeight : undefined 
               }}
             >
-              {(panels || []).map((panel, panelIndex) => {
-                const func = EASING_FUNCTIONS.find(f => f.id === panel.functionId)
-                if (!func) return null
+              <div
+                ref={gridContainerRef}
+                style={{
+                  transform: `scale(${cardScale ?? 1.0})`,
+                  transformOrigin: 'top left',
+                  width: `calc(100% / ${cardScale ?? 1.0})`,
+                }}
+              >
+                <div 
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-3 sm:gap-4"
+                  style={{
+                    gridTemplateColumns: `repeat(auto-fill, minmax(200px, 1fr))`
+                  }}
+                >
+                  {(panels || []).map((panel, panelIndex) => {
+                    const func = EASING_FUNCTIONS.find(f => f.id === panel.functionId)
+                    if (!func) return null
 
-                const output = func.calculate(currentInputValue, panel.easeType)
-                const filteredOutput = applyFilters(output, enabledFilters ?? [], { gamma: gamma ?? 2.2 })
-                
-                const isCameraActive = (activeCameraPanels || []).includes(panel.id)
-                const canActivateCamera = !isCameraActive && (activeCameraPanels || []).length < (maxCameraPreviews ?? 6)
+                    const output = func.calculate(currentInputValue, panel.easeType)
+                    const filteredOutput = applyFilters(output, enabledFilters ?? [], { gamma: gamma ?? 2.2 })
+                    
+                    const isCameraActive = (activeCameraPanels || []).includes(panel.id)
+                    const canActivateCamera = !isCameraActive && (activeCameraPanels || []).length < (maxCameraPreviews ?? 6)
 
-                return (
-                  <div
-                    key={panel.id}
-                    style={{
-                      transform: `scale(${cardScale ?? 1.0})`,
-                      transformOrigin: 'top left',
-                      width: `${100 / (cardScale ?? 1.0)}%`,
-                      marginBottom: `${(cardScale ?? 1.0) * 10 - 10}px`
-                    }}
-                  >
-                    <PreviewPanel
-                      easingFunction={func}
-                      output={output}
-                      filteredOutput={filteredOutput}
-                      input={currentInputValue}
-                      baseInput={baseInputValue}
-                      isTriangularMode={isTriangularMode}
-                      easeType={panel.easeType}
-                      enabledFilters={enabledFilters ?? []}
-                      filterParams={{ gamma: gamma ?? 2.2 }}
-                      enabledPreviews={enabledPreviews ?? ['glow', 'value']}
-                      cameraStartPos={cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 }}
-                      cameraEndPos={cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }}
-                      cameraAspectRatio={cameraAspectRatio ?? '16/9'}
-                      coordinateSystem={coordinateSystem ?? 'left-handed'}
-                      showCamera={isCameraActive}
-                      canToggleCamera={enabledPreviews?.includes('camera') ?? false}
-                      canActivateCamera={canActivateCamera}
-                      onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
-                      onToggleCamera={() => handleToggleCameraForPanel(panel.id)}
-                      onEaseTypeChange={(newEaseType) => {
-                        setPanels((currentPanels) =>
-                          (currentPanels || []).map(p =>
-                            p.id === panel.id ? { ...p, easeType: newEaseType } : p
-                          )
-                        )
-                      }}
-                      onDragStart={handleDragStart(panel.id)}
-                      onDragEnd={handleDragEnd}
-                      onDragOver={handleDragOver}
-                      onDrop={handleDrop(panel.id)}
-                    />
-                  </div>
-                )
-              })}
+                    return (
+                      <div key={panel.id}>
+                        <PreviewPanel
+                          easingFunction={func}
+                          output={output}
+                          filteredOutput={filteredOutput}
+                          input={currentInputValue}
+                          baseInput={baseInputValue}
+                          isTriangularMode={isTriangularMode}
+                          easeType={panel.easeType}
+                          enabledFilters={enabledFilters ?? []}
+                          filterParams={{ gamma: gamma ?? 2.2 }}
+                          enabledPreviews={enabledPreviews ?? ['glow', 'value']}
+                          cameraStartPos={cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 }}
+                          cameraEndPos={cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }}
+                          cameraAspectRatio={cameraAspectRatio ?? '16/9'}
+                          coordinateSystem={coordinateSystem ?? 'left-handed'}
+                          showCamera={isCameraActive}
+                          canToggleCamera={enabledPreviews?.includes('camera') ?? false}
+                          canActivateCamera={canActivateCamera}
+                          onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
+                          onToggleCamera={() => handleToggleCameraForPanel(panel.id)}
+                          onEaseTypeChange={(newEaseType) => {
+                            setPanels((currentPanels) =>
+                              (currentPanels || []).map(p =>
+                                p.id === panel.id ? { ...p, easeType: newEaseType } : p
+                              )
+                            )
+                          }}
+                          onDragStart={handleDragStart(panel.id)}
+                          onDragEnd={handleDragEnd}
+                          onDragOver={handleDragOver}
+                          onDrop={handleDrop(panel.id)}
+                        />
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
           )}
         </div>
