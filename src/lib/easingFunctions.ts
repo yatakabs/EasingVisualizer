@@ -1,6 +1,6 @@
 import type { EaseType } from './easeTypes'
 
-export interface LEDFunction {
+export interface EasingFunction {
   id: string
   name: string
   formula: string
@@ -30,7 +30,7 @@ function applyEaseToFunction(
   }
 }
 
-export const LED_FUNCTIONS: LEDFunction[] = [
+export const EASING_FUNCTIONS: EasingFunction[] = [
   {
     id: 'linear',
     name: 'Linear',

@@ -1,15 +1,15 @@
 import { useMemo, memo } from 'react'
-import type { LEDFunction } from '@/lib/ledFunctions'
+import type { EasingFunction } from '@/lib/easingFunctions'
 
-interface LEDPreviewProps {
-  ledFunction: LEDFunction
+interface GlowPreviewProps {
+  easingFunction: EasingFunction
   filteredOutput: number
 }
 
-export const LEDPreview = memo(function LEDPreview({ 
-  ledFunction, 
+export const GlowPreview = memo(function GlowPreview({ 
+  easingFunction, 
   filteredOutput
-}: LEDPreviewProps) {
+}: GlowPreviewProps) {
   const glowIntensity = useMemo(() => {
     return Math.max(0, Math.min(1, filteredOutput))
   }, [filteredOutput])
@@ -19,32 +19,32 @@ export const LEDPreview = memo(function LEDPreview({
       <div className="relative w-20 h-20 flex items-center justify-center mx-auto">
         <svg width="80" height="80" className="absolute inset-0" viewBox="0 0 80 80">
           <defs>
-            <radialGradient id={`glow-${ledFunction.id}`}>
+            <radialGradient id={`glow-${easingFunction.id}`}>
               <stop
                 offset="0%"
-                stopColor={ledFunction.color}
+                stopColor={easingFunction.color}
                 stopOpacity={glowIntensity}
               />
               <stop
                 offset="50%"
-                stopColor={ledFunction.color}
+                stopColor={easingFunction.color}
                 stopOpacity={glowIntensity * 0.6}
               />
               <stop
                 offset="100%"
-                stopColor={ledFunction.color}
+                stopColor={easingFunction.color}
                 stopOpacity="0"
               />
             </radialGradient>
-            <radialGradient id={`led-${ledFunction.id}`}>
+            <radialGradient id={`glow-inner-${easingFunction.id}`}>
               <stop
                 offset="0%"
-                stopColor={ledFunction.color}
+                stopColor={easingFunction.color}
                 stopOpacity={glowIntensity}
               />
               <stop
                 offset="70%"
-                stopColor={ledFunction.color}
+                stopColor={easingFunction.color}
                 stopOpacity={glowIntensity * 0.8}
               />
               <stop
@@ -59,7 +59,7 @@ export const LEDPreview = memo(function LEDPreview({
             cx="40"
             cy="40"
             r="34"
-            fill={`url(#glow-${ledFunction.id})`}
+            fill={`url(#glow-${easingFunction.id})`}
             className="transition-opacity duration-75"
           />
           
@@ -67,7 +67,7 @@ export const LEDPreview = memo(function LEDPreview({
             cx="40"
             cy="40"
             r="17"
-            fill={`url(#led-${ledFunction.id})`}
+            fill={`url(#glow-inner-${easingFunction.id})`}
             className="transition-opacity duration-75"
           />
           

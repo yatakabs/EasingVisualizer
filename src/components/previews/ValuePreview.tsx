@@ -1,15 +1,15 @@
 import { memo } from 'react'
-import type { LEDFunction } from '@/lib/ledFunctions'
+import type { EasingFunction } from '@/lib/easingFunctions'
 
 interface ValuePreviewProps {
   input: number
-  ledFunction: LEDFunction
+  easingFunction: EasingFunction
   filteredOutput: number
 }
 
 export const ValuePreview = memo(function ValuePreview({ 
   input,
-  ledFunction,
+  easingFunction,
   filteredOutput
 }: ValuePreviewProps) {
   return (
@@ -48,8 +48,8 @@ export const ValuePreview = memo(function ValuePreview({
               className="h-full rounded-full will-change-[width]"
               style={{
                 width: `${filteredOutput * 100}%`,
-                backgroundColor: ledFunction.color,
-                boxShadow: `0 0 4px ${ledFunction.color}`
+                backgroundColor: easingFunction.color,
+                boxShadow: `0 0 4px ${easingFunction.color}`
               }}
             />
           </div>

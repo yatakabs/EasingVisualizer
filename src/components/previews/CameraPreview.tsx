@@ -1,9 +1,9 @@
 import { useEffect, useRef, memo } from 'react'
 import * as THREE from 'three'
-import type { LEDFunction } from '@/lib/ledFunctions'
+import type { EasingFunction } from '@/lib/easingFunctions'
 
 interface CameraPreviewProps {
-  ledFunction: LEDFunction
+  easingFunction: EasingFunction
   output: number
   filteredOutput: number
   baseInput: number
@@ -14,7 +14,7 @@ interface CameraPreviewProps {
 }
 
 export const CameraPreview = memo(function CameraPreview({
-  ledFunction,
+  easingFunction,
   output,
   filteredOutput,
   baseInput,

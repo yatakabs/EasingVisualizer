@@ -7,12 +7,12 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { LED_FUNCTIONS, type LEDFunction } from '@/lib/ledFunctions'
+import { EASING_FUNCTIONS, type EasingFunction } from '@/lib/easingFunctions'
 
 interface FunctionSelectorProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSelect: (func: LEDFunction) => void
+  onSelect: (func: EasingFunction) => void
   usedFunctionIds: string[]
 }
 
@@ -36,7 +36,7 @@ export function FunctionSelector({
         
         <ScrollArea className="max-h-[70vh]">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pr-2">
-            {LED_FUNCTIONS.map((func) => {
+            {EASING_FUNCTIONS.map((func) => {
               const isUsed = usedFunctionIds.includes(func.id)
               
               return (

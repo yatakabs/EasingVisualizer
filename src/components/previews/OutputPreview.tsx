@@ -1,13 +1,13 @@
 import { useMemo, memo } from 'react'
-import type { LEDFunction } from '@/lib/ledFunctions'
+import type { EasingFunction } from '@/lib/easingFunctions'
 
 interface OutputPreviewProps {
-  ledFunction: LEDFunction
+  EasingFunction: EasingFunction
   filteredOutput: number
 }
 
 export const OutputPreview = memo(function OutputPreview({ 
-  ledFunction,
+  EasingFunction,
   filteredOutput
 }: OutputPreviewProps) {
   const displayOutput = useMemo(() => {
@@ -29,8 +29,8 @@ export const OutputPreview = memo(function OutputPreview({
             className="h-full rounded-full will-change-[width]"
             style={{
               width: `${displayOutput * 100}%`,
-              backgroundColor: ledFunction.color,
-              boxShadow: `0 0 6px ${ledFunction.color}`
+              backgroundColor: EasingFunction.color,
+              boxShadow: `0 0 6px ${EasingFunction.color}`
             }}
           />
         </div>

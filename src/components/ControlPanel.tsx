@@ -119,12 +119,12 @@ export function ControlPanel({
             size="sm"
           >
             <ToggleGroupItem 
-              value="led" 
-              aria-label="LED表示"
-              onClick={() => onTogglePreview('led')}
+              value="glow" 
+              aria-label="Glow表示"
+              onClick={() => onTogglePreview('glow')}
               className="text-sm h-9 px-3"
             >
-              LED
+              Glow
             </ToggleGroupItem>
             <ToggleGroupItem 
               value="graph" 

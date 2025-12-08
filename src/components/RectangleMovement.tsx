@@ -2,13 +2,13 @@ import { useMemo, memo, useState, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { X } from '@phosphor-icons/react'
-import type { LEDFunction } from '@/lib/ledFunctions'
+import type { EasingFunction } from '@/lib/easingFunctions'
 import type { EaseType } from '@/lib/easeTypes'
 import { applyFilters } from '@/lib/outputFilters'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 interface RectangleMovementProps {
-  ledFunction: LEDFunction
+  EasingFunction: EasingFunction
   output: number
   filteredOutput: number
   input: number
@@ -27,7 +27,7 @@ interface RectangleMovementProps {
 }
 
 export const RectangleMovement = memo(function RectangleMovement({ 
-  ledFunction, 
+  EasingFunction, 
   output,
   filteredOutput,
   input,
@@ -92,7 +92,7 @@ export const RectangleMovement = memo(function RectangleMovement({
         const t = i / steps
         const triangularT = t < 0.5 ? t * 2 : 2 - t * 2
         const xPos = padding + t * innerWidth
-        const yVal = ledFunction.calculate(triangularT, easeType)
+        const yVal = EasingFunction.calculate(triangularT, easeType)
         
         const originalYPos = padding + (1 - yVal) * innerHeight
         originalPoints.push(`${xPos},${originalYPos}`)
@@ -105,7 +105,7 @@ export const RectangleMovement = memo(function RectangleMovement({
       for (let i = 0; i <= steps; i++) {
         const t = i / steps
         const xPos = padding + t * innerWidth
-        const yVal = ledFunction.calculate(t, easeType)
+        const yVal = EasingFunction.calculate(t, easeType)
         
         const originalYPos = padding + (1 - yVal) * innerHeight
         originalPoints.push(`${xPos},${originalYPos}`)
@@ -124,7 +124,7 @@ export const RectangleMovement = memo(function RectangleMovement({
         const t = i / steps
         const triangularT = t < 0.5 ? t * 2 : 2 - t * 2
         const xPos = padding + t * innerWidth
-        const yVal = ledFunction.calculate(triangularT, easeType)
+        const yVal = EasingFunction.calculate(triangularT, easeType)
         const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
         const yPos = padding + (1 - filteredYVal) * innerHeight
         trailPoints.push(`${xPos},${yPos}`)
@@ -133,7 +133,7 @@ export const RectangleMovement = memo(function RectangleMovement({
       for (let i = 0; i <= currentStep; i++) {
         const t = i / steps
         const xPos = padding + t * innerWidth
-        const yVal = ledFunction.calculate(t, easeType)
+        const yVal = EasingFunction.calculate(t, easeType)
         const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
         const yPos = padding + (1 - filteredYVal) * innerHeight
         trailPoints.push(`${xPos},${yPos}`)
@@ -151,7 +151,7 @@ export const RectangleMovement = memo(function RectangleMovement({
       const triangularHoverX = isTriangularMode 
         ? (hoverX < 0.5 ? hoverX * 2 : 2 - hoverX * 2)
         : hoverX
-      const hoverYVal = ledFunction.calculate(triangularHoverX, easeType)
+      const hoverYVal = EasingFunction.calculate(triangularHoverX, easeType)
       const filteredHoverYVal = applyFilters(hoverYVal, enabledFilters, filterParams)
       
       hoverPointData = {
@@ -170,7 +170,7 @@ export const RectangleMovement = memo(function RectangleMovement({
       inputValue: baseInput,
       hoverPoint: hoverPointData
     }
-  }, [input, baseInput, filteredOutput, ledFunction, enabledFilters, filterParams, easeType, isTriangularMode, hoverPosition])
+  }, [input, baseInput, filteredOutput, EasingFunction, enabledFilters, filterParams, easeType, isTriangularMode, hoverPosition])
 
   return (
     <Card 
@@ -201,11 +201,11 @@ export const RectangleMovement = memo(function RectangleMovement({
           </div>
         )}
         <CardTitle className="text-sm font-semibold tracking-tight">
-          {ledFunction.name}
+          {EasingFunction.name}
         </CardTitle>
         <div className="space-y-1.5 mt-1">
           <p className="text-[10px] font-mono text-muted-foreground leading-tight">
-            {ledFunction.formula}
+            {EasingFunction.formula}
           </p>
           <ToggleGroup 
             type="single" 
@@ -238,7 +238,7 @@ export const RectangleMovement = memo(function RectangleMovement({
             onMouseLeave={handleMouseLeave}
           >
             <defs>
-              <filter id={`glow-rect-${ledFunction.id}`}>
+              <filter id={`glow-rect-${EasingFunction.id}`}>
                 <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
                 <feMerge>
                   <feMergeNode in="coloredBlur"/>
@@ -299,7 +299,7 @@ export const RectangleMovement = memo(function RectangleMovement({
             <polyline
               points={originalGraphPath}
               fill="none"
-              stroke={ledFunction.color}
+              stroke={EasingFunction.color}
               strokeWidth="2"
               opacity="0.2"
               strokeDasharray="4 4"
@@ -308,7 +308,7 @@ export const RectangleMovement = memo(function RectangleMovement({
             <polyline
               points={graphPath}
               fill="none"
-              stroke={ledFunction.color}
+              stroke={EasingFunction.color}
               strokeWidth="2"
               opacity="0.3"
             />
@@ -316,7 +316,7 @@ export const RectangleMovement = memo(function RectangleMovement({
             <polyline
               points={trailPath}
               fill="none"
-              stroke={ledFunction.color}
+              stroke={EasingFunction.color}
               strokeWidth="3"
               opacity="0.8"
               strokeLinecap="round"
@@ -328,9 +328,9 @@ export const RectangleMovement = memo(function RectangleMovement({
               y={position.y - 6}
               width="12"
               height="12"
-              fill={ledFunction.color}
+              fill={EasingFunction.color}
               rx="2"
-              filter={`url(#glow-rect-${ledFunction.id})`}
+              filter={`url(#glow-rect-${EasingFunction.id})`}
               style={{
                 opacity: 0.7 + filteredOutput * 0.3
               }}
@@ -441,8 +441,8 @@ export const RectangleMovement = memo(function RectangleMovement({
                 className="h-full rounded-full will-change-[width]"
                 style={{
                   width: `${displayOutput * 100}%`,
-                  backgroundColor: ledFunction.color,
-                  boxShadow: `0 0 8px ${ledFunction.color}`
+                  backgroundColor: EasingFunction.color,
+                  boxShadow: `0 0 8px ${EasingFunction.color}`
                 }}
               />
             </div>

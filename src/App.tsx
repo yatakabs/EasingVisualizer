@@ -3,7 +3,7 @@ import { useKV } from '@github/spark/hooks'
 import { PreviewPanel } from '@/components/PreviewPanel'
 import { ControlPanel } from '@/components/ControlPanel'
 import { FunctionSelector } from '@/components/FunctionSelector'
-import { LED_FUNCTIONS, type LEDFunction } from '@/lib/ledFunctions'
+import { EASING_FUNCTIONS, type EasingFunction } from '@/lib/easingFunctions'
 import { applyFilters } from '@/lib/outputFilters'
 import { type EaseType } from '@/lib/easeTypes'
 import { type PreviewType } from '@/lib/previewTypes'
@@ -21,7 +21,7 @@ interface PanelData {
 }
 
 function App() {
-  const [panels, setPanels] = useKV<PanelData[]>('led-panels', [
+  const [panels, setPanels] = useKV<PanelData[]>('easing-panels', [
     { id: '1', functionId: 'linear', easeType: 'easein' },
     { id: '2', functionId: 'quadratic', easeType: 'easein' },
     { id: '3', functionId: 'sine', easeType: 'easein' }
@@ -29,7 +29,7 @@ function App() {
   const [isPlaying, setIsPlaying] = useKV<boolean>('is-playing', true)
   const [savedSpeed, setSavedSpeed] = useKV<number>('animation-speed', 1)
   const [savedGamma, setSavedGamma] = useKV<number>('gamma-correction', 2.2)
-  const [enabledPreviews, setEnabledPreviews] = useKV<PreviewType[]>('enabled-previews', ['led', 'value'])
+  const [enabledPreviews, setEnabledPreviews] = useKV<PreviewType[]>('enabled-previews', ['glow', 'value'])
   const [enabledFilters, setEnabledFilters] = useKV<string[]>('enabled-filters', [])
   const [manualInputMode, setManualInputMode] = useKV<boolean>('manual-input-mode', false)
   const [manualInputValue, setManualInputValue] = useKV<number>('manual-input-value', 0)
@@ -132,7 +132,7 @@ function App() {
     setSelectorOpen(true)
   }, [panels])
 
-  const handleSelectFunction = useCallback((func: LEDFunction) => {
+  const handleSelectFunction = useCallback((func: EasingFunction) => {
     setPanels((currentPanels) => {
       const nextPanelNumber = (currentPanels || []).length + 1
       const newPanelId = Date.now().toString()
@@ -352,7 +352,7 @@ function App() {
               }}
             >
               {(panels || []).map((panel, panelIndex) => {
-                const func = LED_FUNCTIONS.find(f => f.id === panel.functionId)
+                const func = EASING_FUNCTIONS.find(f => f.id === panel.functionId)
                 if (!func) return null
 
                 const output = func.calculate(currentInputValue, panel.easeType)
@@ -372,7 +372,7 @@ function App() {
                     }}
                   >
                     <PreviewPanel
-                      ledFunction={func}
+                      easingFunction={func}
                       output={output}
                       filteredOutput={filteredOutput}
                       input={currentInputValue}
@@ -381,7 +381,7 @@ function App() {
                       easeType={panel.easeType}
                       enabledFilters={enabledFilters ?? []}
                       filterParams={{ gamma: gamma ?? 2.2 }}
-                      enabledPreviews={enabledPreviews ?? ['led', 'value']}
+                      enabledPreviews={enabledPreviews ?? ['glow', 'value']}
                       cameraStartPos={cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 }}
                       cameraEndPos={cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }}
                       cameraAspectRatio={cameraAspectRatio ?? '16/9'}

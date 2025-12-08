@@ -2,12 +2,12 @@ import { useMemo, memo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { X } from '@phosphor-icons/react'
-import type { LEDFunction } from '@/lib/ledFunctions'
+import type { EasingFunction } from '@/lib/easingFunctions'
 import type { EaseType } from '@/lib/easeTypes'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 interface LEDPanelProps {
-  ledFunction: LEDFunction
+  EasingFunction: EasingFunction
   output: number
   filteredOutput: number
   input: number
@@ -24,7 +24,7 @@ interface LEDPanelProps {
 }
 
 export const LEDPanel = memo(function LEDPanel({ 
-  ledFunction, 
+  EasingFunction, 
   output, 
   filteredOutput, 
   input,
@@ -76,11 +76,11 @@ export const LEDPanel = memo(function LEDPanel({
           </div>
         )}
         <CardTitle className="text-sm font-semibold tracking-tight">
-          {ledFunction.name}
+          {EasingFunction.name}
         </CardTitle>
         <div className="space-y-1.5 mt-1">
           <p className="text-[10px] font-mono text-muted-foreground leading-tight">
-            {ledFunction.formula}
+            {EasingFunction.formula}
           </p>
           <ToggleGroup 
             type="single" 
@@ -107,32 +107,32 @@ export const LEDPanel = memo(function LEDPanel({
         <div className="relative w-32 h-32 flex items-center justify-center">
           <svg width="128" height="128" className="absolute inset-0">
             <defs>
-              <radialGradient id={`glow-${ledFunction.id}`}>
+              <radialGradient id={`glow-${EasingFunction.id}`}>
                 <stop
                   offset="0%"
-                  stopColor={ledFunction.color}
+                  stopColor={EasingFunction.color}
                   stopOpacity={glowIntensity}
                 />
                 <stop
                   offset="50%"
-                  stopColor={ledFunction.color}
+                  stopColor={EasingFunction.color}
                   stopOpacity={glowIntensity * 0.6}
                 />
                 <stop
                   offset="100%"
-                  stopColor={ledFunction.color}
+                  stopColor={EasingFunction.color}
                   stopOpacity="0"
                 />
               </radialGradient>
-              <radialGradient id={`led-${ledFunction.id}`}>
+              <radialGradient id={`led-${EasingFunction.id}`}>
                 <stop
                   offset="0%"
-                  stopColor={ledFunction.color}
+                  stopColor={EasingFunction.color}
                   stopOpacity={glowIntensity}
                 />
                 <stop
                   offset="70%"
-                  stopColor={ledFunction.color}
+                  stopColor={EasingFunction.color}
                   stopOpacity={glowIntensity * 0.8}
                 />
                 <stop
@@ -147,7 +147,7 @@ export const LEDPanel = memo(function LEDPanel({
               cx="64"
               cy="64"
               r="56"
-              fill={`url(#glow-${ledFunction.id})`}
+              fill={`url(#glow-${EasingFunction.id})`}
               className="transition-opacity duration-75"
             />
             
@@ -155,7 +155,7 @@ export const LEDPanel = memo(function LEDPanel({
               cx="64"
               cy="64"
               r="28"
-              fill={`url(#led-${ledFunction.id})`}
+              fill={`url(#led-${EasingFunction.id})`}
               className="transition-opacity duration-75"
             />
             
@@ -204,8 +204,8 @@ export const LEDPanel = memo(function LEDPanel({
                 className="h-full rounded-full will-change-[width]"
                 style={{
                   width: `${displayOutput * 100}%`,
-                  backgroundColor: ledFunction.color,
-                  boxShadow: `0 0 6px ${ledFunction.color}`
+                  backgroundColor: EasingFunction.color,
+                  boxShadow: `0 0 6px ${EasingFunction.color}`
                 }}
               />
             </div>

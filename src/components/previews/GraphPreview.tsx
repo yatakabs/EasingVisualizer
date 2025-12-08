@@ -1,10 +1,10 @@
 import { useMemo, memo, useState, useCallback } from 'react'
-import type { LEDFunction } from '@/lib/ledFunctions'
+import type { EasingFunction } from '@/lib/easingFunctions'
 import type { EaseType } from '@/lib/easeTypes'
 import { applyFilters } from '@/lib/outputFilters'
 
 interface GraphPreviewProps {
-  ledFunction: LEDFunction
+  easingFunction: EasingFunction
   filteredOutput: number
   input: number
   baseInput: number
@@ -29,7 +29,7 @@ const GRAPH_CONFIG = {
 }
 
 export const GraphPreview = memo(function GraphPreview({ 
-  ledFunction, 
+  easingFunction, 
   filteredOutput,
   input,
   baseInput,
@@ -79,7 +79,7 @@ export const GraphPreview = memo(function GraphPreview({
         const t = i / steps
         const triangularT = t < 0.5 ? t * 2 : 2 - t * 2
         const xPos = paddingLeft + t * innerWidth
-        const yVal = ledFunction.calculate(triangularT, easeType)
+        const yVal = easingFunction.calculate(triangularT, easeType)
         
         const originalYPos = paddingTop + (1 - yVal) * innerHeight
         originalPoints.push(`${xPos},${originalYPos}`)
@@ -92,7 +92,7 @@ export const GraphPreview = memo(function GraphPreview({
       for (let i = 0; i <= steps; i++) {
         const t = i / steps
         const xPos = paddingLeft + t * innerWidth
-        const yVal = ledFunction.calculate(t, easeType)
+        const yVal = easingFunction.calculate(t, easeType)
         
         const originalYPos = paddingTop + (1 - yVal) * innerHeight
         originalPoints.push(`${xPos},${originalYPos}`)
@@ -111,7 +111,7 @@ export const GraphPreview = memo(function GraphPreview({
         const t = i / steps
         const triangularT = t < 0.5 ? t * 2 : 2 - t * 2
         const xPos = paddingLeft + t * innerWidth
-        const yVal = ledFunction.calculate(triangularT, easeType)
+        const yVal = easingFunction.calculate(triangularT, easeType)
         const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
         const yPos = paddingTop + (1 - filteredYVal) * innerHeight
         trailPoints.push(`${xPos},${yPos}`)
@@ -120,7 +120,7 @@ export const GraphPreview = memo(function GraphPreview({
       for (let i = 0; i <= currentStep; i++) {
         const t = i / steps
         const xPos = paddingLeft + t * innerWidth
-        const yVal = ledFunction.calculate(t, easeType)
+        const yVal = easingFunction.calculate(t, easeType)
         const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
         const yPos = paddingTop + (1 - filteredYVal) * innerHeight
         trailPoints.push(`${xPos},${yPos}`)
@@ -138,7 +138,7 @@ export const GraphPreview = memo(function GraphPreview({
       const triangularHoverX = isTriangularMode 
         ? (hoverX < 0.5 ? hoverX * 2 : 2 - hoverX * 2)
         : hoverX
-      const hoverYVal = ledFunction.calculate(triangularHoverX, easeType)
+      const hoverYVal = easingFunction.calculate(triangularHoverX, easeType)
       const filteredHoverYVal = applyFilters(hoverYVal, enabledFilters, filterParams)
       
       hoverPointData = {
@@ -156,7 +156,7 @@ export const GraphPreview = memo(function GraphPreview({
       originalGraphPath: originalPoints.join(' '),
       hoverPoint: hoverPointData
     }
-  }, [input, baseInput, filteredOutput, ledFunction, enabledFilters, filterParams, easeType, isTriangularMode, hoverPosition])
+  }, [input, baseInput, filteredOutput, easingFunction, enabledFilters, filterParams, easeType, isTriangularMode, hoverPosition])
 
   const { paddingLeft, paddingTop, innerWidth, innerHeight, graphRight, graphBottom, viewBoxWidth, viewBoxHeight } = GRAPH_CONFIG
   const graphMidX = paddingLeft + innerWidth / 2
@@ -174,7 +174,7 @@ export const GraphPreview = memo(function GraphPreview({
         onMouseLeave={handleMouseLeave}
       >
         <defs>
-          <filter id={`glow-rect-${ledFunction.id}`}>
+          <filter id={`glow-rect-${easingFunction.id}`}>
             <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
             <feMerge>
               <feMergeNode in="coloredBlur"/>
@@ -241,7 +241,7 @@ export const GraphPreview = memo(function GraphPreview({
         <polyline
           points={originalGraphPath}
           fill="none"
-          stroke={ledFunction.color}
+          stroke={easingFunction.color}
           strokeWidth="2"
           opacity="0.2"
           strokeDasharray="4 4"
@@ -251,7 +251,7 @@ export const GraphPreview = memo(function GraphPreview({
         <polyline
           points={graphPath}
           fill="none"
-          stroke={ledFunction.color}
+          stroke={easingFunction.color}
           strokeWidth="2"
           opacity="0.3"
         />
@@ -260,7 +260,7 @@ export const GraphPreview = memo(function GraphPreview({
         <polyline
           points={trailPath}
           fill="none"
-          stroke={ledFunction.color}
+          stroke={easingFunction.color}
           strokeWidth="3"
           opacity="0.8"
           strokeLinecap="round"
@@ -273,9 +273,9 @@ export const GraphPreview = memo(function GraphPreview({
           y={position.y - 6}
           width="12"
           height="12"
-          fill={ledFunction.color}
+          fill={easingFunction.color}
           rx="2"
-          filter={`url(#glow-rect-${ledFunction.id})`}
+          filter={`url(#glow-rect-${easingFunction.id})`}
           style={{
             opacity: 0.7 + filteredOutput * 0.3
           }}

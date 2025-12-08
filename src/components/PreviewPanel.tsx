@@ -3,16 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { X, Video, Cube } from '@phosphor-icons/react'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import type { LEDFunction } from '@/lib/ledFunctions'
+import type { EasingFunction } from '@/lib/easingFunctions'
 import type { EaseType } from '@/lib/easeTypes'
 import type { PreviewType } from '@/lib/previewTypes'
-import { LEDPreview } from '@/components/previews/LEDPreview'
+import { GlowPreview } from '@/components/previews/GlowPreview'
 import { GraphPreview } from '@/components/previews/GraphPreview'
 import { CameraPreview } from '@/components/previews/CameraPreview'
 import { ValuePreview } from '@/components/previews/ValuePreview'
 
 interface PreviewPanelProps {
-  ledFunction: LEDFunction
+  easingFunction: EasingFunction
   output: number
   filteredOutput: number
   input: number
@@ -39,7 +39,7 @@ interface PreviewPanelProps {
 }
 
 export const PreviewPanel = memo(function PreviewPanel({
-  ledFunction,
+  easingFunction,
   output,
   filteredOutput,
   input,
@@ -80,7 +80,7 @@ export const PreviewPanel = memo(function PreviewPanel({
       >
         <div className="flex items-center justify-between gap-1.5">
           <CardTitle className="text-sm font-semibold tracking-tight truncate flex-1 min-w-0" style={{ margin: 0, lineHeight: '1.4' }}>
-            {title || ledFunction.name}
+            {title || easingFunction.name}
           </CardTitle>
           <div className="flex items-center gap-0.5 flex-shrink-0">
             {canToggleCamera && (
@@ -129,7 +129,7 @@ export const PreviewPanel = memo(function PreviewPanel({
       <div className="px-2 py-1.5 border-b border-border/50">
         <div className="flex items-center justify-between gap-1.5">
           <p className="text-xs font-mono text-muted-foreground leading-relaxed">
-            {ledFunction.formula}
+            {easingFunction.formula}
           </p>
           <ToggleGroup 
             type="single" 
@@ -156,7 +156,7 @@ export const PreviewPanel = memo(function PreviewPanel({
         {enabledPreviews.includes('camera') && (
           showCamera ? (
             <CameraPreview
-              ledFunction={ledFunction}
+              easingFunction={easingFunction}
               output={output}
               filteredOutput={filteredOutput}
               baseInput={baseInput}
@@ -202,16 +202,16 @@ export const PreviewPanel = memo(function PreviewPanel({
           )
         )}
         
-        {enabledPreviews.includes('led') && (
-          <LEDPreview
-            ledFunction={ledFunction}
+        {enabledPreviews.includes('glow') && (
+          <GlowPreview
+            easingFunction={easingFunction}
             filteredOutput={filteredOutput}
           />
         )}
         
         {enabledPreviews.includes('graph') && (
           <GraphPreview
-            ledFunction={ledFunction}
+            easingFunction={easingFunction}
             filteredOutput={filteredOutput}
             input={input}
             baseInput={baseInput}
@@ -226,7 +226,7 @@ export const PreviewPanel = memo(function PreviewPanel({
           <div className="w-full mt-auto">
             <ValuePreview
               input={input}
-              ledFunction={ledFunction}
+              easingFunction={easingFunction}
               filteredOutput={filteredOutput}
             />
           </div>

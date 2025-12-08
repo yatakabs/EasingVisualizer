@@ -3,12 +3,12 @@ import * as THREE from 'three'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { X } from '@phosphor-icons/react'
-import type { LEDFunction } from '@/lib/ledFunctions'
+import type { EasingFunction } from '@/lib/easingFunctions'
 import type { EaseType } from '@/lib/easeTypes'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 interface CameraViewProps {
-  ledFunction: LEDFunction
+  EasingFunction: EasingFunction
   output: number
   filteredOutput: number
   input: number
@@ -30,7 +30,7 @@ interface CameraViewProps {
 }
 
 export const CameraView = memo(function CameraView({
-  ledFunction,
+  EasingFunction,
   output,
   filteredOutput,
   input,
@@ -177,10 +177,10 @@ export const CameraView = memo(function CameraView({
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             <CardTitle className="text-sm font-semibold truncate mb-1">
-              {title || ledFunction.name}
+              {title || EasingFunction.name}
             </CardTitle>
             <div className="text-xs font-mono text-muted-foreground truncate">
-              {ledFunction.formula}
+              {EasingFunction.formula}
             </div>
           </div>
           {onRemove && (

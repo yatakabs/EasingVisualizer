@@ -2,13 +2,13 @@ import { useMemo, memo, useState, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { X } from '@phosphor-icons/react'
-import type { LEDFunction } from '@/lib/ledFunctions'
+import type { EasingFunction } from '@/lib/easingFunctions'
 import type { EaseType } from '@/lib/easeTypes'
 import { applyFilters } from '@/lib/outputFilters'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 interface CombinedPanelProps {
-  ledFunction: LEDFunction
+  EasingFunction: EasingFunction
   output: number
   filteredOutput: number
   input: number
@@ -27,7 +27,7 @@ interface CombinedPanelProps {
 }
 
 export const CombinedPanel = memo(function CombinedPanel({ 
-  ledFunction, 
+  EasingFunction, 
   output,
   filteredOutput,
   input,
@@ -96,7 +96,7 @@ export const CombinedPanel = memo(function CombinedPanel({
         const t = i / steps
         const triangularT = t < 0.5 ? t * 2 : 2 - t * 2
         const xPos = padding + t * innerWidth
-        const yVal = ledFunction.calculate(triangularT, easeType)
+        const yVal = EasingFunction.calculate(triangularT, easeType)
         
         const originalYPos = padding + (1 - yVal) * innerHeight
         originalPoints.push(`${xPos},${originalYPos}`)
@@ -109,7 +109,7 @@ export const CombinedPanel = memo(function CombinedPanel({
       for (let i = 0; i <= steps; i++) {
         const t = i / steps
         const xPos = padding + t * innerWidth
-        const yVal = ledFunction.calculate(t, easeType)
+        const yVal = EasingFunction.calculate(t, easeType)
         
         const originalYPos = padding + (1 - yVal) * innerHeight
         originalPoints.push(`${xPos},${originalYPos}`)
@@ -128,7 +128,7 @@ export const CombinedPanel = memo(function CombinedPanel({
         const t = i / steps
         const triangularT = t < 0.5 ? t * 2 : 2 - t * 2
         const xPos = padding + t * innerWidth
-        const yVal = ledFunction.calculate(triangularT, easeType)
+        const yVal = EasingFunction.calculate(triangularT, easeType)
         const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
         const yPos = padding + (1 - filteredYVal) * innerHeight
         trailPoints.push(`${xPos},${yPos}`)
@@ -137,7 +137,7 @@ export const CombinedPanel = memo(function CombinedPanel({
       for (let i = 0; i <= currentStep; i++) {
         const t = i / steps
         const xPos = padding + t * innerWidth
-        const yVal = ledFunction.calculate(t, easeType)
+        const yVal = EasingFunction.calculate(t, easeType)
         const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
         const yPos = padding + (1 - filteredYVal) * innerHeight
         trailPoints.push(`${xPos},${yPos}`)
@@ -155,7 +155,7 @@ export const CombinedPanel = memo(function CombinedPanel({
       const triangularHoverX = isTriangularMode 
         ? (hoverX < 0.5 ? hoverX * 2 : 2 - hoverX * 2)
         : hoverX
-      const hoverYVal = ledFunction.calculate(triangularHoverX, easeType)
+      const hoverYVal = EasingFunction.calculate(triangularHoverX, easeType)
       const filteredHoverYVal = applyFilters(hoverYVal, enabledFilters, filterParams)
       
       hoverPointData = {
@@ -174,7 +174,7 @@ export const CombinedPanel = memo(function CombinedPanel({
       inputValue: baseInput,
       hoverPoint: hoverPointData
     }
-  }, [input, baseInput, filteredOutput, ledFunction, enabledFilters, filterParams, easeType, isTriangularMode, hoverPosition])
+  }, [input, baseInput, filteredOutput, EasingFunction, enabledFilters, filterParams, easeType, isTriangularMode, hoverPosition])
 
   return (
     <Card 
@@ -200,11 +200,11 @@ export const CombinedPanel = memo(function CombinedPanel({
         onDragEnd={onDragEnd}
       >
         <CardTitle className="text-sm font-semibold tracking-tight">
-          {ledFunction.name}
+          {EasingFunction.name}
         </CardTitle>
         <div className="space-y-1.5 mt-1">
           <p className="text-[10px] font-mono text-muted-foreground leading-tight">
-            {ledFunction.formula}
+            {EasingFunction.formula}
           </p>
           <ToggleGroup 
             type="single" 
@@ -232,32 +232,32 @@ export const CombinedPanel = memo(function CombinedPanel({
           <div className="relative w-24 h-24 flex items-center justify-center flex-shrink-0">
             <svg width="96" height="96" className="absolute inset-0">
               <defs>
-                <radialGradient id={`glow-combined-${ledFunction.id}`}>
+                <radialGradient id={`glow-combined-${EasingFunction.id}`}>
                   <stop
                     offset="0%"
-                    stopColor={ledFunction.color}
+                    stopColor={EasingFunction.color}
                     stopOpacity={glowIntensity}
                   />
                   <stop
                     offset="50%"
-                    stopColor={ledFunction.color}
+                    stopColor={EasingFunction.color}
                     stopOpacity={glowIntensity * 0.6}
                   />
                   <stop
                     offset="100%"
-                    stopColor={ledFunction.color}
+                    stopColor={EasingFunction.color}
                     stopOpacity="0"
                   />
                 </radialGradient>
-                <radialGradient id={`led-combined-${ledFunction.id}`}>
+                <radialGradient id={`glow-inner-${EasingFunction.id}`}>
                   <stop
                     offset="0%"
-                    stopColor={ledFunction.color}
+                    stopColor={EasingFunction.color}
                     stopOpacity={glowIntensity}
                   />
                   <stop
                     offset="70%"
-                    stopColor={ledFunction.color}
+                    stopColor={EasingFunction.color}
                     stopOpacity={glowIntensity * 0.8}
                   />
                   <stop
@@ -272,7 +272,7 @@ export const CombinedPanel = memo(function CombinedPanel({
                 cx="48"
                 cy="48"
                 r="42"
-                fill={`url(#glow-combined-${ledFunction.id})`}
+                fill={`url(#glow-combined-${EasingFunction.id})`}
                 className="transition-opacity duration-75"
               />
               
@@ -280,7 +280,7 @@ export const CombinedPanel = memo(function CombinedPanel({
                 cx="48"
                 cy="48"
                 r="21"
-                fill={`url(#led-combined-${ledFunction.id})`}
+                fill={`url(#glow-inner-${EasingFunction.id})`}
                 className="transition-opacity duration-75"
               />
               
@@ -304,7 +304,7 @@ export const CombinedPanel = memo(function CombinedPanel({
               onMouseLeave={handleMouseLeave}
             >
               <defs>
-                <filter id={`glow-rect-combined-${ledFunction.id}`}>
+                <filter id={`glow-rect-combined-${EasingFunction.id}`}>
                   <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
                   <feMerge>
                     <feMergeNode in="coloredBlur"/>
@@ -365,7 +365,7 @@ export const CombinedPanel = memo(function CombinedPanel({
               <polyline
                 points={originalGraphPath}
                 fill="none"
-                stroke={ledFunction.color}
+                stroke={EasingFunction.color}
                 strokeWidth="2"
                 opacity="0.2"
                 strokeDasharray="4 4"
@@ -374,7 +374,7 @@ export const CombinedPanel = memo(function CombinedPanel({
               <polyline
                 points={graphPath}
                 fill="none"
-                stroke={ledFunction.color}
+                stroke={EasingFunction.color}
                 strokeWidth="2"
                 opacity="0.3"
               />
@@ -382,7 +382,7 @@ export const CombinedPanel = memo(function CombinedPanel({
               <polyline
                 points={trailPath}
                 fill="none"
-                stroke={ledFunction.color}
+                stroke={EasingFunction.color}
                 strokeWidth="3"
                 opacity="0.8"
                 strokeLinecap="round"
@@ -394,9 +394,9 @@ export const CombinedPanel = memo(function CombinedPanel({
                 y={position.y - 6}
                 width="12"
                 height="12"
-                fill={ledFunction.color}
+                fill={EasingFunction.color}
                 rx="2"
-                filter={`url(#glow-rect-combined-${ledFunction.id})`}
+                filter={`url(#glow-rect-combined-${EasingFunction.id})`}
                 style={{
                   opacity: 0.7 + filteredOutput * 0.3
                 }}
@@ -508,8 +508,8 @@ export const CombinedPanel = memo(function CombinedPanel({
                 className="h-full rounded-full will-change-[width]"
                 style={{
                   width: `${displayOutput * 100}%`,
-                  backgroundColor: ledFunction.color,
-                  boxShadow: `0 0 8px ${ledFunction.color}`
+                  backgroundColor: EasingFunction.color,
+                  boxShadow: `0 0 8px ${EasingFunction.color}`
                 }}
               />
             </div>
