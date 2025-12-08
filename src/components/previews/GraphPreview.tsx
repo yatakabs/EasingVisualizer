@@ -14,6 +14,20 @@ interface GraphPreviewProps {
   filterParams: Record<string, number>
 }
 
+// Graph configuration constants
+const GRAPH_CONFIG = {
+  viewBoxWidth: 220,
+  viewBoxHeight: 210,
+  paddingLeft: 38,
+  paddingRight: 12,
+  paddingTop: 12,
+  paddingBottom: 30,
+  get innerWidth() { return this.viewBoxWidth - this.paddingLeft - this.paddingRight },
+  get innerHeight() { return this.viewBoxHeight - this.paddingTop - this.paddingBottom },
+  get graphRight() { return this.paddingLeft + this.innerWidth },
+  get graphBottom() { return this.paddingTop + this.innerHeight },
+}
+
 export const GraphPreview = memo(function GraphPreview({ 
   ledFunction, 
   filteredOutput,
@@ -29,16 +43,17 @@ export const GraphPreview = memo(function GraphPreview({
   const handleMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
     const svg = e.currentTarget
     const rect = svg.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
+    const scaleX = GRAPH_CONFIG.viewBoxWidth / rect.width
+    const scaleY = GRAPH_CONFIG.viewBoxHeight / rect.height
+    const svgX = (e.clientX - rect.left) * scaleX
+    const svgY = (e.clientY - rect.top) * scaleY
     
-    const padding = 30
-    const innerWidth = 200 - padding * 2
-    const innerHeight = 200 - padding * 2
+    const { paddingLeft, paddingTop, innerWidth, innerHeight } = GRAPH_CONFIG
     
-    if (x >= padding && x <= padding + innerWidth && y >= padding && y <= padding + innerHeight) {
-      const normalizedX = (x - padding) / innerWidth
-      const normalizedY = 1 - (y - padding) / innerHeight
+    if (svgX >= paddingLeft && svgX <= paddingLeft + innerWidth && 
+        svgY >= paddingTop && svgY <= paddingTop + innerHeight) {
+      const normalizedX = (svgX - paddingLeft) / innerWidth
+      const normalizedY = 1 - (svgY - paddingTop) / innerHeight
       setHoverPosition({ x: normalizedX, y: normalizedY })
     } else {
       setHoverPosition(null)
@@ -49,15 +64,11 @@ export const GraphPreview = memo(function GraphPreview({
     setHoverPosition(null)
   }, [])
 
-  const { position, graphPath, inputValue, trailPath, originalGraphPath, hoverPoint } = useMemo(() => {
-    const graphWidth = 200
-    const graphHeight = 200
-    const padding = 30
-    const innerWidth = graphWidth - padding * 2
-    const innerHeight = graphHeight - padding * 2
+  const { position, graphPath, trailPath, originalGraphPath, hoverPoint } = useMemo(() => {
+    const { paddingLeft, paddingTop, innerWidth, innerHeight } = GRAPH_CONFIG
     
-    const x = padding + input * innerWidth
-    const y = padding + (1 - filteredOutput) * innerHeight
+    const x = paddingLeft + input * innerWidth
+    const y = paddingTop + (1 - filteredOutput) * innerHeight
     
     const points: string[] = []
     const originalPoints: string[] = []
@@ -67,27 +78,27 @@ export const GraphPreview = memo(function GraphPreview({
       for (let i = 0; i <= steps; i++) {
         const t = i / steps
         const triangularT = t < 0.5 ? t * 2 : 2 - t * 2
-        const xPos = padding + t * innerWidth
+        const xPos = paddingLeft + t * innerWidth
         const yVal = ledFunction.calculate(triangularT, easeType)
         
-        const originalYPos = padding + (1 - yVal) * innerHeight
+        const originalYPos = paddingTop + (1 - yVal) * innerHeight
         originalPoints.push(`${xPos},${originalYPos}`)
         
         const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
-        const yPos = padding + (1 - filteredYVal) * innerHeight
+        const yPos = paddingTop + (1 - filteredYVal) * innerHeight
         points.push(`${xPos},${yPos}`)
       }
     } else {
       for (let i = 0; i <= steps; i++) {
         const t = i / steps
-        const xPos = padding + t * innerWidth
+        const xPos = paddingLeft + t * innerWidth
         const yVal = ledFunction.calculate(t, easeType)
         
-        const originalYPos = padding + (1 - yVal) * innerHeight
+        const originalYPos = paddingTop + (1 - yVal) * innerHeight
         originalPoints.push(`${xPos},${originalYPos}`)
         
         const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
-        const yPos = padding + (1 - filteredYVal) * innerHeight
+        const yPos = paddingTop + (1 - filteredYVal) * innerHeight
         points.push(`${xPos},${yPos}`)
       }
     }
@@ -99,19 +110,19 @@ export const GraphPreview = memo(function GraphPreview({
       for (let i = 0; i <= currentStep; i++) {
         const t = i / steps
         const triangularT = t < 0.5 ? t * 2 : 2 - t * 2
-        const xPos = padding + t * innerWidth
+        const xPos = paddingLeft + t * innerWidth
         const yVal = ledFunction.calculate(triangularT, easeType)
         const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
-        const yPos = padding + (1 - filteredYVal) * innerHeight
+        const yPos = paddingTop + (1 - filteredYVal) * innerHeight
         trailPoints.push(`${xPos},${yPos}`)
       }
     } else {
       for (let i = 0; i <= currentStep; i++) {
         const t = i / steps
-        const xPos = padding + t * innerWidth
+        const xPos = paddingLeft + t * innerWidth
         const yVal = ledFunction.calculate(t, easeType)
         const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
-        const yPos = padding + (1 - filteredYVal) * innerHeight
+        const yPos = paddingTop + (1 - filteredYVal) * innerHeight
         trailPoints.push(`${xPos},${yPos}`)
       }
     }
@@ -131,30 +142,34 @@ export const GraphPreview = memo(function GraphPreview({
       const filteredHoverYVal = applyFilters(hoverYVal, enabledFilters, filterParams)
       
       hoverPointData = {
-        svgX: padding + hoverX * innerWidth,
-        svgY: padding + (1 - filteredHoverYVal) * innerHeight,
+        svgX: paddingLeft + hoverX * innerWidth,
+        svgY: paddingTop + (1 - filteredHoverYVal) * innerHeight,
         xValue: hoverX,
         yValue: filteredHoverYVal
       }
     }
     
     return {
-      position: { x: padding + baseInput * innerWidth, y },
+      position: { x: paddingLeft + baseInput * innerWidth, y },
       graphPath: points.join(' '),
       trailPath: trailPoints.join(' '),
       originalGraphPath: originalPoints.join(' '),
-      inputValue: baseInput,
       hoverPoint: hoverPointData
     }
   }, [input, baseInput, filteredOutput, ledFunction, enabledFilters, filterParams, easeType, isTriangularMode, hoverPosition])
 
+  const { paddingLeft, paddingTop, innerWidth, innerHeight, graphRight, graphBottom, viewBoxWidth, viewBoxHeight } = GRAPH_CONFIG
+  const graphMidX = paddingLeft + innerWidth / 2
+  const graphMidY = paddingTop + innerHeight / 2
+
   return (
-    <div className="relative w-full aspect-square flex items-center justify-center bg-secondary/30 rounded border border-border p-2">
+    <div className="relative w-full aspect-square flex items-center justify-center bg-secondary/30 rounded border border-border">
       <svg 
         width="100%" 
         height="100%" 
-        viewBox="0 0 200 200"
-        className="absolute inset-0"
+        viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
+        preserveAspectRatio="xMidYMid meet"
+        className="block"
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
@@ -169,54 +184,60 @@ export const GraphPreview = memo(function GraphPreview({
           </filter>
         </defs>
         
+        {/* X axis */}
         <line
-          x1="30"
-          y1="170"
-          x2="170"
-          y2="170"
+          x1={paddingLeft}
+          y1={graphBottom}
+          x2={graphRight}
+          y2={graphBottom}
           stroke="oklch(0.5 0.05 250)"
           strokeWidth="2"
         />
+        {/* Y axis */}
         <line
-          x1="30"
-          y1="30"
-          x2="30"
-          y2="170"
+          x1={paddingLeft}
+          y1={paddingTop}
+          x2={paddingLeft}
+          y2={graphBottom}
           stroke="oklch(0.5 0.05 250)"
           strokeWidth="2"
         />
         
-        <line x1="28" y1="170" x2="32" y2="170" stroke="oklch(0.5 0.05 250)" strokeWidth="1.5" />
-        <line x1="32" y1="170" x2="170" y2="170" stroke="oklch(0.5 0.05 250)" strokeWidth="1" strokeDasharray="4 4" opacity="0.3" />
-        <text x="22" y="172" textAnchor="end" className="text-[10px] fill-muted-foreground font-mono">0</text>
+        {/* Y axis ticks and labels */}
+        <line x1={paddingLeft - 2} y1={graphBottom} x2={paddingLeft + 2} y2={graphBottom} stroke="oklch(0.5 0.05 250)" strokeWidth="1.5" />
+        <line x1={paddingLeft + 2} y1={graphBottom} x2={graphRight} y2={graphBottom} stroke="oklch(0.5 0.05 250)" strokeWidth="1" strokeDasharray="4 4" opacity="0.3" />
+        <text x={paddingLeft - 5} y={graphBottom + 3} textAnchor="end" className="text-[9px] fill-muted-foreground font-mono">0</text>
         
-        <line x1="28" y1="100" x2="32" y2="100" stroke="oklch(0.5 0.05 250)" strokeWidth="1.5" />
-        <line x1="32" y1="100" x2="170" y2="100" stroke="oklch(0.5 0.05 250)" strokeWidth="1" strokeDasharray="4 4" opacity="0.3" />
-        <text x="22" y="102" textAnchor="end" className="text-[10px] fill-muted-foreground font-mono">0.5</text>
+        <line x1={paddingLeft - 2} y1={graphMidY} x2={paddingLeft + 2} y2={graphMidY} stroke="oklch(0.5 0.05 250)" strokeWidth="1.5" />
+        <line x1={paddingLeft + 2} y1={graphMidY} x2={graphRight} y2={graphMidY} stroke="oklch(0.5 0.05 250)" strokeWidth="1" strokeDasharray="4 4" opacity="0.3" />
+        <text x={paddingLeft - 5} y={graphMidY + 3} textAnchor="end" className="text-[9px] fill-muted-foreground font-mono">.5</text>
         
-        <line x1="28" y1="30" x2="32" y2="30" stroke="oklch(0.5 0.05 250)" strokeWidth="1.5" />
-        <line x1="32" y1="30" x2="170" y2="30" stroke="oklch(0.5 0.05 250)" strokeWidth="1" strokeDasharray="4 4" opacity="0.3" />
-        <text x="22" y="32" textAnchor="end" className="text-[10px] fill-muted-foreground font-mono">1</text>
+        <line x1={paddingLeft - 2} y1={paddingTop} x2={paddingLeft + 2} y2={paddingTop} stroke="oklch(0.5 0.05 250)" strokeWidth="1.5" />
+        <line x1={paddingLeft + 2} y1={paddingTop} x2={graphRight} y2={paddingTop} stroke="oklch(0.5 0.05 250)" strokeWidth="1" strokeDasharray="4 4" opacity="0.3" />
+        <text x={paddingLeft - 5} y={paddingTop + 3} textAnchor="end" className="text-[9px] fill-muted-foreground font-mono">1</text>
         
-        <line x1="30" y1="168" x2="30" y2="172" stroke="oklch(0.5 0.05 250)" strokeWidth="1.5" />
-        <line x1="30" y1="30" x2="30" y2="168" stroke="oklch(0.5 0.05 250)" strokeWidth="1" strokeDasharray="4 4" opacity="0.3" />
-        <text x="30" y="182" textAnchor="middle" className="text-[10px] fill-muted-foreground font-mono">0</text>
+        {/* X axis ticks and labels */}
+        <line x1={paddingLeft} y1={graphBottom - 2} x2={paddingLeft} y2={graphBottom + 2} stroke="oklch(0.5 0.05 250)" strokeWidth="1.5" />
+        <line x1={paddingLeft} y1={paddingTop} x2={paddingLeft} y2={graphBottom - 2} stroke="oklch(0.5 0.05 250)" strokeWidth="1" strokeDasharray="4 4" opacity="0.3" />
+        <text x={paddingLeft} y={graphBottom + 12} textAnchor="middle" className="text-[9px] fill-muted-foreground font-mono">0</text>
         
-        <line x1="100" y1="168" x2="100" y2="172" stroke="oklch(0.5 0.05 250)" strokeWidth="1.5" />
-        <line x1="100" y1="30" x2="100" y2="168" stroke="oklch(0.5 0.05 250)" strokeWidth="1" strokeDasharray="4 4" opacity="0.3" />
-        <text x="100" y="182" textAnchor="middle" className="text-[10px] fill-muted-foreground font-mono">0.50</text>
+        <line x1={graphMidX} y1={graphBottom - 2} x2={graphMidX} y2={graphBottom + 2} stroke="oklch(0.5 0.05 250)" strokeWidth="1.5" />
+        <line x1={graphMidX} y1={paddingTop} x2={graphMidX} y2={graphBottom - 2} stroke="oklch(0.5 0.05 250)" strokeWidth="1" strokeDasharray="4 4" opacity="0.3" />
+        <text x={graphMidX} y={graphBottom + 12} textAnchor="middle" className="text-[9px] fill-muted-foreground font-mono">.50</text>
         
-        <line x1="170" y1="168" x2="170" y2="172" stroke="oklch(0.5 0.05 250)" strokeWidth="1.5" />
-        <line x1="170" y1="30" x2="170" y2="168" stroke="oklch(0.5 0.05 250)" strokeWidth="1" strokeDasharray="4 4" opacity="0.3" />
-        <text x="170" y="182" textAnchor="middle" className="text-[10px] fill-muted-foreground font-mono">1.00</text>
+        <line x1={graphRight} y1={graphBottom - 2} x2={graphRight} y2={graphBottom + 2} stroke="oklch(0.5 0.05 250)" strokeWidth="1.5" />
+        <line x1={graphRight} y1={paddingTop} x2={graphRight} y2={graphBottom - 2} stroke="oklch(0.5 0.05 250)" strokeWidth="1" strokeDasharray="4 4" opacity="0.3" />
+        <text x={graphRight} y={graphBottom + 12} textAnchor="middle" className="text-[9px] fill-muted-foreground font-mono">1.0</text>
         
-        <text x="100" y="195" textAnchor="middle" className="text-[11px] fill-muted-foreground font-mono">
+        {/* Axis labels */}
+        <text x={graphMidX} y={graphBottom + 24} textAnchor="middle" className="text-[10px] fill-muted-foreground font-mono">
           Input (x)
         </text>
-        <text x="10" y="100" textAnchor="middle" className="text-[11px] fill-muted-foreground font-mono" transform="rotate(-90 10 100)">
+        <text x={8} y={graphMidY} textAnchor="middle" dominantBaseline="middle" className="text-[10px] fill-muted-foreground font-mono" transform={`rotate(-90 8 ${graphMidY})`}>
           Output (y)
         </text>
         
+        {/* Original curve (before filters) */}
         <polyline
           points={originalGraphPath}
           fill="none"
@@ -226,6 +247,7 @@ export const GraphPreview = memo(function GraphPreview({
           strokeDasharray="4 4"
         />
         
+        {/* Full curve */}
         <polyline
           points={graphPath}
           fill="none"
@@ -234,6 +256,7 @@ export const GraphPreview = memo(function GraphPreview({
           opacity="0.3"
         />
         
+        {/* Trail (progress indicator) */}
         <polyline
           points={trailPath}
           fill="none"
@@ -244,6 +267,7 @@ export const GraphPreview = memo(function GraphPreview({
           strokeLinejoin="round"
         />
         
+        {/* Current position indicator */}
         <rect
           x={position.x - 6}
           y={position.y - 6}
@@ -265,20 +289,21 @@ export const GraphPreview = memo(function GraphPreview({
           opacity="0.9"
         />
         
+        {/* Hover tooltip */}
         {hoverPoint && (
           <g>
             <line
               x1={hoverPoint.svgX}
               y1={hoverPoint.svgY}
               x2={hoverPoint.svgX}
-              y2="170"
+              y2={graphBottom}
               stroke="oklch(0.75 0.15 200)"
               strokeWidth="1.5"
               strokeDasharray="4 4"
               opacity="0.8"
             />
             <line
-              x1="30"
+              x1={paddingLeft}
               y1={hoverPoint.svgY}
               x2={hoverPoint.svgX}
               y2={hoverPoint.svgY}
