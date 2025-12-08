@@ -321,33 +321,63 @@ export const GraphPreview = memo(function GraphPreview({
               strokeWidth="2"
               opacity="0.9"
             />
-            <rect
-              x={hoverPoint.svgX - 28}
-              y={hoverPoint.svgY - 30}
-              width="56"
-              height="24"
-              fill="oklch(0.25 0.04 250)"
-              stroke="oklch(0.75 0.15 200)"
-              strokeWidth="1"
-              rx="4"
-              opacity="0.95"
-            />
-            <text
-              x={hoverPoint.svgX}
-              y={hoverPoint.svgY - 18}
-              textAnchor="middle"
-              className="text-[10px] fill-primary font-mono font-medium"
-            >
-              x:{hoverPoint.xValue.toFixed(3)}
-            </text>
-            <text
-              x={hoverPoint.svgX}
-              y={hoverPoint.svgY - 9}
-              textAnchor="middle"
-              className="text-[10px] fill-primary font-mono font-medium"
-            >
-              y:{hoverPoint.yValue.toFixed(3)}
-            </text>
+            {/* Tooltip - position dynamically based on hover location */}
+            {(() => {
+              const tooltipWidth = 56
+              const tooltipHeight = 24
+              const tooltipMargin = 8
+              
+              // Determine tooltip position based on hover point location
+              // Check if tooltip would go outside viewBox boundaries
+              const wouldOverflowTop = hoverPoint.svgY - tooltipHeight - tooltipMargin < paddingTop
+              const wouldOverflowRight = hoverPoint.svgX + tooltipWidth / 2 > viewBoxWidth - 4
+              const wouldOverflowLeft = hoverPoint.svgX - tooltipWidth / 2 < 4
+              
+              // Calculate tooltip X position
+              let tooltipX = hoverPoint.svgX
+              if (wouldOverflowRight) {
+                tooltipX = hoverPoint.svgX - tooltipWidth / 2 - tooltipMargin
+              } else if (wouldOverflowLeft) {
+                tooltipX = hoverPoint.svgX + tooltipWidth / 2 + tooltipMargin
+              }
+              
+              // Calculate tooltip Y position (show below if would overflow top)
+              const tooltipY = wouldOverflowTop 
+                ? hoverPoint.svgY + tooltipMargin + tooltipHeight / 2
+                : hoverPoint.svgY - tooltipMargin - tooltipHeight / 2
+              
+              return (
+                <>
+                  <rect
+                    x={tooltipX - tooltipWidth / 2}
+                    y={tooltipY - tooltipHeight / 2}
+                    width={tooltipWidth}
+                    height={tooltipHeight}
+                    fill="oklch(0.25 0.04 250)"
+                    stroke="oklch(0.75 0.15 200)"
+                    strokeWidth="1"
+                    rx="4"
+                    opacity="0.95"
+                  />
+                  <text
+                    x={tooltipX}
+                    y={tooltipY - 3}
+                    textAnchor="middle"
+                    className="text-[10px] fill-primary font-mono font-medium"
+                  >
+                    x:{hoverPoint.xValue.toFixed(3)}
+                  </text>
+                  <text
+                    x={tooltipX}
+                    y={tooltipY + 6}
+                    textAnchor="middle"
+                    className="text-[10px] fill-primary font-mono font-medium"
+                  >
+                    y:{hoverPoint.yValue.toFixed(3)}
+                  </text>
+                </>
+              )
+            })()}
           </g>
         )}
       </svg>
