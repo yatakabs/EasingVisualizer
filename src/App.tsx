@@ -125,6 +125,18 @@ function App() {
     }
   }, [isPlaying, speed, manualInputMode])
 
+  // Cleanup timer refs on unmount
+  useEffect(() => {
+    return () => {
+      if (speedTimeoutRef.current) {
+        window.clearTimeout(speedTimeoutRef.current)
+      }
+      if (gammaTimeoutRef.current) {
+        window.clearTimeout(gammaTimeoutRef.current)
+      }
+    }
+  }, [])
+
   // ResizeObserver to measure grid height and compensate for scaling
   useEffect(() => {
     const gridContainer = gridContainerRef.current
@@ -147,12 +159,15 @@ function App() {
   }
 
   const handleAddPanel = useCallback(() => {
-    if ((panels || []).length >= MAX_PANELS) {
-      toast.error(`Maximum ${MAX_PANELS} panels allowed`)
-      return
-    }
-    setSelectorOpen(true)
-  }, [panels])
+    setPanels((currentPanels) => {
+      if ((currentPanels || []).length >= MAX_PANELS) {
+        toast.error(`Maximum ${MAX_PANELS} panels allowed`)
+        return currentPanels || []
+      }
+      setSelectorOpen(true)
+      return currentPanels || []
+    })
+  }, [setPanels])
 
   const handleSelectFunction = useCallback((func: EasingFunction) => {
     setPanels((currentPanels) => {
@@ -280,6 +295,17 @@ function App() {
     })
   }, [setEnabledPreviews])
 
+  const handleToggleFilter = useCallback((filterId: string) => {
+    setEnabledFilters((current) => {
+      const filters = current ?? []
+      if (filters.includes(filterId)) {
+        return filters.filter(id => id !== filterId)
+      } else {
+        return [...filters, filterId]
+      }
+    })
+  }, [setEnabledFilters])
+
   const handleToggleCameraForPanel = useCallback((panelId: string) => {
     setActiveCameraPanels((currentActive) => {
       const active = currentActive || []
@@ -295,6 +321,14 @@ function App() {
       }
     })
   }, [setActiveCameraPanels, maxCameraPreviews])
+
+  const handleEaseTypeChange = useCallback((panelId: string, newEaseType: EaseType) => {
+    setPanels((currentPanels) =>
+      (currentPanels || []).map(p =>
+        p.id === panelId ? { ...p, easeType: newEaseType } : p
+      )
+    )
+  }, [setPanels])
 
   const baseInputValue = (manualInputMode ?? false) ? (manualInputValue ?? 0) : time
   const currentInputValue = (triangularWaveMode ?? false) ? getTriangularWave(baseInputValue) : baseInputValue
@@ -338,16 +372,7 @@ function App() {
               onGammaChange={handleGammaChange}
               onAddPanel={handleAddPanel}
               onTogglePreview={handleTogglePreview}
-              onToggleFilter={(filterId) => {
-                setEnabledFilters((current) => {
-                  const filters = current ?? []
-                  if (filters.includes(filterId)) {
-                    return filters.filter(id => id !== filterId)
-                  } else {
-                    return [...filters, filterId]
-                  }
-                })
-              }}
+              onToggleFilter={handleToggleFilter}
               onInputValueChange={handleInputValueChange}
               onManualInputModeChange={handleManualInputModeChange}
               onTriangularWaveModeChange={(enabled) => setTriangularWaveMode(() => enabled)}
@@ -428,13 +453,7 @@ function App() {
                           canActivateCamera={canActivateCamera}
                           onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
                           onToggleCamera={() => handleToggleCameraForPanel(panel.id)}
-                          onEaseTypeChange={(newEaseType) => {
-                            setPanels((currentPanels) =>
-                              (currentPanels || []).map(p =>
-                                p.id === panel.id ? { ...p, easeType: newEaseType } : p
-                              )
-                            )
-                          }}
+                          onEaseTypeChange={(newEaseType) => handleEaseTypeChange(panel.id, newEaseType)}
                           onDragStart={handleDragStart(panel.id)}
                           onDragEnd={handleDragEnd}
                           onDragOver={handleDragOver}

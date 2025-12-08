@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { Badge } from '@/components/ui/badge'
@@ -47,7 +48,7 @@ interface ControlPanelProps {
   onHideControlPanel?: () => void
 }
 
-export function ControlPanel({
+export const ControlPanel = memo(function ControlPanel({
   isPlaying,
   speed,
   gamma,
@@ -744,4 +745,4 @@ export function ControlPanel({
       </Accordion>
     </div>
   )
-}
+})

@@ -139,7 +139,7 @@ export const CameraView = memo(function CameraView({
   useEffect(() => {
     if (!mountRef.current || !cameraRef.current || !rendererRef.current) return
     
-    requestAnimationFrame(() => {
+    const rafId = requestAnimationFrame(() => {
       if (!mountRef.current || !cameraRef.current || !rendererRef.current) return
       
       const newWidth = mountRef.current.clientWidth
@@ -149,6 +149,10 @@ export const CameraView = memo(function CameraView({
       cameraRef.current.updateProjectionMatrix()
       rendererRef.current.setSize(newWidth, newHeight)
     })
+
+    return () => {
+      cancelAnimationFrame(rafId)
+    }
   }, [aspectRatio])
 
   useEffect(() => {
