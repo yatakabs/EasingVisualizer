@@ -340,7 +340,7 @@ export function ControlPanel({
             </div>
           </AccordionTrigger>
           <AccordionContent>
-            <div className="space-y-3 pt-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
               {/* プレビュー詳細設定グループ */}
               <div className="bg-secondary rounded-lg p-3 space-y-3">
                 <div className="text-sm font-semibold text-foreground">プレビュー詳細設定</div>
@@ -409,28 +409,14 @@ export function ControlPanel({
                     className="my-0.5"
                   />
                   
-                  <div className="relative text-[10px] text-muted-foreground font-mono h-4 px-1">
-                    <div className="absolute inset-x-1 flex items-start pt-1">
-                      {[0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0].map((mark) => {
-                        const position = ((mark - 0.5) / (2.0 - 0.5)) * 100
-                        const isMajor = mark === 0.5 || mark === 1.0 || mark === 1.5 || mark === 2.0
-                        return (
-                          <div
-                            key={mark}
-                            className="absolute flex flex-col items-center gap-0.5"
-                            style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
-                          >
-                            <div className={`w-px ${isMajor ? 'h-2 bg-muted-foreground' : 'h-1.5 bg-muted-foreground/50'}`} />
-                            {isMajor && (
-                              <span className="text-[9px]">{mark.toFixed(1)}x</span>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
+                  <div className="flex justify-between text-[9px] text-muted-foreground font-mono px-0.5">
+                    <span>0.5x</span>
+                    <span>1.0x</span>
+                    <span>1.5x</span>
+                    <span>2.0x</span>
                   </div>
                   
-                  <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                  <div className="flex items-center gap-2">
                     <Input
                       id="card-scale-field"
                       type="number"
@@ -446,7 +432,6 @@ export function ControlPanel({
                       max={2.0}
                       className="w-20 font-mono text-xs h-7 px-2"
                     />
-                    <span className="text-xs text-muted-foreground">直接入力</span>
                     <Button
                       variant="outline"
                       size="sm"
@@ -454,9 +439,9 @@ export function ControlPanel({
                         onCardScaleChange(1.0)
                         toast.success('カードサイズをデフォルトに戻しました')
                       }}
-                      className="text-xs h-7 ml-auto"
+                      className="text-xs h-7"
                     >
-                      デフォルト
+                      リセット
                     </Button>
                   </div>
                 </div>
@@ -468,7 +453,7 @@ export function ControlPanel({
                   <label className="text-sm font-semibold text-foreground">
                     ガンマ補正
                   </label>
-                  <span className="text-base font-mono text-primary font-semibold">
+                  <span className="text-sm font-mono text-primary font-semibold">
                     γ = {gamma.toFixed(1)}
                   </span>
                 </div>
@@ -479,31 +464,19 @@ export function ControlPanel({
                   min={0.0}
                   max={5.0}
                   step={0.1}
-                  className="my-1"
+                  className="my-0.5"
                 />
                 
-                <div className="relative text-[10px] text-muted-foreground font-mono h-4 px-1">
-                  <div className="absolute inset-x-1 flex items-start pt-1">
-                    {[0.0, 1.0, 2.0, 3.0, 4.0, 5.0].map((mark) => {
-                      const position = ((mark - 0.0) / (5.0 - 0.0)) * 100
-                      const isMajor = mark === 0.0 || mark === 2.0 || mark === 5.0
-                      return (
-                        <div
-                          key={mark}
-                          className="absolute flex flex-col items-center gap-0.5"
-                          style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
-                        >
-                          <div className={`w-px ${isMajor ? 'h-2 bg-muted-foreground' : 'h-1.5 bg-muted-foreground/50'}`} />
-                          {isMajor && (
-                            <span className="text-[9px]">{mark.toFixed(1)}</span>
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
+                <div className="flex justify-between text-[9px] text-muted-foreground font-mono px-0.5">
+                  <span>0</span>
+                  <span>1</span>
+                  <span>2</span>
+                  <span>3</span>
+                  <span>4</span>
+                  <span>5</span>
                 </div>
                 
-                <div className="flex flex-wrap items-center gap-2 pt-1">
+                <div className="flex items-center justify-between gap-2 pt-1">
                   <div className="flex items-center gap-2">
                     <Input
                       id="gamma-value-field"
@@ -517,9 +490,8 @@ export function ControlPanel({
                       }}
                       step={0.1}
                       min={0.0}
-                      className="w-24 font-mono text-sm h-8 px-2"
+                      className="w-20 font-mono text-xs h-7 px-2"
                     />
-                    <span className="text-sm text-muted-foreground">直接入力</span>
                   </div>
                   
                   <div className="flex items-center gap-2">
@@ -528,8 +500,8 @@ export function ControlPanel({
                       checked={enabledFilters.includes('gamma')}
                       onCheckedChange={() => onToggleFilter('gamma')}
                     />
-                    <Label htmlFor="apply-gamma-filter" className="text-sm font-medium cursor-pointer">
-                      補正適用
+                    <Label htmlFor="apply-gamma-filter" className="text-xs font-medium cursor-pointer">
+                      適用
                     </Label>
                   </div>
                 </div>
@@ -537,11 +509,11 @@ export function ControlPanel({
               
               {/* カメラ設定グループ（カメラプレビュー有効時のみ表示） */}
               {enabledPreviews.includes('camera') && (
-                <div className="bg-secondary rounded-lg p-3 space-y-2">
+                <div className="bg-secondary rounded-lg p-3 space-y-3 md:col-span-2">
                   <div className="text-sm font-semibold text-foreground">カメラ設定</div>
                   
-                  {/* 座標系と最大表示数を横並び */}
-                  <div className="flex flex-wrap items-end gap-3">
+                  {/* 設定項目を2列グリッドで配置 */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {/* 座標系 */}
                     <div className="space-y-1">
                       <label className="text-xs font-medium text-muted-foreground block">
@@ -556,10 +528,10 @@ export function ControlPanel({
                         size="sm"
                       >
                         <ToggleGroupItem value="left-handed" className="text-xs px-2 h-7">
-                          左手座標系
+                          左手系
                         </ToggleGroupItem>
                         <ToggleGroupItem value="right-handed" className="text-xs px-2 h-7">
-                          右手座標系
+                          右手系
                         </ToggleGroupItem>
                       </ToggleGroup>
                       <p className="text-[10px] text-muted-foreground">
@@ -567,92 +539,85 @@ export function ControlPanel({
                       </p>
                     </div>
                     
-                    {/* 最大表示数 */}
+                    {/* アスペクト比 */}
                     <div className="space-y-1">
                       <label className="text-xs font-medium text-muted-foreground block">
-                        最大表示数
+                        アスペクト比
                       </label>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          id="max-camera-previews"
-                          type="number"
-                          value={maxCameraPreviews}
-                          onChange={(e) => {
-                            const value = parseInt(e.target.value)
-                            if (!isNaN(value) && value >= 1 && value <= 24) {
-                              onMaxCameraPreviewsChange(value)
-                            }
-                          }}
-                          step={1}
-                          min={1}
-                          max={24}
-                          className="w-20 font-mono text-xs h-7 px-2"
-                        />
-                        <span className="text-xs text-muted-foreground">個まで</span>
-                      </div>
+                      <ToggleGroup 
+                        type="single" 
+                        value={cameraAspectRatio} 
+                        onValueChange={(value) => value && onCameraAspectRatioChange(value)}
+                        variant="outline"
+                        className="justify-start flex-wrap"
+                        size="sm"
+                      >
+                        <ToggleGroupItem value="16/9" className="text-xs px-2 h-7">
+                          16:9
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="4/3" className="text-xs px-2 h-7">
+                          4:3
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="1/1" className="text-xs px-2 h-7">
+                          1:1
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="21/9" className="text-xs px-2 h-7">
+                          21:9
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="custom" className="text-xs px-2 h-7">
+                          他
+                        </ToggleGroupItem>
+                      </ToggleGroup>
+                      {cameraAspectRatio === 'custom' && (
+                        <div className="flex items-center gap-2 pt-0.5">
+                          <Input
+                            id="custom-aspect-ratio"
+                            type="text"
+                            defaultValue=""
+                            onChange={(e) => {
+                              const value = e.target.value
+                              if (value && value !== 'custom') {
+                                onCameraAspectRatioChange(value)
+                              }
+                            }}
+                            placeholder="例: 2.35/1"
+                            className="w-24 font-mono text-xs h-7"
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                   
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground block">
-                      アスペクト比
-                    </label>
-                    <ToggleGroup 
-                      type="single" 
-                      value={cameraAspectRatio} 
-                      onValueChange={(value) => value && onCameraAspectRatioChange(value)}
-                      variant="outline"
-                      className="justify-start flex-wrap"
-                      size="sm"
-                    >
-                      <ToggleGroupItem value="16/9" className="text-xs px-2 h-7">
-                        16:9
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="4/3" className="text-xs px-2 h-7">
-                        4:3
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="1/1" className="text-xs px-2 h-7">
-                        1:1
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="21/9" className="text-xs px-2 h-7">
-                        21:9
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="9/16" className="text-xs px-2 h-7">
-                        9:16
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="custom" className="text-xs px-2 h-7">
-                        カスタム
-                      </ToggleGroupItem>
-                    </ToggleGroup>
-                    
-                    {cameraAspectRatio === 'custom' && (
-                      <div className="flex items-center gap-2 pt-0.5">
-                        <Input
-                          id="custom-aspect-ratio"
-                          type="text"
-                          defaultValue=""
-                          onChange={(e) => {
-                            const value = e.target.value
-                            if (value && value !== 'custom') {
-                              onCameraAspectRatioChange(value)
-                            }
-                          }}
-                          placeholder="例: 2.35/1"
-                          className="w-28 font-mono text-xs h-7"
-                        />
-                        <span className="text-xs text-muted-foreground whitespace-nowrap">カスタム</span>
-                      </div>
-                    )}
+                  {/* 最大表示数 */}
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-medium text-muted-foreground">最大表示数</label>
+                    <Input
+                      id="max-camera-previews"
+                      type="number"
+                      value={maxCameraPreviews}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value)
+                        if (!isNaN(value) && value >= 1 && value <= 24) {
+                          onMaxCameraPreviewsChange(value)
+                        }
+                      }}
+                      step={1}
+                      min={1}
+                      max={24}
+                      className="w-16 font-mono text-xs h-7 px-2 text-center"
+                    />
+                    <span className="text-xs text-muted-foreground">個</span>
                   </div>
                   
-                  {/* 開始/終了位置を縦並び */}
-                  <div className="space-y-2">
+                  {/* 位置設定 */}
+                  <div className="space-y-1.5 pt-1 border-t border-border/50">
+                    <label className="text-xs font-medium text-muted-foreground">カメラ位置</label>
+                    
                     {/* 開始位置 */}
-                    <div className="space-y-1">
-                      <label className="text-xs font-medium text-muted-foreground block">
-                        開始位置 (X, Y, Z)
-                      </label>
-                      <div className="flex gap-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-medium text-muted-foreground w-7 shrink-0">開始</span>
+                      <div className="flex items-center gap-0.5">
+                        <span className="text-[10px] text-muted-foreground/80 w-3">X</span>
                         <Input
                           id="camera-start-x"
                           type="number"
@@ -664,9 +629,11 @@ export function ControlPanel({
                             }
                           }}
                           step={0.5}
-                          className="flex-1 font-mono text-xs h-7 px-1.5"
-                          placeholder="X"
+                          className="w-[4.5rem] font-mono text-xs h-7 px-1.5 text-center"
                         />
+                      </div>
+                      <div className="flex items-center gap-0.5">
+                        <span className="text-[10px] text-muted-foreground/80 w-3">Y</span>
                         <Input
                           id="camera-start-y"
                           type="number"
@@ -678,9 +645,11 @@ export function ControlPanel({
                             }
                           }}
                           step={0.5}
-                          className="flex-1 font-mono text-xs h-7 px-1.5"
-                          placeholder="Y"
+                          className="w-[4.5rem] font-mono text-xs h-7 px-1.5 text-center"
                         />
+                      </div>
+                      <div className="flex items-center gap-0.5">
+                        <span className="text-[10px] text-muted-foreground/80 w-3">Z</span>
                         <Input
                           id="camera-start-z"
                           type="number"
@@ -692,18 +661,16 @@ export function ControlPanel({
                             }
                           }}
                           step={0.5}
-                          className="flex-1 font-mono text-xs h-7 px-1.5"
-                          placeholder="Z"
+                          className="w-[4.5rem] font-mono text-xs h-7 px-1.5 text-center"
                         />
                       </div>
                     </div>
                     
                     {/* 終了位置 */}
-                    <div className="space-y-1">
-                      <label className="text-xs font-medium text-muted-foreground block">
-                        終了位置 (X, Y, Z)
-                      </label>
-                      <div className="flex gap-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-medium text-muted-foreground w-7 shrink-0">終了</span>
+                      <div className="flex items-center gap-0.5">
+                        <span className="text-[10px] text-muted-foreground/80 w-3">X</span>
                         <Input
                           id="camera-end-x"
                           type="number"
@@ -715,9 +682,11 @@ export function ControlPanel({
                             }
                           }}
                           step={0.5}
-                          className="flex-1 font-mono text-xs h-7 px-1.5"
-                          placeholder="X"
+                          className="w-[4.5rem] font-mono text-xs h-7 px-1.5 text-center"
                         />
+                      </div>
+                      <div className="flex items-center gap-0.5">
+                        <span className="text-[10px] text-muted-foreground/80 w-3">Y</span>
                         <Input
                           id="camera-end-y"
                           type="number"
@@ -729,9 +698,11 @@ export function ControlPanel({
                             }
                           }}
                           step={0.5}
-                          className="flex-1 font-mono text-xs h-7 px-1.5"
-                          placeholder="Y"
+                          className="w-[4.5rem] font-mono text-xs h-7 px-1.5 text-center"
                         />
+                      </div>
+                      <div className="flex items-center gap-0.5">
+                        <span className="text-[10px] text-muted-foreground/80 w-3">Z</span>
                         <Input
                           id="camera-end-z"
                           type="number"
@@ -743,28 +714,25 @@ export function ControlPanel({
                             }
                           }}
                           step={0.5}
-                          className="flex-1 font-mono text-xs h-7 px-1.5"
-                          placeholder="Z"
+                          className="w-[4.5rem] font-mono text-xs h-7 px-1.5 text-center"
                         />
                       </div>
                     </div>
                   </div>
                   
-                  <div className="flex gap-2 pt-0.5">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        onCameraStartPosChange({ x: 2.0, y: 1.0, z: -5.0 })
-                        onCameraEndPosChange({ x: 2.0, y: 1.0, z: 5.0 })
-                        onCameraAspectRatioChange('16/9')
-                        toast.success('カメラ設定をデフォルトに戻しました')
-                      }}
-                      className="text-xs h-7"
-                    >
-                      デフォルトに戻す
-                    </Button>
-                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      onCameraStartPosChange({ x: 2.0, y: 1.0, z: -5.0 })
+                      onCameraEndPosChange({ x: 2.0, y: 1.0, z: 5.0 })
+                      onCameraAspectRatioChange('16/9')
+                      toast.success('カメラ設定をデフォルトに戻しました')
+                    }}
+                    className="text-xs h-7"
+                  >
+                    デフォルトに戻す
+                  </Button>
                 </div>
               )}
             </div>
