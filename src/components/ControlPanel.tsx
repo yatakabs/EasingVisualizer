@@ -340,15 +340,15 @@ export function ControlPanel({
             </div>
           </AccordionTrigger>
           <AccordionContent>
-            <div className="space-y-4 pt-1">
+            <div className="space-y-3 pt-1">
               {/* 全パネル一括設定 */}
               {onSetAllEaseType && (
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-foreground block">
-                    全パネル一括設定
-                  </label>
-                  
-                  <div className="flex flex-wrap gap-1.5">
+                <div className="space-y-1.5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <label className="text-sm font-semibold text-foreground whitespace-nowrap">
+                      全パネル一括設定
+                    </label>
+                    <div className="flex flex-wrap gap-1.5">
                     <Button
                       variant="outline"
                       size="sm"
@@ -382,12 +382,13 @@ export function ControlPanel({
                     >
                       全てBoth
                     </Button>
+                    </div>
                   </div>
                 </div>
               )}
               
               {/* Gamma Correction */}
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-semibold text-foreground">
                     Gamma Correction
@@ -406,7 +407,7 @@ export function ControlPanel({
                   className="my-1"
                 />
                 
-                <div className="relative text-[10px] text-muted-foreground font-mono h-5 px-1">
+                <div className="relative text-[10px] text-muted-foreground font-mono h-4 px-1">
                   <div className="absolute inset-x-1 flex items-start pt-1">
                     {[0.0, 1.0, 2.0, 3.0, 4.0, 5.0].map((mark) => {
                       const position = ((mark - 0.0) / (5.0 - 0.0)) * 100
@@ -461,59 +462,64 @@ export function ControlPanel({
               
               {/* カメラ設定（カメラプレビュー有効時のみ表示） */}
               {enabledPreviews.includes('camera') && (
-                <div className="space-y-2 pt-2 border-t border-border">
+                <div className="space-y-1.5 pt-1.5 border-t border-border">
                   <div className="text-sm font-semibold text-foreground">カメラ設定</div>
                   
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground block">
-                      座標系
-                    </label>
-                    <ToggleGroup 
-                      type="single" 
-                      value={coordinateSystem} 
-                      onValueChange={(value) => value && onCoordinateSystemChange(value as 'left-handed' | 'right-handed')}
-                      variant="outline"
-                      className="justify-start"
-                      size="sm"
-                    >
-                      <ToggleGroupItem value="left-handed" className="text-sm px-3 h-8">
-                        左手座標系
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value="right-handed" className="text-sm px-3 h-8">
-                        右手座標系
-                      </ToggleGroupItem>
-                    </ToggleGroup>
-                    <p className="text-xs text-muted-foreground">
-                      {coordinateSystem === 'left-handed' ? 'Beat Saber, Unity (デフォルト)' : 'Three.js, Blender'}
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground block">
-                      最大表示数
-                    </label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        id="max-camera-previews"
-                        type="number"
-                        value={maxCameraPreviews}
-                        onChange={(e) => {
-                          const value = parseInt(e.target.value)
-                          if (!isNaN(value) && value >= 1 && value <= 24) {
-                            onMaxCameraPreviewsChange(value)
-                          }
-                        }}
-                        step={1}
-                        min={1}
-                        max={24}
-                        className="w-24 font-mono text-sm h-8 px-2"
-                      />
-                      <span className="text-sm text-muted-foreground">個まで同時表示</span>
+                  {/* 座標系と最大表示数を2カラムグリッド化 */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* 座標系 */}
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-muted-foreground block">
+                        座標系
+                      </label>
+                      <ToggleGroup 
+                        type="single" 
+                        value={coordinateSystem} 
+                        onValueChange={(value) => value && onCoordinateSystemChange(value as 'left-handed' | 'right-handed')}
+                        variant="outline"
+                        className="justify-start"
+                        size="sm"
+                      >
+                        <ToggleGroupItem value="left-handed" className="text-xs px-2 h-7">
+                          左手座標系
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="right-handed" className="text-xs px-2 h-7">
+                          右手座標系
+                        </ToggleGroupItem>
+                      </ToggleGroup>
+                      <p className="text-[10px] text-muted-foreground">
+                        {coordinateSystem === 'left-handed' ? 'Beat Saber, Unity' : 'Three.js, Blender'}
+                      </p>
+                    </div>
+                    
+                    {/* 最大表示数 */}
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-muted-foreground block">
+                        最大表示数
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          id="max-camera-previews"
+                          type="number"
+                          value={maxCameraPreviews}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value)
+                            if (!isNaN(value) && value >= 1 && value <= 24) {
+                              onMaxCameraPreviewsChange(value)
+                            }
+                          }}
+                          step={1}
+                          min={1}
+                          max={24}
+                          className="w-20 font-mono text-xs h-7 px-2"
+                        />
+                        <span className="text-xs text-muted-foreground">個まで</span>
+                      </div>
                     </div>
                   </div>
                   
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground block">
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-muted-foreground block">
                       アスペクト比
                     </label>
                     <ToggleGroup 
@@ -524,28 +530,28 @@ export function ControlPanel({
                       className="justify-start flex-wrap"
                       size="sm"
                     >
-                      <ToggleGroupItem value="16/9" className="text-sm px-3 h-8">
+                      <ToggleGroupItem value="16/9" className="text-xs px-2 h-7">
                         16:9
                       </ToggleGroupItem>
-                      <ToggleGroupItem value="4/3" className="text-sm px-3 h-8">
+                      <ToggleGroupItem value="4/3" className="text-xs px-2 h-7">
                         4:3
                       </ToggleGroupItem>
-                      <ToggleGroupItem value="1/1" className="text-sm px-3 h-8">
+                      <ToggleGroupItem value="1/1" className="text-xs px-2 h-7">
                         1:1
                       </ToggleGroupItem>
-                      <ToggleGroupItem value="21/9" className="text-sm px-3 h-8">
+                      <ToggleGroupItem value="21/9" className="text-xs px-2 h-7">
                         21:9
                       </ToggleGroupItem>
-                      <ToggleGroupItem value="9/16" className="text-sm px-3 h-8">
+                      <ToggleGroupItem value="9/16" className="text-xs px-2 h-7">
                         9:16
                       </ToggleGroupItem>
-                      <ToggleGroupItem value="custom" className="text-sm px-3 h-8">
+                      <ToggleGroupItem value="custom" className="text-xs px-2 h-7">
                         カスタム
                       </ToggleGroupItem>
                     </ToggleGroup>
                     
                     {cameraAspectRatio === 'custom' && (
-                      <div className="flex items-center gap-2 pt-1">
+                      <div className="flex items-center gap-2 pt-0.5">
                         <Input
                           id="custom-aspect-ratio"
                           type="text"
@@ -557,114 +563,119 @@ export function ControlPanel({
                             }
                           }}
                           placeholder="例: 2.35/1"
-                          className="w-36 font-mono text-sm h-8"
+                          className="w-28 font-mono text-xs h-7"
                         />
-                        <span className="text-sm text-muted-foreground whitespace-nowrap">カスタム入力</span>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">カスタム</span>
                       </div>
                     )}
                   </div>
                   
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground block">
-                      開始位置 (X, Y, Z)
-                    </label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="camera-start-x"
-                        type="number"
-                        value={cameraStartPos.x.toFixed(1)}
-                        onChange={(e) => {
-                          const value = parseFloat(e.target.value)
-                          if (!isNaN(value)) {
-                            onCameraStartPosChange({ ...cameraStartPos, x: value })
-                          }
-                        }}
-                        step={0.5}
-                        className="flex-1 font-mono text-sm h-8"
-                        placeholder="X"
-                      />
-                      <Input
-                        id="camera-start-y"
-                        type="number"
-                        value={cameraStartPos.y.toFixed(1)}
-                        onChange={(e) => {
-                          const value = parseFloat(e.target.value)
-                          if (!isNaN(value)) {
-                            onCameraStartPosChange({ ...cameraStartPos, y: value })
-                          }
-                        }}
-                        step={0.5}
-                        className="flex-1 font-mono text-sm h-8"
-                        placeholder="Y"
-                      />
-                      <Input
-                        id="camera-start-z"
-                        type="number"
-                        value={cameraStartPos.z.toFixed(1)}
-                        onChange={(e) => {
-                          const value = parseFloat(e.target.value)
-                          if (!isNaN(value)) {
-                            onCameraStartPosChange({ ...cameraStartPos, z: value })
-                          }
-                        }}
-                        step={0.5}
-                        className="flex-1 font-mono text-sm h-8"
-                        placeholder="Z"
-                      />
+                  {/* 開始/終了位置のグリッドレイアウト */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-1">
+                    {/* 開始位置 */}
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-muted-foreground block">
+                        開始位置 (X, Y, Z)
+                      </label>
+                      <div className="flex gap-1">
+                        <Input
+                          id="camera-start-x"
+                          type="number"
+                          value={cameraStartPos.x.toFixed(1)}
+                          onChange={(e) => {
+                            const value = parseFloat(e.target.value)
+                            if (!isNaN(value)) {
+                              onCameraStartPosChange({ ...cameraStartPos, x: value })
+                            }
+                          }}
+                          step={0.5}
+                          className="flex-1 font-mono text-xs h-7 px-1.5"
+                          placeholder="X"
+                        />
+                        <Input
+                          id="camera-start-y"
+                          type="number"
+                          value={cameraStartPos.y.toFixed(1)}
+                          onChange={(e) => {
+                            const value = parseFloat(e.target.value)
+                            if (!isNaN(value)) {
+                              onCameraStartPosChange({ ...cameraStartPos, y: value })
+                            }
+                          }}
+                          step={0.5}
+                          className="flex-1 font-mono text-xs h-7 px-1.5"
+                          placeholder="Y"
+                        />
+                        <Input
+                          id="camera-start-z"
+                          type="number"
+                          value={cameraStartPos.z.toFixed(1)}
+                          onChange={(e) => {
+                            const value = parseFloat(e.target.value)
+                            if (!isNaN(value)) {
+                              onCameraStartPosChange({ ...cameraStartPos, z: value })
+                            }
+                          }}
+                          step={0.5}
+                          className="flex-1 font-mono text-xs h-7 px-1.5"
+                          placeholder="Z"
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* 終了位置 */}
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-muted-foreground block">
+                        終了位置 (X, Y, Z)
+                      </label>
+                      <div className="flex gap-1">
+                        <Input
+                          id="camera-end-x"
+                          type="number"
+                          value={cameraEndPos.x.toFixed(1)}
+                          onChange={(e) => {
+                            const value = parseFloat(e.target.value)
+                            if (!isNaN(value)) {
+                              onCameraEndPosChange({ ...cameraEndPos, x: value })
+                            }
+                          }}
+                          step={0.5}
+                          className="flex-1 font-mono text-xs h-7 px-1.5"
+                          placeholder="X"
+                        />
+                        <Input
+                          id="camera-end-y"
+                          type="number"
+                          value={cameraEndPos.y.toFixed(1)}
+                          onChange={(e) => {
+                            const value = parseFloat(e.target.value)
+                            if (!isNaN(value)) {
+                              onCameraEndPosChange({ ...cameraEndPos, y: value })
+                            }
+                          }}
+                          step={0.5}
+                          className="flex-1 font-mono text-xs h-7 px-1.5"
+                          placeholder="Y"
+                        />
+                        <Input
+                          id="camera-end-z"
+                          type="number"
+                          value={cameraEndPos.z.toFixed(1)}
+                          onChange={(e) => {
+                            const value = parseFloat(e.target.value)
+                            if (!isNaN(value)) {
+                              onCameraEndPosChange({ ...cameraEndPos, z: value })
+                            }
+                          }}
+                          step={0.5}
+                          className="flex-1 font-mono text-xs h-7 px-1.5"
+                          placeholder="Z"
+                        />
+                      </div>
                     </div>
                   </div>
                   
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground block">
-                      終了位置 (X, Y, Z)
-                    </label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="camera-end-x"
-                        type="number"
-                        value={cameraEndPos.x.toFixed(1)}
-                        onChange={(e) => {
-                          const value = parseFloat(e.target.value)
-                          if (!isNaN(value)) {
-                            onCameraEndPosChange({ ...cameraEndPos, x: value })
-                          }
-                        }}
-                        step={0.5}
-                        className="flex-1 font-mono text-sm h-8"
-                        placeholder="X"
-                      />
-                      <Input
-                        id="camera-end-y"
-                        type="number"
-                        value={cameraEndPos.y.toFixed(1)}
-                        onChange={(e) => {
-                          const value = parseFloat(e.target.value)
-                          if (!isNaN(value)) {
-                            onCameraEndPosChange({ ...cameraEndPos, y: value })
-                          }
-                        }}
-                        step={0.5}
-                        className="flex-1 font-mono text-sm h-8"
-                        placeholder="Y"
-                      />
-                      <Input
-                        id="camera-end-z"
-                        type="number"
-                        value={cameraEndPos.z.toFixed(1)}
-                        onChange={(e) => {
-                          const value = parseFloat(e.target.value)
-                          if (!isNaN(value)) {
-                            onCameraEndPosChange({ ...cameraEndPos, z: value })
-                          }
-                        }}
-                        step={0.5}
-                        className="flex-1 font-mono text-sm h-8"
-                        placeholder="Z"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2 pt-1">
+                  <div className="flex gap-2 pt-0.5">
                     <Button
                       variant="outline"
                       size="sm"
@@ -674,7 +685,7 @@ export function ControlPanel({
                         onCameraAspectRatioChange('16/9')
                         toast.success('カメラ設定をデフォルトに戻しました')
                       }}
-                      className="text-sm h-8"
+                      className="text-xs h-7"
                     >
                       デフォルトに戻す
                     </Button>
@@ -683,29 +694,25 @@ export function ControlPanel({
               )}
               
               {/* カードサイズ */}
-              <div className="space-y-2 pt-2 border-t border-border">
-                <div className="text-sm font-semibold text-foreground">カードサイズ</div>
+              <div className="space-y-1.5 pt-1.5 border-t border-border">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-semibold text-foreground">カードサイズ</div>
+                  <span className="text-sm font-mono text-primary font-semibold">
+                    {cardScale.toFixed(2)}x
+                  </span>
+                </div>
                 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-muted-foreground">
-                      拡大率
-                    </label>
-                    <span className="text-base font-mono text-primary font-semibold">
-                      {cardScale.toFixed(2)}x
-                    </span>
-                  </div>
-                  
+                <div className="space-y-1.5">
                   <Slider
                     value={[cardScale]}
                     onValueChange={([value]) => onCardScaleChange(value)}
                     min={0.5}
                     max={2.0}
                     step={0.05}
-                    className="my-1"
+                    className="my-0.5"
                   />
                   
-                  <div className="relative text-[10px] text-muted-foreground font-mono h-5 px-1">
+                  <div className="relative text-[10px] text-muted-foreground font-mono h-4 px-1">
                     <div className="absolute inset-x-1 flex items-start pt-1">
                       {[0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0].map((mark) => {
                         const position = ((mark - 0.5) / (2.0 - 0.5)) * 100
@@ -726,7 +733,7 @@ export function ControlPanel({
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2 pt-1">
+                  <div className="flex flex-wrap items-center gap-2 pt-0.5">
                     <Input
                       id="card-scale-field"
                       type="number"
@@ -740,12 +747,9 @@ export function ControlPanel({
                       step={0.05}
                       min={0.5}
                       max={2.0}
-                      className="w-24 font-mono text-sm h-8 px-2"
+                      className="w-20 font-mono text-xs h-7 px-2"
                     />
-                    <span className="text-sm text-muted-foreground">直接入力</span>
-                  </div>
-                  
-                  <div className="flex gap-2 pt-1">
+                    <span className="text-xs text-muted-foreground">直接入力</span>
                     <Button
                       variant="outline"
                       size="sm"
@@ -753,9 +757,9 @@ export function ControlPanel({
                         onCardScaleChange(1.0)
                         toast.success('カードサイズをデフォルトに戻しました')
                       }}
-                      className="text-sm h-8"
+                      className="text-xs h-7 ml-auto"
                     >
-                      デフォルトに戻す
+                      デフォルト
                     </Button>
                   </div>
                 </div>
