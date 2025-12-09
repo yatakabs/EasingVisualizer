@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useLocalKV, isSparkEnvironment } from '@/hooks/useLocalKV'
 import { PreviewPanel } from '@/components/PreviewPanel'
 import { ControlPanel } from '@/components/ControlPanel'
 import { FunctionSelector } from '@/components/FunctionSelector'
@@ -14,6 +14,9 @@ import { type AppState } from '@/lib/urlState'
 import { useURLState } from '@/hooks/useURLState'
 import { Toaster as Sonner } from 'sonner'
 import { toast } from 'sonner'
+
+// Use local storage for state persistence (works both locally and in production)
+const useKV = useLocalKV
 
 const CYCLE_DURATION = 2000
 const MAX_PANELS = 24
@@ -58,6 +61,7 @@ function App() {
   const [gamma, setGamma] = useState(2.2)
   const [time, setTime] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
+  const [pauseProgress, setPauseProgress] = useState(0)
   const [fps, setFps] = useState(60)
   const [selectorOpen, setSelectorOpen] = useState(false)
   const [draggedPanelId, setDraggedPanelId] = useState<string | null>(null)
@@ -67,6 +71,7 @@ function App() {
   const speedTimeoutRef = useRef<number | undefined>(undefined)
   const gammaTimeoutRef = useRef<number | undefined>(undefined)
   const pauseTimeoutRef = useRef<number | undefined>(undefined)
+  const pauseStartTimeRef = useRef<number>(0)
   const gridContainerRef = useRef<HTMLDivElement>(null)
   const [scaledGridHeight, setScaledGridHeight] = useState<number>(0)
 
@@ -121,8 +126,14 @@ function App() {
         setFps(Math.round(1000 / avgDelta))
       }
 
-      // If paused at end, skip time update but continue animation frame
+      // If paused at end, update pause progress but skip time update
       if (isPaused) {
+        const pauseDuration = (endPauseDuration ?? 2.0) * 1000
+        if (pauseDuration > 0 && pauseStartTimeRef.current > 0) {
+          const elapsed = now - pauseStartTimeRef.current
+          const progress = Math.min(elapsed / pauseDuration, 1)
+          setPauseProgress(progress)
+        }
         animationFrameId = requestAnimationFrame(animate)
         return
       }
@@ -155,6 +166,8 @@ function App() {
     
     if (time >= 1 && !isPaused && (endPauseDuration ?? 2.0) > 0) {
       setIsPaused(true)
+      setPauseProgress(0)
+      pauseStartTimeRef.current = Date.now()
       
       // Clear any existing timeout
       if (pauseTimeoutRef.current) {
@@ -164,6 +177,8 @@ function App() {
       // Schedule resume after endPauseDuration
       pauseTimeoutRef.current = window.setTimeout(() => {
         setIsPaused(false)
+        setPauseProgress(0)
+        pauseStartTimeRef.current = 0
         setTime(0)  // Reset to start new cycle
       }, (endPauseDuration ?? 2.0) * 1000)
     }
@@ -173,6 +188,8 @@ function App() {
   useEffect(() => {
     if (!isPlaying && isPaused) {
       setIsPaused(false)
+      setPauseProgress(0)
+      pauseStartTimeRef.current = 0
       if (pauseTimeoutRef.current) {
         window.clearTimeout(pauseTimeoutRef.current)
         pauseTimeoutRef.current = undefined
@@ -504,6 +521,8 @@ function App() {
               onHideControlPanel={() => setShowControlPanel(() => false)}
               endPauseDuration={endPauseDuration ?? 2.0}
               onEndPauseDurationChange={handleEndPauseDurationChange}
+              isPausedAtEnd={isPaused}
+              pauseProgress={pauseProgress}
             />
           )}
 

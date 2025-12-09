@@ -29,6 +29,8 @@ interface ControlPanelProps {
   maxCameraPreviews: number
   cardScale: number
   endPauseDuration: number
+  isPausedAtEnd?: boolean
+  pauseProgress?: number
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
   onGammaChange: (gamma: number) => void
@@ -67,6 +69,8 @@ export const ControlPanel = memo(function ControlPanel({
   maxCameraPreviews,
   cardScale,
   endPauseDuration,
+  isPausedAtEnd = false,
+  pauseProgress = 0,
   onPlayPause,
   onSpeedChange,
   onGammaChange,
@@ -339,10 +343,31 @@ export const ControlPanel = memo(function ControlPanel({
           <label className="text-sm font-semibold text-foreground">
             終点停止時間
           </label>
-          <span className="text-base font-mono text-primary font-semibold">
-            {endPauseDuration.toFixed(1)}秒
-          </span>
+          <div className="flex items-center gap-2">
+            {isPausedAtEnd && (
+              <span className="text-xs font-mono text-amber-500 animate-pulse">
+                停止中...
+              </span>
+            )}
+            <span className="text-base font-mono text-primary font-semibold">
+              {endPauseDuration.toFixed(1)}秒
+            </span>
+          </div>
         </div>
+        
+        {/* Pause Progress Indicator */}
+        {endPauseDuration > 0 && (
+          <div className="w-full bg-background rounded-full h-2 overflow-hidden border border-border">
+            <div
+              className="h-full rounded-full transition-[width] duration-75 ease-linear will-change-[width]"
+              style={{
+                width: `${(isPausedAtEnd ? pauseProgress : 0) * 100}%`,
+                backgroundColor: isPausedAtEnd ? 'oklch(0.75 0.15 60)' : 'oklch(0.5 0.1 250)',
+                boxShadow: isPausedAtEnd ? '0 0 6px oklch(0.75 0.15 60 / 0.6)' : 'none'
+              }}
+            />
+          </div>
+        )}
         
         <Slider
           value={[endPauseDuration]}
