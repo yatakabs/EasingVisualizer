@@ -3,12 +3,15 @@ import { useKV } from '@github/spark/hooks'
 import { PreviewPanel } from '@/components/PreviewPanel'
 import { ControlPanel } from '@/components/ControlPanel'
 import { FunctionSelector } from '@/components/FunctionSelector'
+import { ShareButton } from '@/components/ShareButton'
 import { Button } from '@/components/ui/button'
 import { GearSix } from '@phosphor-icons/react'
 import { EASING_FUNCTIONS, type EasingFunction } from '@/lib/easingFunctions'
 import { applyFilters } from '@/lib/outputFilters'
 import { type EaseType } from '@/lib/easeTypes'
 import { type PreviewType } from '@/lib/previewTypes'
+import { type AppState } from '@/lib/urlState'
+import { useURLState } from '@/hooks/useURLState'
 import { Toaster as Sonner } from 'sonner'
 import { toast } from 'sonner'
 
@@ -23,27 +26,32 @@ interface PanelData {
 }
 
 function App() {
-  const [panels, setPanels] = useKV<PanelData[]>('easing-panels', [
-    { id: '1', functionId: 'linear', easeType: 'easein' },
-    { id: '2', functionId: 'quadratic', easeType: 'easein' },
-    { id: '3', functionId: 'sine', easeType: 'easein' }
-  ])
+  // URL state management - read initial state from URL if present
+  const { initialState: urlState, updateURL, hasURLState } = useURLState()
+  // Use URL state as initial values if available, otherwise use defaults
+  const [panels, setPanels] = useKV<PanelData[]>('easing-panels', 
+    urlState?.panels ?? [
+      { id: '1', functionId: 'linear', easeType: 'easein' },
+      { id: '2', functionId: 'quadratic', easeType: 'easein' },
+      { id: '3', functionId: 'sine', easeType: 'easein' }
+    ]
+  )
   const [isPlaying, setIsPlaying] = useKV<boolean>('is-playing', true)
-  const [savedSpeed, setSavedSpeed] = useKV<number>('animation-speed', 1)
-  const [savedGamma, setSavedGamma] = useKV<number>('gamma-correction', 2.2)
-  const [enabledPreviews, setEnabledPreviews] = useKV<PreviewType[]>('enabled-previews', ['camera', 'graph', 'value'])
-  const [enabledFilters, setEnabledFilters] = useKV<string[]>('enabled-filters', [])
-  const [manualInputMode, setManualInputMode] = useKV<boolean>('manual-input-mode', false)
-  const [manualInputValue, setManualInputValue] = useKV<number>('manual-input-value', 0)
-  const [triangularWaveMode, setTriangularWaveMode] = useKV<boolean>('triangular-wave-mode', false)
-  const [cameraStartPos, setCameraStartPos] = useKV<{ x: number; y: number; z: number }>('camera-start-pos', { x: 2.0, y: 1.0, z: -5.0 })
-  const [cameraEndPos, setCameraEndPos] = useKV<{ x: number; y: number; z: number }>('camera-end-pos', { x: 2.0, y: 1.0, z: 5.0 })
-  const [cameraAspectRatio, setCameraAspectRatio] = useKV<string>('camera-aspect-ratio', '16/9')
-  const [maxCameraPreviews, setMaxCameraPreviews] = useKV<number>('max-camera-previews', 6)
-  const [activeCameraPanels, setActiveCameraPanels] = useKV<string[]>('active-camera-panels', [])
-  const [cardScale, setCardScale] = useKV<number>('card-scale', 1.0)
-  const [coordinateSystem, setCoordinateSystem] = useKV<'left-handed' | 'right-handed'>('coordinate-system', 'left-handed')
-  const [showControlPanel, setShowControlPanel] = useKV<boolean>('show-control-panel', true)
+  const [savedSpeed, setSavedSpeed] = useKV<number>('animation-speed', urlState?.savedSpeed ?? 1)
+  const [savedGamma, setSavedGamma] = useKV<number>('gamma-correction', urlState?.savedGamma ?? 2.2)
+  const [enabledPreviews, setEnabledPreviews] = useKV<PreviewType[]>('enabled-previews', urlState?.enabledPreviews ?? ['camera', 'graph', 'value'])
+  const [enabledFilters, setEnabledFilters] = useKV<string[]>('enabled-filters', urlState?.enabledFilters ?? [])
+  const [manualInputMode, setManualInputMode] = useKV<boolean>('manual-input-mode', urlState?.manualInputMode ?? false)
+  const [manualInputValue, setManualInputValue] = useKV<number>('manual-input-value', urlState?.manualInputValue ?? 0)
+  const [triangularWaveMode, setTriangularWaveMode] = useKV<boolean>('triangular-wave-mode', urlState?.triangularWaveMode ?? false)
+  const [cameraStartPos, setCameraStartPos] = useKV<{ x: number; y: number; z: number }>('camera-start-pos', urlState?.cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 })
+  const [cameraEndPos, setCameraEndPos] = useKV<{ x: number; y: number; z: number }>('camera-end-pos', urlState?.cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 })
+  const [cameraAspectRatio, setCameraAspectRatio] = useKV<string>('camera-aspect-ratio', urlState?.cameraAspectRatio ?? '16/9')
+  const [maxCameraPreviews, setMaxCameraPreviews] = useKV<number>('max-camera-previews', urlState?.maxCameraPreviews ?? 6)
+  const [activeCameraPanels, setActiveCameraPanels] = useKV<string[]>('active-camera-panels', urlState?.activeCameraPanels ?? [])
+  const [cardScale, setCardScale] = useKV<number>('card-scale', urlState?.cardScale ?? 1.0)
+  const [coordinateSystem, setCoordinateSystem] = useKV<'left-handed' | 'right-handed'>('coordinate-system', urlState?.coordinateSystem ?? 'left-handed')
+  const [showControlPanel, setShowControlPanel] = useKV<boolean>('show-control-panel', urlState?.showControlPanel ?? true)
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
@@ -152,6 +160,54 @@ function App() {
     observer.observe(gridContainer)
     return () => observer.disconnect()
   }, [cardScale])
+
+  // Function to collect current app state for URL sharing
+  const getAppState = useCallback((): AppState => ({
+    panels: panels ?? [],
+    savedSpeed: savedSpeed ?? 1,
+    savedGamma: savedGamma ?? 2.2,
+    enabledPreviews: enabledPreviews ?? ['camera', 'graph', 'value'],
+    enabledFilters: enabledFilters ?? [],
+    manualInputMode: manualInputMode ?? false,
+    manualInputValue: manualInputValue ?? 0,
+    triangularWaveMode: triangularWaveMode ?? false,
+    cameraStartPos: cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 },
+    cameraEndPos: cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 },
+    cameraAspectRatio: cameraAspectRatio ?? '16/9',
+    maxCameraPreviews: maxCameraPreviews ?? 6,
+    activeCameraPanels: activeCameraPanels ?? [],
+    cardScale: cardScale ?? 1.0,
+    coordinateSystem: coordinateSystem ?? 'left-handed',
+    showControlPanel: showControlPanel ?? true
+  }), [
+    panels, savedSpeed, savedGamma, enabledPreviews, enabledFilters,
+    manualInputMode, manualInputValue, triangularWaveMode,
+    cameraStartPos, cameraEndPos, cameraAspectRatio,
+    maxCameraPreviews, activeCameraPanels, cardScale,
+    coordinateSystem, showControlPanel
+  ])
+
+  // Track if initial URL state has been applied
+  const urlStateAppliedRef = useRef(false)
+  
+  // Sync state to URL (debounced) - skip isPlaying as it's transient
+  useEffect(() => {
+    // On first render with URL state, mark as applied but don't update URL yet
+    if (hasURLState && !urlStateAppliedRef.current) {
+      urlStateAppliedRef.current = true
+      return
+    }
+    
+    // Update URL on all subsequent state changes
+    updateURL(getAppState())
+  }, [
+    panels, savedSpeed, savedGamma, enabledPreviews, enabledFilters,
+    manualInputMode, manualInputValue, triangularWaveMode,
+    cameraStartPos, cameraEndPos, cameraAspectRatio,
+    maxCameraPreviews, activeCameraPanels, cardScale,
+    coordinateSystem, showControlPanel,
+    updateURL, getAppState, hasURLState
+  ])
 
   const getTriangularWave = (t: number): number => {
     const normalized = t % 1
@@ -340,10 +396,11 @@ function App() {
       <Sonner position="top-center" theme="dark" />
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-[120rem]">
-        <header className="mb-4 sm:mb-6">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-1.5" style={{ letterSpacing: '-0.02em' }}>
+        <header className="mb-4 sm:mb-6 flex items-center justify-between">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ letterSpacing: '-0.02em' }}>
             Easing Function Visualizer
           </h1>
+          <ShareButton getState={getAppState} />
         </header>
 
         <div className="space-y-4">
