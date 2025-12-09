@@ -10,6 +10,8 @@ const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Configure base path for GitHub Pages deployment
+  base: process.env.GITHUB_ACTIONS ? '/EasingVisualizer/' : '/',
   plugins: [
     react(),
     tailwindcss(),
