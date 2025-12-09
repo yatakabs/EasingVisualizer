@@ -52,10 +52,12 @@ function App() {
   const [cardScale, setCardScale] = useKV<number>('card-scale', urlState?.cardScale ?? 1.0)
   const [coordinateSystem, setCoordinateSystem] = useKV<'left-handed' | 'right-handed'>('coordinate-system', urlState?.coordinateSystem ?? 'left-handed')
   const [showControlPanel, setShowControlPanel] = useKV<boolean>('show-control-panel', urlState?.showControlPanel ?? true)
+  const [endPauseDuration, setEndPauseDuration] = useKV<number>('end-pause-duration', urlState?.endPauseDuration ?? 2.0)
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
   const [time, setTime] = useState(0)
+  const [isPaused, setIsPaused] = useState(false)
   const [fps, setFps] = useState(60)
   const [selectorOpen, setSelectorOpen] = useState(false)
   const [draggedPanelId, setDraggedPanelId] = useState<string | null>(null)
@@ -64,6 +66,7 @@ function App() {
   const fpsFrames = useRef<number[]>([])
   const speedTimeoutRef = useRef<number | undefined>(undefined)
   const gammaTimeoutRef = useRef<number | undefined>(undefined)
+  const pauseTimeoutRef = useRef<number | undefined>(undefined)
   const gridContainerRef = useRef<HTMLDivElement>(null)
   const [scaledGridHeight, setScaledGridHeight] = useState<number>(0)
 
@@ -118,9 +121,22 @@ function App() {
         setFps(Math.round(1000 / avgDelta))
       }
 
+      // If paused at end, skip time update but continue animation frame
+      if (isPaused) {
+        animationFrameId = requestAnimationFrame(animate)
+        return
+      }
+
       setTime((prevTime) => {
         const newTime = prevTime + (delta * (speed || 1)) / CYCLE_DURATION
-        return newTime % 1
+        if (newTime >= 1) {
+          // End reached - clamp to 1.0 if pause duration > 0
+          if ((endPauseDuration ?? 2.0) > 0) {
+            return 1  // Clamp at 1.0, useEffect below will handle pause
+          }
+          return newTime % 1  // No pause, wrap immediately
+        }
+        return newTime
       })
 
       animationFrameId = requestAnimationFrame(animate)
@@ -131,7 +147,38 @@ function App() {
     return () => {
       cancelAnimationFrame(animationFrameId)
     }
-  }, [isPlaying, speed, manualInputMode])
+  }, [isPlaying, speed, manualInputMode, isPaused, endPauseDuration])
+
+  // End-of-cycle pause detection: trigger pause when time reaches 1.0
+  useEffect(() => {
+    if ((manualInputMode ?? false) || !isPlaying) return
+    
+    if (time >= 1 && !isPaused && (endPauseDuration ?? 2.0) > 0) {
+      setIsPaused(true)
+      
+      // Clear any existing timeout
+      if (pauseTimeoutRef.current) {
+        window.clearTimeout(pauseTimeoutRef.current)
+      }
+      
+      // Schedule resume after endPauseDuration
+      pauseTimeoutRef.current = window.setTimeout(() => {
+        setIsPaused(false)
+        setTime(0)  // Reset to start new cycle
+      }, (endPauseDuration ?? 2.0) * 1000)
+    }
+  }, [time, isPaused, endPauseDuration, manualInputMode, isPlaying])
+
+  // Clear pause state when playback is stopped
+  useEffect(() => {
+    if (!isPlaying && isPaused) {
+      setIsPaused(false)
+      if (pauseTimeoutRef.current) {
+        window.clearTimeout(pauseTimeoutRef.current)
+        pauseTimeoutRef.current = undefined
+      }
+    }
+  }, [isPlaying, isPaused])
 
   // Cleanup timer refs on unmount
   useEffect(() => {
@@ -141,6 +188,9 @@ function App() {
       }
       if (gammaTimeoutRef.current) {
         window.clearTimeout(gammaTimeoutRef.current)
+      }
+      if (pauseTimeoutRef.current) {
+        window.clearTimeout(pauseTimeoutRef.current)
       }
     }
   }, [])
@@ -178,13 +228,14 @@ function App() {
     activeCameraPanels: activeCameraPanels ?? [],
     cardScale: cardScale ?? 1.0,
     coordinateSystem: coordinateSystem ?? 'left-handed',
-    showControlPanel: showControlPanel ?? true
+    showControlPanel: showControlPanel ?? true,
+    endPauseDuration: endPauseDuration ?? 2.0
   }), [
     panels, savedSpeed, savedGamma, enabledPreviews, enabledFilters,
     manualInputMode, manualInputValue, triangularWaveMode,
     cameraStartPos, cameraEndPos, cameraAspectRatio,
     maxCameraPreviews, activeCameraPanels, cardScale,
-    coordinateSystem, showControlPanel
+    coordinateSystem, showControlPanel, endPauseDuration
   ])
 
   // Track if initial URL state has been applied
@@ -205,7 +256,7 @@ function App() {
     manualInputMode, manualInputValue, triangularWaveMode,
     cameraStartPos, cameraEndPos, cameraAspectRatio,
     maxCameraPreviews, activeCameraPanels, cardScale,
-    coordinateSystem, showControlPanel,
+    coordinateSystem, showControlPanel, endPauseDuration,
     updateURL, getAppState, hasURLState
   ])
 
@@ -317,6 +368,10 @@ function App() {
       setSavedGamma(() => newGamma)
     }, 500)
   }, [setSavedGamma])
+
+  const handleEndPauseDurationChange = useCallback((newDuration: number) => {
+    setEndPauseDuration(() => newDuration)
+  }, [setEndPauseDuration])
 
   const handleManualInputModeChange = useCallback((enabled: boolean) => {
     setManualInputMode(() => enabled)
@@ -447,6 +502,8 @@ function App() {
               coordinateSystem={coordinateSystem ?? 'left-handed'}
               onCoordinateSystemChange={(system) => setCoordinateSystem(() => system)}
               onHideControlPanel={() => setShowControlPanel(() => false)}
+              endPauseDuration={endPauseDuration ?? 2.0}
+              onEndPauseDurationChange={handleEndPauseDurationChange}
             />
           )}
 

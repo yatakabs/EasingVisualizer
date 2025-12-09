@@ -50,6 +50,7 @@ export interface ShareableStateV1 {
   sc: number                        // cardScale
   co: 'l' | 'r'                     // coordinateSystem (l=left, r=right)
   cp: boolean                       // showControlPanel
+  pd?: number                       // pauseDuration (optional for backward compatibility)
 }
 
 /**
@@ -72,6 +73,7 @@ export interface AppState {
   cardScale: number
   coordinateSystem: 'left-handed' | 'right-handed'
   showControlPanel: boolean
+  endPauseDuration: number  // End-of-cycle pause duration in seconds
 }
 
 // EaseType mapping for compact representation
@@ -217,7 +219,8 @@ export function encodeState(state: AppState): string {
     ap: activeCameraIndices,
     sc: state.cardScale,
     co: COORD_TO_COMPACT[state.coordinateSystem],
-    cp: state.showControlPanel
+    cp: state.showControlPanel,
+    pd: state.endPauseDuration
   }
 
   const json = JSON.stringify(compact)
@@ -271,7 +274,8 @@ export function decodeState(encoded: string): AppState | null {
       activeCameraPanels,
       cardScale: compact.sc,
       coordinateSystem: COMPACT_TO_COORD[compact.co],
-      showControlPanel: compact.cp
+      showControlPanel: compact.cp,
+      endPauseDuration: Math.max(0, Math.min(10, compact.pd ?? 2.0))  // Default 2.0s, clamped 0-10
     }
 
     return appState

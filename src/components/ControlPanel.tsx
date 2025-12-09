@@ -28,6 +28,7 @@ interface ControlPanelProps {
   cameraAspectRatio: string
   maxCameraPreviews: number
   cardScale: number
+  endPauseDuration: number
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
   onGammaChange: (gamma: number) => void
@@ -43,6 +44,7 @@ interface ControlPanelProps {
   onCameraAspectRatioChange: (aspectRatio: string) => void
   onMaxCameraPreviewsChange: (max: number) => void
   onCardScaleChange: (scale: number) => void
+  onEndPauseDurationChange: (duration: number) => void
   coordinateSystem: 'left-handed' | 'right-handed'
   onCoordinateSystemChange: (system: 'left-handed' | 'right-handed') => void
   onHideControlPanel?: () => void
@@ -64,6 +66,7 @@ export const ControlPanel = memo(function ControlPanel({
   cameraAspectRatio,
   maxCameraPreviews,
   cardScale,
+  endPauseDuration,
   onPlayPause,
   onSpeedChange,
   onGammaChange,
@@ -79,6 +82,7 @@ export const ControlPanel = memo(function ControlPanel({
   onCameraAspectRatioChange,
   onMaxCameraPreviewsChange,
   onCardScaleChange,
+  onEndPauseDurationChange,
   coordinateSystem,
   onCoordinateSystemChange,
   onHideControlPanel
@@ -326,6 +330,66 @@ export const ControlPanel = memo(function ControlPanel({
             />
             <span className="text-sm text-muted-foreground">直接入力</span>
           </div>
+        </div>
+      </div>
+      
+      {/* End Pause Duration スライダー */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-semibold text-foreground">
+            終点停止時間
+          </label>
+          <span className="text-base font-mono text-primary font-semibold">
+            {endPauseDuration.toFixed(1)}秒
+          </span>
+        </div>
+        
+        <Slider
+          value={[endPauseDuration]}
+          onValueChange={([value]) => onEndPauseDurationChange(value)}
+          min={0}
+          max={10}
+          step={0.1}
+          disabled={manualInputMode}
+          className="my-1"
+        />
+        
+        <div className="relative text-[10px] text-muted-foreground font-mono h-5 px-1">
+          <div className="absolute inset-x-1 flex items-start pt-1">
+            {[0, 2, 4, 6, 8, 10].map((mark) => {
+              const position = (mark / 10) * 100
+              return (
+                <div
+                  key={mark}
+                  className="absolute flex flex-col items-center gap-0.5"
+                  style={{ left: `${position}%`, transform: 'translateX(-50%)' }}
+                >
+                  <div className="w-px h-2 bg-muted-foreground" />
+                  <span className="text-[9px]">{mark}s</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2 pt-1">
+          <Input
+            id="end-pause-value-field"
+            type="number"
+            value={endPauseDuration.toFixed(1)}
+            onChange={(e) => {
+              const value = parseFloat(e.target.value)
+              if (!isNaN(value) && value >= 0 && value <= 10) {
+                onEndPauseDurationChange(value)
+              }
+            }}
+            step={0.1}
+            min={0}
+            max={10}
+            className="w-24 font-mono text-sm h-8 px-2"
+            disabled={manualInputMode}
+          />
+          <span className="text-sm text-muted-foreground">直接入力</span>
         </div>
       </div>
       
