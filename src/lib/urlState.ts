@@ -232,6 +232,11 @@ export function encodeState(state: AppState): string {
  * Returns null if decoding fails or state is invalid
  */
 export function decodeState(encoded: string): AppState | null {
+  if (!encoded || typeof encoded !== 'string') {
+    console.warn('Invalid encoded state: must be a non-empty string')
+    return null
+  }
+  
   try {
     const json = fromBase64Url(encoded)
     const parsed = JSON.parse(json)
@@ -245,9 +250,9 @@ export function decodeState(encoded: string): AppState | null {
     // Migrate if needed (currently only v1)
     const compact = migrateState(parsed)
     
-    // Convert compact panels to full format with regenerated IDs
+    // Convert compact panels to full format with deterministic IDs
     const panels: PanelData[] = compact.p.map((cp, index) => ({
-      id: `restored-${Date.now()}-${index}`,
+      id: `panel-${index}`,
       functionId: cp.f,
       easeType: COMPACT_TO_EASE_TYPE[cp.e]
     }))
@@ -305,6 +310,11 @@ function migrateState(state: ShareableStateV1): ShareableStateV1 {
  * Looks for the 's' parameter containing encoded state
  */
 export function getStateFromURL(): AppState | null {
+  // SSR guard
+  if (typeof window === 'undefined') {
+    return null
+  }
+  
   const params = new URLSearchParams(window.location.search)
   const stateParam = params.get('s')
   
@@ -319,6 +329,11 @@ export function getStateFromURL(): AppState | null {
  * Update URL with encoded state using replaceState (no history pollution)
  */
 export function updateURLWithState(state: AppState): void {
+  // SSR guard
+  if (typeof window === 'undefined') {
+    return
+  }
+  
   const encoded = encodeState(state)
   const newURL = `${window.location.pathname}?s=${encoded}`
   window.history.replaceState({}, '', newURL)
@@ -328,6 +343,11 @@ export function updateURLWithState(state: AppState): void {
  * Generate a shareable URL for the given state
  */
 export function generateShareURL(state: AppState): string {
+  // SSR guard
+  if (typeof window === 'undefined') {
+    return ''
+  }
+  
   const encoded = encodeState(state)
   return `${window.location.origin}${window.location.pathname}?s=${encoded}`
 }
@@ -336,5 +356,10 @@ export function generateShareURL(state: AppState): string {
  * Clear state parameter from URL
  */
 export function clearURLState(): void {
+  // SSR guard
+  if (typeof window === 'undefined') {
+    return
+  }
+  
   window.history.replaceState({}, '', window.location.pathname)
 }

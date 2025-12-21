@@ -11,7 +11,7 @@ import {
   updateURLWithState 
 } from '@/lib/urlState'
 
-const URL_UPDATE_DEBOUNCE_MS = 300
+export const URL_UPDATE_DEBOUNCE_MS = 300
 
 /**
  * Hook to read initial state from URL
@@ -22,7 +22,12 @@ export function useInitialURLState(): AppState | null {
   const initialStateRef = useRef<AppState | null | undefined>(undefined)
   
   if (initialStateRef.current === undefined) {
-    initialStateRef.current = getStateFromURL()
+    // SSR guard
+    if (typeof window === 'undefined') {
+      initialStateRef.current = null
+    } else {
+      initialStateRef.current = getStateFromURL()
+    }
   }
   
   return initialStateRef.current
@@ -32,10 +37,15 @@ export function useInitialURLState(): AppState | null {
  * Hook to create a debounced URL updater
  * Returns a function that updates the URL with the current state after a delay
  */
-export function useDebouncedURLUpdate() {
+export function useDebouncedURLUpdate(debounceMs: number = URL_UPDATE_DEBOUNCE_MS) {
   const timeoutRef = useRef<number | undefined>(undefined)
   
   const updateURL = useCallback((state: AppState) => {
+    // SSR guard
+    if (typeof window === 'undefined') {
+      return
+    }
+    
     // Clear any pending update
     if (timeoutRef.current !== undefined) {
       window.clearTimeout(timeoutRef.current)
@@ -45,8 +55,8 @@ export function useDebouncedURLUpdate() {
     timeoutRef.current = window.setTimeout(() => {
       updateURLWithState(state)
       timeoutRef.current = undefined
-    }, URL_UPDATE_DEBOUNCE_MS)
-  }, [])
+    }, debounceMs)
+  }, [debounceMs])
   
   // Cleanup on unmount
   useEffect(() => {
@@ -64,10 +74,11 @@ export function useDebouncedURLUpdate() {
  * Combined hook for URL state management
  * - Provides initial state from URL on mount
  * - Returns debounced update function for syncing state to URL
+ * @param debounceMs - Optional debounce delay in milliseconds (default: 300)
  */
-export function useURLState() {
+export function useURLState(debounceMs?: number) {
   const initialState = useInitialURLState()
-  const updateURL = useDebouncedURLUpdate()
+  const updateURL = useDebouncedURLUpdate(debounceMs)
   
   return {
     initialState,
