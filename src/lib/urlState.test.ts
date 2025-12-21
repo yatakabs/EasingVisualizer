@@ -15,6 +15,7 @@ import {
   type AppState,
   STATE_VERSION
 } from './urlState'
+import type { PreviewType } from './previewTypes'
 
 // Helper to create a valid minimal AppState
 function createMinimalState(overrides: Partial<AppState> = {}): AppState {
@@ -662,7 +663,7 @@ describe('urlState', () => {
 
     it('should handle very long preview and filter arrays', () => {
       const state = createMinimalState({
-        enabledPreviews: ['camera', 'graph', 'value', 'glow', 'input', 'output'] as any[],
+        enabledPreviews: ['camera', 'graph', 'value', 'glow', 'input', 'output'] as PreviewType[],
         enabledFilters: Array.from({ length: 20 }, (_, i) => `filter-${i}`)
       })
       

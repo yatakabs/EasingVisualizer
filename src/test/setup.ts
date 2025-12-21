@@ -12,7 +12,8 @@ const originalHistory = global.history
 
 beforeEach(() => {
   // Mock window.location for URL testing
-  delete (global as any).location
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  delete (global as Record<string, unknown>).location
   global.location = {
     ...originalLocation,
     origin: 'http://localhost:3000',
@@ -22,7 +23,8 @@ beforeEach(() => {
   } as Location
 
   // Mock window.history for URL state management
-  delete (global as any).history
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  delete (global as Record<string, unknown>).history
   global.history = {
     ...originalHistory,
     replaceState: vi.fn(),
