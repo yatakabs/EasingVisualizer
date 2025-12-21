@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useLocalKV, isSparkEnvironment } from '@/hooks/useLocalKV'
+import { usePresets } from '@/hooks/usePresets'
 import { PreviewPanel } from '@/components/PreviewPanel'
 import { ControlPanel } from '@/components/ControlPanel'
 import { FunctionSelector } from '@/components/FunctionSelector'
 import { ShareButton } from '@/components/ShareButton'
+import { URLPreviewBanner } from '@/components/URLPreviewBanner'
 import { Button } from '@/components/ui/button'
 import { GearSix } from '@phosphor-icons/react'
 import { EASING_FUNCTIONS, type EasingFunction } from '@/lib/easingFunctions'
@@ -30,32 +32,50 @@ interface PanelData {
 
 function App() {
   // URL state management - read initial state from URL if present
-  const { initialState: urlState, updateURL, hasURLState } = useURLState()
+  const { 
+    initialState: urlState, 
+    updateURL, 
+    hasURLState,
+    isPreviewMode,
+    applyURLState,
+    dismissURLState
+  } = useURLState()
+  
+  // When URL state is present AND not in preview mode, force it to take priority over localStorage
+  const forceURLState = { forceValue: hasURLState && !isPreviewMode }
+  
+  // State to track preview banner visibility
+  const [showPreviewBanner, setShowPreviewBanner] = useState(isPreviewMode)
+  
+  // Preset management
+  const { savePreset } = usePresets()
+  
   // Use URL state as initial values if available, otherwise use defaults
   const [panels, setPanels] = useKV<PanelData[]>('easing-panels', 
     urlState?.panels ?? [
       { id: '1', functionId: 'linear', easeType: 'easein' },
       { id: '2', functionId: 'quadratic', easeType: 'easein' },
       { id: '3', functionId: 'sine', easeType: 'easein' }
-    ]
+    ],
+    forceURLState
   )
   const [isPlaying, setIsPlaying] = useKV<boolean>('is-playing', true)
-  const [savedSpeed, setSavedSpeed] = useKV<number>('animation-speed', urlState?.savedSpeed ?? 1)
-  const [savedGamma, setSavedGamma] = useKV<number>('gamma-correction', urlState?.savedGamma ?? 2.2)
-  const [enabledPreviews, setEnabledPreviews] = useKV<PreviewType[]>('enabled-previews', urlState?.enabledPreviews ?? ['camera', 'graph', 'value'])
-  const [enabledFilters, setEnabledFilters] = useKV<string[]>('enabled-filters', urlState?.enabledFilters ?? [])
-  const [manualInputMode, setManualInputMode] = useKV<boolean>('manual-input-mode', urlState?.manualInputMode ?? false)
-  const [manualInputValue, setManualInputValue] = useKV<number>('manual-input-value', urlState?.manualInputValue ?? 0)
-  const [triangularWaveMode, setTriangularWaveMode] = useKV<boolean>('triangular-wave-mode', urlState?.triangularWaveMode ?? false)
-  const [cameraStartPos, setCameraStartPos] = useKV<{ x: number; y: number; z: number }>('camera-start-pos', urlState?.cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 })
-  const [cameraEndPos, setCameraEndPos] = useKV<{ x: number; y: number; z: number }>('camera-end-pos', urlState?.cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 })
-  const [cameraAspectRatio, setCameraAspectRatio] = useKV<string>('camera-aspect-ratio', urlState?.cameraAspectRatio ?? '16/9')
-  const [maxCameraPreviews, setMaxCameraPreviews] = useKV<number>('max-camera-previews', urlState?.maxCameraPreviews ?? 6)
-  const [activeCameraPanels, setActiveCameraPanels] = useKV<string[]>('active-camera-panels', urlState?.activeCameraPanels ?? [])
-  const [cardScale, setCardScale] = useKV<number>('card-scale', urlState?.cardScale ?? 1.0)
-  const [coordinateSystem, setCoordinateSystem] = useKV<'left-handed' | 'right-handed'>('coordinate-system', urlState?.coordinateSystem ?? 'left-handed')
-  const [showControlPanel, setShowControlPanel] = useKV<boolean>('show-control-panel', urlState?.showControlPanel ?? true)
-  const [endPauseDuration, setEndPauseDuration] = useKV<number>('end-pause-duration', urlState?.endPauseDuration ?? 2.0)
+  const [savedSpeed, setSavedSpeed] = useKV<number>('animation-speed', urlState?.savedSpeed ?? 1, forceURLState)
+  const [savedGamma, setSavedGamma] = useKV<number>('gamma-correction', urlState?.savedGamma ?? 2.2, forceURLState)
+  const [enabledPreviews, setEnabledPreviews] = useKV<PreviewType[]>('enabled-previews', urlState?.enabledPreviews ?? ['camera', 'graph', 'value'], forceURLState)
+  const [enabledFilters, setEnabledFilters] = useKV<string[]>('enabled-filters', urlState?.enabledFilters ?? [], forceURLState)
+  const [manualInputMode, setManualInputMode] = useKV<boolean>('manual-input-mode', urlState?.manualInputMode ?? false, forceURLState)
+  const [manualInputValue, setManualInputValue] = useKV<number>('manual-input-value', urlState?.manualInputValue ?? 0, forceURLState)
+  const [triangularWaveMode, setTriangularWaveMode] = useKV<boolean>('triangular-wave-mode', urlState?.triangularWaveMode ?? false, forceURLState)
+  const [cameraStartPos, setCameraStartPos] = useKV<{ x: number; y: number; z: number }>('camera-start-pos', urlState?.cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 }, forceURLState)
+  const [cameraEndPos, setCameraEndPos] = useKV<{ x: number; y: number; z: number }>('camera-end-pos', urlState?.cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }, forceURLState)
+  const [cameraAspectRatio, setCameraAspectRatio] = useKV<string>('camera-aspect-ratio', urlState?.cameraAspectRatio ?? '16/9', forceURLState)
+  const [maxCameraPreviews, setMaxCameraPreviews] = useKV<number>('max-camera-previews', urlState?.maxCameraPreviews ?? 6, forceURLState)
+  const [activeCameraPanels, setActiveCameraPanels] = useKV<string[]>('active-camera-panels', urlState?.activeCameraPanels ?? [], forceURLState)
+  const [cardScale, setCardScale] = useKV<number>('card-scale', urlState?.cardScale ?? 1.0, forceURLState)
+  const [coordinateSystem, setCoordinateSystem] = useKV<'left-handed' | 'right-handed'>('coordinate-system', urlState?.coordinateSystem ?? 'left-handed', forceURLState)
+  const [showControlPanel, setShowControlPanel] = useKV<boolean>('show-control-panel', urlState?.showControlPanel ?? true, forceURLState)
+  const [endPauseDuration, setEndPauseDuration] = useKV<number>('end-pause-duration', urlState?.endPauseDuration ?? 2.0, forceURLState)
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
@@ -277,6 +297,64 @@ function App() {
     updateURL, getAppState, hasURLState
   ])
 
+  // Preview mode handlers
+  const handleApplyURLState = useCallback(() => {
+    if (!urlState) return
+    
+    // Apply URL state to all localStorage-backed state
+    applyURLState()
+    
+    // Force update all state from URL
+    setPanels(urlState.panels)
+    setSavedSpeed(urlState.savedSpeed)
+    setSavedGamma(urlState.savedGamma)
+    setEnabledPreviews(urlState.enabledPreviews)
+    setEnabledFilters(urlState.enabledFilters)
+    setManualInputMode(urlState.manualInputMode)
+    setManualInputValue(urlState.manualInputValue)
+    setTriangularWaveMode(urlState.triangularWaveMode)
+    setCameraStartPos(urlState.cameraStartPos)
+    setCameraEndPos(urlState.cameraEndPos)
+    setCameraAspectRatio(urlState.cameraAspectRatio)
+    setMaxCameraPreviews(urlState.maxCameraPreviews)
+    setActiveCameraPanels(urlState.activeCameraPanels)
+    setCardScale(urlState.cardScale)
+    setCoordinateSystem(urlState.coordinateSystem)
+    setShowControlPanel(urlState.showControlPanel)
+    setEndPauseDuration(urlState.endPauseDuration)
+    
+    // Hide banner
+    setShowPreviewBanner(false)
+    
+    toast.success('URL configuration applied')
+  }, [
+    urlState, applyURLState,
+    setPanels, setSavedSpeed, setSavedGamma, setEnabledPreviews,
+    setEnabledFilters, setManualInputMode, setManualInputValue,
+    setTriangularWaveMode, setCameraStartPos, setCameraEndPos,
+    setCameraAspectRatio, setMaxCameraPreviews, setActiveCameraPanels,
+    setCardScale, setCoordinateSystem, setShowControlPanel, setEndPauseDuration
+  ])
+
+  const handleDismissURLState = useCallback(() => {
+    dismissURLState()
+    setShowPreviewBanner(false)
+    toast.info('URL configuration dismissed')
+  }, [dismissURLState])
+
+  const handleSaveURLAsPreset = useCallback(async (name: string) => {
+    if (!urlState) return
+    
+    try {
+      await savePreset(name, urlState, 'url')
+      setShowPreviewBanner(false)
+      dismissURLState()
+      toast.success(`Preset "${name}" saved`)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to save preset')
+    }
+  }, [urlState, savePreset, dismissURLState])
+
   const getTriangularWave = (t: number): number => {
     const normalized = t % 1
     return normalized < 0.5 ? normalized * 2 : 2 - normalized * 2
@@ -466,6 +544,16 @@ function App() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Sonner position="top-center" theme="dark" />
+      
+      {/* URL Preview Banner */}
+      {showPreviewBanner && urlState && (
+        <URLPreviewBanner
+          urlState={urlState}
+          onApply={handleApplyURLState}
+          onDismiss={handleDismissURLState}
+          onSaveAsPreset={handleSaveURLAsPreset}
+        />
+      )}
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-[120rem]">
         <header className="mb-4 sm:mb-6 flex items-center justify-between">

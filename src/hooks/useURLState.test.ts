@@ -455,4 +455,60 @@ describe('useURLState hooks', () => {
       expect(result.current.initialState!.showControlPanel).toBe(true)
     })
   })
+
+  describe('useURLState - Preview Mode', () => {
+    it('should enter preview mode when URL has state', () => {
+      const state = createMinimalState()
+      const encoded = encodeState(state)
+      window.location.search = `?s=${encoded}`
+      
+      const { result } = renderHook(() => useURLState())
+      
+      expect(result.current.hasURLState).toBe(true)
+      expect(result.current.isPreviewMode).toBe(true)
+    })
+    
+    it('should not be in preview mode when no URL state', () => {
+      window.location.search = ''
+      
+      const { result } = renderHook(() => useURLState())
+      
+      expect(result.current.hasURLState).toBe(false)
+      expect(result.current.isPreviewMode).toBe(false)
+    })
+    
+    it('should exit preview mode when applyURLState is called', () => {
+      const state = createMinimalState()
+      const encoded = encodeState(state)
+      window.location.search = `?s=${encoded}`
+      
+      const { result } = renderHook(() => useURLState())
+      
+      expect(result.current.isPreviewMode).toBe(true)
+      
+      act(() => {
+        result.current.applyURLState()
+      })
+      
+      expect(result.current.isPreviewMode).toBe(false)
+    })
+    
+    it('should clear URL and exit preview mode when dismissURLState is called', () => {
+      const state = createMinimalState()
+      const encoded = encodeState(state)
+      window.location.search = `?s=${encoded}`
+      
+      const { result } = renderHook(() => useURLState())
+      
+      expect(result.current.isPreviewMode).toBe(true)
+      
+      act(() => {
+        result.current.dismissURLState()
+      })
+      
+      expect(result.current.isPreviewMode).toBe(false)
+      expect(window.history.replaceState).toHaveBeenCalled()
+    })
+  })
 })
+

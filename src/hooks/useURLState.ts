@@ -2,9 +2,10 @@
  * Custom hook for URL state management
  * 
  * Provides URL state restoration on mount and debounced URL updates.
+ * Supports "preview mode" where URL state is not automatically applied.
  */
 
-import { useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { 
   type AppState, 
   getStateFromURL, 
@@ -74,15 +75,44 @@ export function useDebouncedURLUpdate(debounceMs: number = URL_UPDATE_DEBOUNCE_M
  * Combined hook for URL state management
  * - Provides initial state from URL on mount
  * - Returns debounced update function for syncing state to URL
+ * - Manages preview mode for URL state
  * @param debounceMs - Optional debounce delay in milliseconds (default: 300)
  */
 export function useURLState(debounceMs?: number) {
   const initialState = useInitialURLState()
   const updateURL = useDebouncedURLUpdate(debounceMs)
   
+  // Preview mode: true when URL state exists but not yet applied
+  const [isPreviewMode, setIsPreviewMode] = useState(initialState !== null)
+  
+  /**
+   * Apply URL state and exit preview mode
+   * Parent should use this signal to force-update localStorage
+   */
+  const applyURLState = useCallback(() => {
+    setIsPreviewMode(false)
+  }, [])
+  
+  /**
+   * Dismiss URL state and clear URL parameter
+   */
+  const dismissURLState = useCallback(() => {
+    setIsPreviewMode(false)
+    
+    // Clear URL state parameter
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href)
+      url.searchParams.delete('s')
+      window.history.replaceState({}, '', url.toString())
+    }
+  }, [])
+  
   return {
     initialState,
     updateURL,
-    hasURLState: initialState !== null
+    hasURLState: initialState !== null,
+    isPreviewMode,
+    applyURLState,
+    dismissURLState
   }
 }

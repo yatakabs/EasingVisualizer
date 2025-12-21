@@ -1,17 +1,50 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
+
+/**
+ * Options for useLocalKV hook
+ */
+export interface UseLocalKVOptions {
+  /**
+   * When true, bypasses localStorage and uses defaultValue directly.
+   * The defaultValue is also persisted to localStorage.
+   * Useful when restoring state from URL - forces URL state to take priority.
+   */
+  forceValue?: boolean
+}
 
 /**
  * Local storage fallback for @github/spark useKV hook.
  * This hook provides the same API as useKV but uses localStorage instead of Spark KV store.
  * Used when running locally or when Spark backend is unavailable.
  */
-export function useLocalKV<T>(key: string, defaultValue: T): [T, (value: T | ((prev: T) => T)) => void] {
+export function useLocalKV<T>(
+  key: string, 
+  defaultValue: T,
+  options?: UseLocalKVOptions
+): [T, (value: T | ((prev: T) => T)) => void] {
   const storageKey = `spark-kv-${key}`
+  const forceValue = options?.forceValue ?? false
+  
+  // Track if we've already forced the value to avoid re-forcing on re-renders
+  const hasForcedRef = useRef(false)
   
   const [value, setValue] = useState<T>(() => {
     if (typeof window === 'undefined') {
       return defaultValue
     }
+    
+    // When forceValue is true, bypass localStorage and use defaultValue
+    if (forceValue && !hasForcedRef.current) {
+      hasForcedRef.current = true
+      // Persist the forced value to localStorage
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(defaultValue))
+      } catch {
+        console.warn(`Failed to save forced value to localStorage: ${storageKey}`)
+      }
+      return defaultValue
+    }
+    
     try {
       const stored = localStorage.getItem(storageKey)
       if (stored !== null) {
