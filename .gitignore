@@ -37,3 +37,4 @@ pids
 .github/instructions/*
 .github/prompts/*
 .temp/*
+.github/task-management/*
