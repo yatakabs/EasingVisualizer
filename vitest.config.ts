@@ -15,4 +15,12 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  define: {
+    // Mock compile-time constants for test environment
+    '__SPARK_ENABLED__': JSON.stringify(false),
+    '__APP_VERSION__': JSON.stringify('1.0.0-test'),
+    '__BUILD_COMMIT__': JSON.stringify('test123'),
+    '__BUILD_TIMESTAMP__': JSON.stringify('2025-01-01T00:00:00.000Z'),
+    '__BUILD_ENV__': JSON.stringify('test'),
+  },
 })

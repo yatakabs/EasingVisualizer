@@ -1,8 +1,13 @@
 {
-    "name": "spark-template",
+    "name": "easing-visualizer",
     "private": true,
-    "version": "0.0.0",
+    "version": "0.0.1",
+    "description": "Visual comparison tool for easing functions targeting Beat Saber modding and animation workflows",
     "type": "module",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/YOUR_USERNAME/EasingVisualizer.git"
+    },
     "scripts": {
         "dev": "vite",
         "kill": "fuser -k 5000/tcp",

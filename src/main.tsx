@@ -1,5 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import { ErrorBoundary } from "react-error-boundary";
+import { logBuildInfo } from '@/lib/buildInfo'
 
 // Conditional Spark runtime import - excluded from production bundle
 // __SPARK_ENABLED__ is a compile-time constant defined in vite.config.ts
@@ -15,6 +16,9 @@ import { ErrorFallback } from './ErrorFallback.tsx'
 import "./main.css"
 import "./styles/theme.css"
 import "./index.css"
+
+// Log build information on startup
+logBuildInfo()
 
 createRoot(document.getElementById('root')!).render(
   <ErrorBoundary FallbackComponent={ErrorFallback}>

@@ -9,6 +9,7 @@ import { ShareButton } from '@/components/ShareButton'
 import { URLPreviewBanner } from '@/components/URLPreviewBanner'
 import { DriftControls } from '@/components/DriftControls'
 import { ScriptMapperExport } from '@/components/ScriptMapperExport'
+import { VersionBadge } from '@/components/VersionBadge'
 import { Button } from '@/components/ui/button'
 import { GearSix, FolderOpen } from '@phosphor-icons/react'
 import { EASING_FUNCTIONS, type EasingFunction } from '@/lib/easingFunctions'
@@ -809,6 +810,8 @@ function App() {
         onLoadPreset={handleLoadPreset}
         currentState={getAppState()}
       />
+      
+      <VersionBadge />
     </div>
   )
 }
