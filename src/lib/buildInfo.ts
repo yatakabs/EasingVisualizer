@@ -44,6 +44,6 @@ export function logBuildInfo(): void {
   
   // Expose build info for debugging
   if (typeof window !== 'undefined') {
-    ;(window as any).__BUILD_INFO__ = info
+    ;(window as unknown as { __BUILD_INFO__: BuildInfo }).__BUILD_INFO__ = info
   }
 }
