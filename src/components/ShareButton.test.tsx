@@ -44,6 +44,8 @@ function createMinimalState(overrides: Partial<AppState> = {}): AppState {
     coordinateSystem: 'left-handed',
     showControlPanel: true,
     endPauseDuration: 2.0,
+    scriptMapperMode: false,
+    driftParams: { x: 6, y: 6 },
     ...overrides
   }
 }

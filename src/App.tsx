@@ -7,6 +7,8 @@ import { FunctionSelector } from '@/components/FunctionSelector'
 import { PresetManager } from '@/components/PresetManager'
 import { ShareButton } from '@/components/ShareButton'
 import { URLPreviewBanner } from '@/components/URLPreviewBanner'
+import { DriftControls } from '@/components/DriftControls'
+import { ScriptMapperExport } from '@/components/ScriptMapperExport'
 import { Button } from '@/components/ui/button'
 import { GearSix, FolderOpen } from '@phosphor-icons/react'
 import { EASING_FUNCTIONS, type EasingFunction } from '@/lib/easingFunctions'
@@ -77,6 +79,8 @@ function App() {
   const [coordinateSystem, setCoordinateSystem] = useKV<'left-handed' | 'right-handed'>('coordinate-system', urlState?.coordinateSystem ?? 'left-handed', forceURLState)
   const [showControlPanel, setShowControlPanel] = useKV<boolean>('show-control-panel', urlState?.showControlPanel ?? true, forceURLState)
   const [endPauseDuration, setEndPauseDuration] = useKV<number>('end-pause-duration', urlState?.endPauseDuration ?? 2.0, forceURLState)
+  const [scriptMapperMode, setScriptMapperMode] = useKV<boolean>('scriptmapper-mode', urlState?.scriptMapperMode ?? false, forceURLState)
+  const [driftParams, setDriftParams] = useKV<{ x: number; y: number }>('drift-params', urlState?.driftParams ?? { x: 6, y: 6 }, forceURLState)
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
@@ -268,13 +272,16 @@ function App() {
     cardScale: cardScale ?? 1.0,
     coordinateSystem: coordinateSystem ?? 'left-handed',
     showControlPanel: showControlPanel ?? true,
-    endPauseDuration: endPauseDuration ?? 2.0
+    endPauseDuration: endPauseDuration ?? 2.0,
+    scriptMapperMode: scriptMapperMode ?? false,
+    driftParams: driftParams ?? { x: 6, y: 6 }
   }), [
     panels, savedSpeed, savedGamma, enabledPreviews, enabledFilters,
     manualInputMode, manualInputValue, triangularWaveMode,
     cameraStartPos, cameraEndPos, cameraAspectRatio,
     maxCameraPreviews, activeCameraPanels, cardScale,
-    coordinateSystem, showControlPanel, endPauseDuration
+    coordinateSystem, showControlPanel, endPauseDuration,
+    scriptMapperMode, driftParams
   ])
 
   // Track if initial URL state has been applied
@@ -296,6 +303,7 @@ function App() {
     cameraStartPos, cameraEndPos, cameraAspectRatio,
     maxCameraPreviews, activeCameraPanels, cardScale,
     coordinateSystem, showControlPanel, endPauseDuration,
+    scriptMapperMode, driftParams,
     updateURL, getAppState, hasURLState
   ])
 
@@ -324,6 +332,8 @@ function App() {
     setCoordinateSystem(urlState.coordinateSystem)
     setShowControlPanel(urlState.showControlPanel)
     setEndPauseDuration(urlState.endPauseDuration)
+    setScriptMapperMode(urlState.scriptMapperMode)
+    setDriftParams(urlState.driftParams)
     
     // Hide banner
     setShowPreviewBanner(false)
@@ -335,7 +345,8 @@ function App() {
     setEnabledFilters, setManualInputMode, setManualInputValue,
     setTriangularWaveMode, setCameraStartPos, setCameraEndPos,
     setCameraAspectRatio, setMaxCameraPreviews, setActiveCameraPanels,
-    setCardScale, setCoordinateSystem, setShowControlPanel, setEndPauseDuration
+    setCardScale, setCoordinateSystem, setShowControlPanel, setEndPauseDuration,
+    setScriptMapperMode, setDriftParams
   ])
 
   const handleDismissURLState = useCallback(() => {
@@ -513,6 +524,38 @@ function App() {
     setTime(value)
   }, [setManualInputValue])
 
+  const handleDriftParamsChange = useCallback((x: number, y: number) => {
+    setDriftParams(() => ({ x, y }))
+  }, [setDriftParams])
+
+  const handleDriftReset = useCallback(() => {
+    setDriftParams(() => ({ x: 6, y: 6 }))
+  }, [setDriftParams])
+
+  const handleScriptMapperImport = useCallback((functionId: string, easeType: EaseType, params?: { x: number; y: number }) => {
+    // If params are provided (Drift function), update drift params
+    if (params) {
+      setDriftParams(() => params)
+    }
+    
+    // Add a new panel with the imported function
+    const func = EASING_FUNCTIONS.find(f => f.id === functionId)
+    if (func) {
+      handleAddPanel()
+      // Update the newly added panel with the correct function and ease type
+      setPanels((currentPanels) => {
+        const panels = currentPanels || []
+        if (panels.length === 0) return panels
+        const lastPanel = panels[panels.length - 1]
+        return panels.map(panel => 
+          panel.id === lastPanel.id 
+            ? { ...panel, functionId, easeType } 
+            : panel
+        )
+      })
+    }
+  }, [setDriftParams, handleAddPanel, setPanels])
+
   const handleSetAllEaseType = useCallback((easeType: EaseType) => {
     setPanels((currentPanels) => 
       (currentPanels || []).map(panel => ({ ...panel, easeType }))
@@ -619,6 +662,7 @@ function App() {
               baseInputValue={baseInputValue}
               manualInputMode={manualInputMode ?? false}
               triangularWaveMode={triangularWaveMode ?? false}
+              scriptMapperMode={scriptMapperMode ?? false}
               onPlayPause={() => setIsPlaying((current) => !current)}
               onSpeedChange={handleSpeedChange}
               onGammaChange={handleGammaChange}
@@ -628,6 +672,7 @@ function App() {
               onInputValueChange={handleInputValueChange}
               onManualInputModeChange={handleManualInputModeChange}
               onTriangularWaveModeChange={(enabled) => setTriangularWaveMode(() => enabled)}
+              onScriptMapperModeChange={(enabled) => setScriptMapperMode(() => enabled)}
               onSetAllEaseType={handleSetAllEaseType}
               cameraStartPos={cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 }}
               cameraEndPos={cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }}
@@ -646,6 +691,29 @@ function App() {
               onEndPauseDurationChange={handleEndPauseDurationChange}
               isPausedAtEnd={isPaused}
               pauseProgress={pauseProgress}
+            />
+          )}
+
+          {/* Drift Controls - only visible when at least one panel uses Drift */}
+          {scriptMapperMode && (panels || []).some(panel => panel.functionId === 'drift') && (
+            <DriftControls
+              x={driftParams?.x ?? 6}
+              y={driftParams?.y ?? 6}
+              onXChange={(x) => handleDriftParamsChange(x, driftParams?.y ?? 6)}
+              onYChange={(y) => handleDriftParamsChange(driftParams?.x ?? 6, y)}
+              onReset={handleDriftReset}
+              visible={true}
+            />
+          )}
+
+          {/* ScriptMapper Export/Import - visible in ScriptMapper mode */}
+          {scriptMapperMode && (
+            <ScriptMapperExport
+              functionId={(panels || [])[0]?.functionId ?? 'linear'}
+              easeType={(panels || [])[0]?.easeType ?? 'easein'}
+              driftParams={driftParams ?? { x: 6, y: 6 }}
+              onImport={handleScriptMapperImport}
+              visible={true}
             />
           )}
 
@@ -681,7 +749,9 @@ function App() {
                     const func = EASING_FUNCTIONS.find(f => f.id === panel.functionId)
                     if (!func) return null
 
-                    const output = func.calculate(currentInputValue, panel.easeType)
+                    // Pass drift params if the function is Drift
+                    const params = panel.functionId === 'drift' ? driftParams : undefined
+                    const output = func.calculate(currentInputValue, panel.easeType, params)
                     const filteredOutput = applyFilters(output, enabledFilters ?? [], { gamma: gamma ?? 2.2 })
                     
                     const isCameraActive = (activeCameraPanels || []).includes(panel.id)
@@ -730,6 +800,7 @@ function App() {
         onOpenChange={setSelectorOpen}
         onSelect={handleSelectFunction}
         usedFunctionIds={usedFunctionIds}
+        scriptMapperMode={scriptMapperMode ?? false}
       />
 
       <PresetManager

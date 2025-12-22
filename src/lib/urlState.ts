@@ -51,6 +51,9 @@ export interface ShareableStateV1 {
   co: 'l' | 'r'                     // coordinateSystem (l=left, r=right)
   cp: boolean                       // showControlPanel
   pd?: number                       // pauseDuration (optional for backward compatibility)
+  sm?: 0 | 1                        // ScriptMapper mode (0=general, 1=scriptmapper)
+  dx?: number                       // Drift X parameter (0-10)
+  dy?: number                       // Drift Y parameter (0-10)
 }
 
 /**
@@ -74,6 +77,8 @@ export interface AppState {
   coordinateSystem: 'left-handed' | 'right-handed'
   showControlPanel: boolean
   endPauseDuration: number  // End-of-cycle pause duration in seconds
+  scriptMapperMode: boolean  // Whether ScriptMapper compatibility mode is active
+  driftParams: { x: number; y: number }  // Drift function parameters (0-10 range)
 }
 
 // EaseType mapping for compact representation
@@ -220,7 +225,10 @@ export function encodeState(state: AppState): string {
     sc: state.cardScale,
     co: COORD_TO_COMPACT[state.coordinateSystem],
     cp: state.showControlPanel,
-    pd: state.endPauseDuration
+    pd: state.endPauseDuration,
+    sm: state.scriptMapperMode ? 1 : 0,
+    dx: state.driftParams.x,
+    dy: state.driftParams.y
   }
 
   const json = JSON.stringify(compact)
@@ -280,7 +288,12 @@ export function decodeState(encoded: string): AppState | null {
       cardScale: compact.sc,
       coordinateSystem: COMPACT_TO_COORD[compact.co],
       showControlPanel: compact.cp,
-      endPauseDuration: Math.max(0, Math.min(10, compact.pd ?? 2.0))  // Default 2.0s, clamped 0-10
+      endPauseDuration: Math.max(0, Math.min(10, compact.pd ?? 2.0)),  // Default 2.0s, clamped 0-10
+      scriptMapperMode: compact.sm === 1,
+      driftParams: {
+        x: Math.max(0, Math.min(10, compact.dx ?? 6)),  // Default 6, clamped 0-10
+        y: Math.max(0, Math.min(10, compact.dy ?? 6))   // Default 6, clamped 0-10
+      }
     }
 
     return appState

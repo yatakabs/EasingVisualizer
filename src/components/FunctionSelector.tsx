@@ -14,14 +14,21 @@ interface FunctionSelectorProps {
   onOpenChange: (open: boolean) => void
   onSelect: (func: EasingFunction) => void
   usedFunctionIds: string[]
+  scriptMapperMode?: boolean  // Whether to filter and rename for ScriptMapper
 }
 
 export function FunctionSelector({
   open,
   onOpenChange,
   onSelect,
-  usedFunctionIds
+  usedFunctionIds,
+  scriptMapperMode = false
 }: FunctionSelectorProps) {
+  // Filter functions based on mode
+  const availableFunctions = scriptMapperMode
+    ? EASING_FUNCTIONS.filter(func => func.scriptMapperCompatible)
+    : EASING_FUNCTIONS
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
@@ -31,13 +38,21 @@ export function FunctionSelector({
           </DialogTitle>
           <DialogDescription className="text-sm">
             比較に追加する関数を選択してください
+            {scriptMapperMode && (
+              <span className="block mt-1 text-xs font-semibold text-primary">
+                ScriptMapper Mode: Showing compatible functions only
+              </span>
+            )}
           </DialogDescription>
         </DialogHeader>
         
         <ScrollArea className="max-h-[70vh]">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pr-2">
-            {EASING_FUNCTIONS.map((func) => {
+            {availableFunctions.map((func) => {
               const isUsed = usedFunctionIds.includes(func.id)
+              const displayName = scriptMapperMode && func.scriptMapperName
+                ? func.scriptMapperName
+                : func.name
               
               return (
                 <Button
@@ -58,7 +73,10 @@ export function FunctionSelector({
                         boxShadow: `0 0 4px ${func.color}`
                       }}
                     />
-                    <span className="font-semibold text-xs truncate">{func.name}</span>
+                    <span className="font-semibold text-xs truncate">
+                      {displayName}
+                      {func.isParametric && ' ⚙️'}
+                    </span>
                   </div>
                   <span className="font-mono text-[10px] text-muted-foreground text-left w-full leading-tight">
                     {func.formula}

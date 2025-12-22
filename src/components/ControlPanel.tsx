@@ -31,6 +31,7 @@ interface ControlPanelProps {
   endPauseDuration: number
   isPausedAtEnd?: boolean
   pauseProgress?: number
+  scriptMapperMode: boolean
   onPlayPause: () => void
   onSpeedChange: (speed: number) => void
   onGammaChange: (gamma: number) => void
@@ -49,6 +50,7 @@ interface ControlPanelProps {
   onEndPauseDurationChange: (duration: number) => void
   coordinateSystem: 'left-handed' | 'right-handed'
   onCoordinateSystemChange: (system: 'left-handed' | 'right-handed') => void
+  onScriptMapperModeChange: (enabled: boolean) => void
   onHideControlPanel?: () => void
 }
 
@@ -71,6 +73,7 @@ export const ControlPanel = memo(function ControlPanel({
   endPauseDuration,
   isPausedAtEnd = false,
   pauseProgress = 0,
+  scriptMapperMode,
   onPlayPause,
   onSpeedChange,
   onGammaChange,
@@ -89,6 +92,7 @@ export const ControlPanel = memo(function ControlPanel({
   onEndPauseDurationChange,
   coordinateSystem,
   onCoordinateSystemChange,
+  onScriptMapperModeChange,
   onHideControlPanel
 }: ControlPanelProps) {
   return (
@@ -250,6 +254,22 @@ export const ControlPanel = memo(function ControlPanel({
               <Label htmlFor="triangular-wave-mode" className="text-sm font-medium cursor-pointer">
                 三角波
               </Label>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Switch
+                id="scriptmapper-mode"
+                checked={scriptMapperMode}
+                onCheckedChange={onScriptMapperModeChange}
+              />
+              <Label htmlFor="scriptmapper-mode" className="text-sm font-medium cursor-pointer">
+                ScriptMapper
+              </Label>
+              {scriptMapperMode && (
+                <Badge variant="secondary" className="text-xs">
+                  11 functions
+                </Badge>
+              )}
             </div>
             
             <div className="flex items-center gap-2">

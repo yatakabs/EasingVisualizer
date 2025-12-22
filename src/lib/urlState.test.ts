@@ -39,6 +39,8 @@ function createMinimalState(overrides: Partial<AppState> = {}): AppState {
     coordinateSystem: 'left-handed',
     showControlPanel: true,
     endPauseDuration: 2.0,
+    scriptMapperMode: false,
+    driftParams: { x: 6, y: 6 },
     ...overrides
   }
 }
@@ -67,7 +69,9 @@ function createComplexState(): AppState {
     cardScale: 0.8,
     coordinateSystem: 'right-handed',
     showControlPanel: false,
-    endPauseDuration: 3.5
+    endPauseDuration: 3.5,
+    scriptMapperMode: true,
+    driftParams: { x: 3, y: 7 }
   }
 }
 
