@@ -4,10 +4,11 @@ import { usePresets } from '@/hooks/usePresets'
 import { PreviewPanel } from '@/components/PreviewPanel'
 import { ControlPanel } from '@/components/ControlPanel'
 import { FunctionSelector } from '@/components/FunctionSelector'
+import { PresetManager } from '@/components/PresetManager'
 import { ShareButton } from '@/components/ShareButton'
 import { URLPreviewBanner } from '@/components/URLPreviewBanner'
 import { Button } from '@/components/ui/button'
-import { GearSix } from '@phosphor-icons/react'
+import { GearSix, FolderOpen } from '@phosphor-icons/react'
 import { EASING_FUNCTIONS, type EasingFunction } from '@/lib/easingFunctions'
 import { applyFilters } from '@/lib/outputFilters'
 import { type EaseType } from '@/lib/easeTypes'
@@ -84,6 +85,7 @@ function App() {
   const [pauseProgress, setPauseProgress] = useState(0)
   const [fps, setFps] = useState(60)
   const [selectorOpen, setSelectorOpen] = useState(false)
+  const [presetManagerOpen, setPresetManagerOpen] = useState(false)
   const [draggedPanelId, setDraggedPanelId] = useState<string | null>(null)
   
   const lastFrameTime = useRef(Date.now())
@@ -355,6 +357,33 @@ function App() {
     }
   }, [urlState, savePreset, dismissURLState])
 
+  const handleLoadPreset = useCallback((state: AppState) => {
+    setPanels(state.panels)
+    setSavedSpeed(state.savedSpeed)
+    setSavedGamma(state.savedGamma)
+    setEnabledPreviews(state.enabledPreviews)
+    setEnabledFilters(state.enabledFilters)
+    setManualInputMode(state.manualInputMode)
+    setManualInputValue(state.manualInputValue)
+    setTriangularWaveMode(state.triangularWaveMode)
+    setCameraStartPos(state.cameraStartPos)
+    setCameraEndPos(state.cameraEndPos)
+    setCameraAspectRatio(state.cameraAspectRatio)
+    setMaxCameraPreviews(state.maxCameraPreviews)
+    setActiveCameraPanels(state.activeCameraPanels)
+    setCardScale(state.cardScale)
+    setCoordinateSystem(state.coordinateSystem)
+    setShowControlPanel(state.showControlPanel)
+    setEndPauseDuration(state.endPauseDuration)
+    setPresetManagerOpen(false)
+  }, [
+    setPanels, setSavedSpeed, setSavedGamma, setEnabledPreviews,
+    setEnabledFilters, setManualInputMode, setManualInputValue,
+    setTriangularWaveMode, setCameraStartPos, setCameraEndPos,
+    setCameraAspectRatio, setMaxCameraPreviews, setActiveCameraPanels,
+    setCardScale, setCoordinateSystem, setShowControlPanel, setEndPauseDuration
+  ])
+
   const getTriangularWave = (t: number): number => {
     const normalized = t % 1
     return normalized < 0.5 ? normalized * 2 : 2 - normalized * 2
@@ -560,7 +589,13 @@ function App() {
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ letterSpacing: '-0.02em' }}>
             Easing Function Visualizer
           </h1>
-          <ShareButton getState={getAppState} />
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => setPresetManagerOpen(true)}>
+              <FolderOpen className="h-4 w-4 mr-2" />
+              Presets
+            </Button>
+            <ShareButton getState={getAppState} />
+          </div>
         </header>
 
         <div className="space-y-4">
@@ -695,6 +730,13 @@ function App() {
         onOpenChange={setSelectorOpen}
         onSelect={handleSelectFunction}
         usedFunctionIds={usedFunctionIds}
+      />
+
+      <PresetManager
+        open={presetManagerOpen}
+        onOpenChange={setPresetManagerOpen}
+        onLoadPreset={handleLoadPreset}
+        currentState={getAppState()}
       />
     </div>
   )
