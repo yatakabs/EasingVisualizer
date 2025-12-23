@@ -33,8 +33,15 @@ pids
 
 .spark-workbench-id
 .playwright-mcp/*
+.data/
+.github/collaborative-agents.config.yaml
 .github/agents/*
 .github/instructions/*
 .github/prompts/*
 .temp/*
 .github/task-management/*
+
+# Playwright
+playwright-report/
+test-results/
+docs/scriptmapper-specification.md
