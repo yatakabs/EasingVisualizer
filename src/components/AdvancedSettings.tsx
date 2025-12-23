@@ -4,7 +4,6 @@ import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import {
   Collapsible,
@@ -34,11 +33,9 @@ interface AdvancedSettingsProps {
   // Input mode
   manualInputMode: boolean
   triangularWaveMode: boolean
-  scriptMapperMode: boolean
   inputValue: number
   onManualInputModeChange: (enabled: boolean) => void
   onTriangularWaveModeChange: (enabled: boolean) => void
-  onScriptMapperModeChange: (enabled: boolean) => void
   onInputValueChange: (value: number) => void
   
   // Global ease type
@@ -77,11 +74,9 @@ export const AdvancedSettings = memo(function AdvancedSettings({
   onGammaChange,
   manualInputMode,
   triangularWaveMode,
-  scriptMapperMode,
   inputValue,
   onManualInputModeChange,
   onTriangularWaveModeChange,
-  onScriptMapperModeChange,
   onInputValueChange,
   onSetAllEaseType,
   showCameraSettings,
@@ -126,8 +121,8 @@ export const AdvancedSettings = memo(function AdvancedSettings({
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               
               {/* Input Controls */}
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-foreground">Input Controls</h3>
+              <div className="space-y-3 sm:border-r sm:border-border/30 sm:pr-4">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Input Controls</h3>
                 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
@@ -174,26 +169,12 @@ export const AdvancedSettings = memo(function AdvancedSettings({
                       onCheckedChange={onTriangularWaveModeChange}
                     />
                   </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor="scriptmapper-mode" className="text-sm">ScriptMapper</Label>
-                      {scriptMapperMode && (
-                        <Badge variant="secondary" className="text-xs">11 functions</Badge>
-                      )}
-                    </div>
-                    <Switch
-                      id="scriptmapper-mode"
-                      checked={scriptMapperMode}
-                      onCheckedChange={onScriptMapperModeChange}
-                    />
-                  </div>
                 </div>
               </div>
 
               {/* Display Settings */}
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-foreground">Display Settings</h3>
+              <div className="space-y-3 lg:border-r lg:border-border/30 lg:pr-4">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Display Settings</h3>
                 
                 <div className="space-y-3">
                   <div className="space-y-1.5">
@@ -241,8 +222,8 @@ export const AdvancedSettings = memo(function AdvancedSettings({
               </div>
 
               {/* Global Ease Type */}
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-foreground">Global Ease Type</h3>
+              <div className="space-y-3 sm:border-r sm:border-border/30 sm:pr-4 lg:border-r-0 lg:pr-0">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Global Ease Type</h3>
                 
                 <div className="flex flex-col gap-2">
                   <Button
@@ -277,8 +258,8 @@ export const AdvancedSettings = memo(function AdvancedSettings({
 
               {/* Camera Settings - Only when camera preview is visible */}
               {showCameraSettings && (
-                <div className="space-y-3">
-                  <h3 className="text-sm font-semibold text-foreground">Camera Settings</h3>
+                <div className="space-y-3 lg:border-l lg:border-border/30 lg:pl-4">
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Camera Settings</h3>
                   
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-2">

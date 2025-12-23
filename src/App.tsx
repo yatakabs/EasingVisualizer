@@ -11,6 +11,7 @@ import { DriftControls } from '@/components/DriftControls'
 import { ScriptMapperExport } from '@/components/ScriptMapperExport'
 import { ScriptMapperControls } from '@/components/ScriptMapperControls'
 import { ScriptMapperPreview } from '@/components/previews/ScriptMapperPreview'
+import { ScriptMapperFirstPersonView } from '@/components/previews/ScriptMapperFirstPersonView'
 import { ScriptMapperGraph } from '@/components/previews/ScriptMapperGraph'
 import { VersionBadge } from '@/components/VersionBadge'
 import { Button } from '@/components/ui/button'
@@ -686,6 +687,8 @@ function App() {
         speed={speed}
         inputValue={currentInputValue}
         enabledPreviews={enabledPreviews ?? ['camera', 'graph', 'value']}
+        mode={scriptMapperMode ? 'scriptmapper' : 'normal'}
+        onModeChange={(mode) => setScriptMapperMode(() => mode === 'scriptmapper')}
         onPlayPause={() => setIsPlaying((current) => !current)}
         onSpeedChange={handleSpeedChange}
         onInputValueChange={handleInputValueChange}
@@ -702,7 +705,7 @@ function App() {
         <div className="h-full px-3 sm:px-4 py-3 sm:py-4">
           {/* ScriptMapper Controls - conditionally visible */}
           {scriptMapperMode && (
-            <div className="space-y-4 mb-4">
+            <div className="space-y-2 mb-2 max-h-[calc(100vh-60px)] overflow-y-auto">
               {/* ScriptMapper Controls - path selection, segment overview */}
               <ScriptMapperControls
                 enabled={scriptMapperMode ?? false}
@@ -716,23 +719,45 @@ function App() {
               
               {/* ScriptMapper Previews - only if a path is selected */}
               {activeCameraPath && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {/* 3D Camera Path Preview */}
-                  <div className="aspect-video">
-                    <ScriptMapperPreview
-                      cameraPath={activeCameraPath}
-                      globalTime={baseInputValue}
-                      aspectRatio={cameraAspectRatio ?? '16/9'}
-                      coordinateSystem={coordinateSystem ?? 'left-handed'}
-                    />
-                  </div>
-                  
-                  {/* Timing Graph */}
-                  <div className="aspect-video">
-                    <ScriptMapperGraph
-                      cameraPath={activeCameraPath}
-                      globalTime={baseInputValue}
-                    />
+                <div>
+                  {/* Camera Views and Graph - Three columns on large screens with equal height */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 lg:h-[180px]">
+                    {/* 3D Camera Path Preview (Third Person / Orbit View) */}
+                    <div className="flex flex-col h-full">
+                      <div className="text-xs text-muted-foreground mb-0.5 px-1 flex-shrink-0">Third Person View</div>
+                      <div className="flex-1 min-h-0">
+                        <ScriptMapperPreview
+                          cameraPath={activeCameraPath}
+                          globalTime={baseInputValue}
+                          aspectRatio={cameraAspectRatio ?? '16/9'}
+                          coordinateSystem={coordinateSystem ?? 'left-handed'}
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* First Person View (Camera POV) */}
+                    <div className="flex flex-col h-full">
+                      <div className="text-xs text-muted-foreground mb-0.5 px-1 flex-shrink-0">First Person View</div>
+                      <div className="flex-1 min-h-0">
+                        <ScriptMapperFirstPersonView
+                          cameraPath={activeCameraPath}
+                          globalTime={baseInputValue}
+                          aspectRatio={cameraAspectRatio ?? '16/9'}
+                          coordinateSystem={coordinateSystem ?? 'left-handed'}
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* Timing Graph with Segment List - Same row as camera views */}
+                    <div className="flex flex-col h-full">
+                      <div className="text-xs text-muted-foreground mb-0.5 px-1 flex-shrink-0">Timing Graph</div>
+                      <div className="flex-1 min-h-0">
+                        <ScriptMapperGraph
+                          cameraPath={activeCameraPath}
+                          globalTime={baseInputValue}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -847,11 +872,9 @@ function App() {
         onGammaChange={handleGammaChange}
         manualInputMode={manualInputMode ?? false}
         triangularWaveMode={triangularWaveMode ?? false}
-        scriptMapperMode={scriptMapperMode ?? false}
         inputValue={baseInputValue}
         onManualInputModeChange={handleManualInputModeChange}
         onTriangularWaveModeChange={(enabled) => setTriangularWaveMode(() => enabled)}
-        onScriptMapperModeChange={(enabled) => setScriptMapperMode(() => enabled)}
         onInputValueChange={handleInputValueChange}
         onSetAllEaseType={handleSetAllEaseType}
         showCameraSettings={showCameraSettings}

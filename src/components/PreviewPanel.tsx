@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { X, Video, Cube } from '@phosphor-icons/react'
+import { Video, Cube, DotsSixVertical } from '@phosphor-icons/react'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import type { EasingFunction } from '@/lib/easingFunctions'
 import type { EaseType } from '@/lib/easeTypes'
@@ -11,6 +11,7 @@ import { GraphPreview } from '@/components/previews/GraphPreview'
 import { CameraPreview } from '@/components/previews/CameraPreview'
 import { ValuePreview } from '@/components/previews/ValuePreview'
 import { EasingComparePreview } from '@/components/previews/EasingComparePreview'
+import { PanelActionsMenu } from '@/components/PanelActionsMenu'
 
 interface PreviewPanelProps {
   easingFunction: EasingFunction
@@ -79,63 +80,37 @@ export const PreviewPanel = memo(function PreviewPanel({
       style={{ padding: 0, gap: 0 }}
     >
       <CardHeader 
-        className="cursor-move active:cursor-grabbing bg-primary/10"
+        className="cursor-move active:cursor-grabbing bg-primary/10 touch-none"
         draggable
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
-        style={{ margin: 0, padding: '6px 8px', gap: 0 }}
+        style={{ margin: 0, padding: '4px 6px', gap: 0 }}
       >
-        <div className="flex items-center justify-between gap-1.5">
-          <CardTitle className="text-sm font-semibold tracking-tight truncate flex-1 min-w-0" style={{ margin: 0, lineHeight: '1.4' }}>
-            {title || easingFunction.name}
-          </CardTitle>
-          <div className="flex items-center gap-0.5 flex-shrink-0">
-            {canToggleCamera && (
-              <Button
-                size="icon"
-                variant={showCamera ? "default" : "ghost"}
-                className={`h-6 w-6 transition-colors ${
-                  showCamera 
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90" 
-                    : canActivateCamera
-                      ? "text-muted-foreground hover:text-primary hover:bg-primary/10"
-                      : "text-muted-foreground/50 cursor-not-allowed"
-                }`}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  if (showCamera || canActivateCamera) {
-                    onToggleCamera()
-                  }
-                }}
-                disabled={!showCamera && !canActivateCamera}
-                title={
-                  showCamera 
-                    ? "カメラプレビューを無効化" 
-                    : canActivateCamera
-                      ? "カメラプレビューを有効化"
-                      : "カメラプレビューの最大表示数に達しています"
-                }
-              >
-                {showCamera ? <Cube size={14} weight="bold" /> : <Cube size={14} weight="regular" />}
-              </Button>
-            )}
-            {onRemove && (
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex-shrink-0"
-                onClick={onRemove}
-              >
-                <X size={14} weight="bold" />
-              </Button>
-            )}
+        <div className="flex items-center justify-between gap-1">
+          <div className="flex items-center gap-1 flex-1 min-w-0">
+            <DotsSixVertical 
+              size={14} 
+              className="text-muted-foreground/60 flex-shrink-0 hover:text-muted-foreground transition-colors" 
+              weight="bold"
+              aria-hidden="true"
+            />
+            <CardTitle className="text-xs font-semibold tracking-tight truncate flex-1 min-w-0" style={{ margin: 0, lineHeight: '1.3' }}>
+              {title || easingFunction.name}
+            </CardTitle>
           </div>
+          <PanelActionsMenu
+            showCamera={showCamera}
+            canToggleCamera={canToggleCamera}
+            canActivateCamera={canActivateCamera}
+            onToggleCamera={onToggleCamera}
+            onRemove={onRemove}
+          />
         </div>
       </CardHeader>
       
-      <div className="px-2 py-1.5 border-b border-border/50">
-        <div className="flex items-center justify-between gap-1.5">
-          <p className="text-xs font-mono text-muted-foreground leading-relaxed">
+      <div className="px-1.5 py-1 border-b border-border/50">
+        <div className="flex items-center justify-between gap-1">
+          <p className="text-[10px] font-mono text-muted-foreground leading-relaxed">
             {easingFunction.formula}
           </p>
           <ToggleGroup 
@@ -146,20 +121,20 @@ export const PreviewPanel = memo(function PreviewPanel({
             size="sm"
             className="flex-shrink-0"
           >
-            <ToggleGroupItem value="easein" aria-label="EaseIn" className="text-xs px-2.5 h-7">
+            <ToggleGroupItem value="easein" aria-label="EaseIn" className="text-[10px] px-1.5 h-6">
               In
             </ToggleGroupItem>
-            <ToggleGroupItem value="easeout" aria-label="EaseOut" className="text-xs px-2.5 h-7">
+            <ToggleGroupItem value="easeout" aria-label="EaseOut" className="text-[10px] px-1.5 h-6">
               Out
             </ToggleGroupItem>
-            <ToggleGroupItem value="easeboth" aria-label="EaseBoth" className="text-xs px-2.5 h-7">
+            <ToggleGroupItem value="easeboth" aria-label="EaseBoth" className="text-[10px] px-1.5 h-6">
               Both
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
       </div>
       
-      <CardContent className="flex flex-col items-center gap-1.5" style={{ margin: 0, padding: '8px' }}>
+      <CardContent className="flex flex-col items-center gap-1" style={{ margin: 0, padding: '6px' }}>
         {enabledPreviews.includes('camera') && (
           showCamera ? (
             <CameraPreview

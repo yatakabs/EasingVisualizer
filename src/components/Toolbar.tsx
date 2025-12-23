@@ -10,8 +10,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Play, Pause, Plus, FolderOpen, Export, GearSix } from '@phosphor-icons/react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Play, Pause, Plus, FolderOpen, Export, GearSix, DotsThreeVertical, SquaresFour, Video } from '@phosphor-icons/react'
 import { type PreviewType } from '@/lib/previewTypes'
+import { cn } from '@/lib/utils'
+
+type AppMode = 'normal' | 'scriptmapper'
 
 interface ToolbarProps {
   // Animation state
@@ -23,6 +33,10 @@ interface ToolbarProps {
   
   // Preview settings
   enabledPreviews: PreviewType[]
+  
+  // Mode switching
+  mode: AppMode
+  onModeChange: (mode: AppMode) => void
   
   // Handlers
   onPlayPause: () => void
@@ -59,6 +73,8 @@ export const Toolbar = memo(function Toolbar({
   speed,
   inputValue,
   enabledPreviews,
+  mode,
+  onModeChange,
   onPlayPause,
   onSpeedChange,
   onInputValueChange,
@@ -75,29 +91,29 @@ export const Toolbar = memo(function Toolbar({
 
   return (
     <header 
-      className="sticky top-0 z-50 w-full border-b bg-background/85 backdrop-blur-md supports-[backdrop-filter]:bg-background/60"
+      className="sticky top-0 z-sticky w-full border-b bg-background/85 backdrop-blur-md supports-[backdrop-filter]:bg-background/60"
       role="toolbar"
       aria-label="Animation controls"
     >
-      <div className="container mx-auto px-3 sm:px-4 max-w-[120rem]">
-        <div className="flex h-14 items-center gap-2 sm:gap-4">
+      <div className="container mx-auto px-2 sm:px-3 max-w-[120rem]">
+        <div className="flex h-11 items-center gap-1.5 sm:gap-2 lg:gap-3">
           {/* Play/Pause Button - Primary action, always visible */}
           <Button
             size="sm"
             onClick={onPlayPause}
             disabled={manualMode}
-            className="min-h-[44px] min-w-[44px] sm:min-w-[80px] gap-1.5 font-semibold"
+            className="min-h-[36px] min-w-[36px] sm:min-w-[72px] gap-1 font-semibold btn-press"
             aria-label={isPlaying ? 'Pause animation' : 'Play animation'}
             aria-pressed={isPlaying}
           >
             {isPlaying ? (
               <>
-                <Pause size={18} weight="fill" aria-hidden="true" />
+                <Pause size={16} weight="fill" aria-hidden="true" />
                 <span className="hidden sm:inline">Pause</span>
               </>
             ) : (
               <>
-                <Play size={18} weight="fill" aria-hidden="true" />
+                <Play size={16} weight="fill" aria-hidden="true" />
                 <span className="hidden sm:inline">Play</span>
               </>
             )}
@@ -111,11 +127,38 @@ export const Toolbar = memo(function Toolbar({
             className="hidden sm:flex"
           />
 
+          {/* Mode Switcher - Desktop: ToggleGroup */}
+          <div className="hidden md:flex items-center" role="group" aria-label="Application mode">
+            <ToggleGroup 
+              type="single" 
+              value={mode}
+              onValueChange={(value) => value && onModeChange(value as AppMode)}
+              className="h-9 bg-muted/50 rounded-md"
+            >
+              <ToggleGroupItem 
+                value="normal" 
+                className="min-h-[36px] min-w-[36px] px-2 text-xs data-[state=on]:bg-background"
+                aria-label="Normal mode - Easing function comparison"
+              >
+                <SquaresFour size={14} className="mr-1" aria-hidden="true" />
+                <span className="hidden lg:inline">Easing</span>
+              </ToggleGroupItem>
+              <ToggleGroupItem 
+                value="scriptmapper" 
+                className="min-h-[36px] min-w-[36px] px-2 text-xs data-[state=on]:bg-background"
+                aria-label="ScriptMapper mode - Camera paths"
+              >
+                <Video size={14} className="mr-1" aria-hidden="true" />
+                <span className="hidden lg:inline">ScriptMapper</span>
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+
           {/* Speed Dropdown */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-1.5">
             <Select value={speed.toString()} onValueChange={handleSpeedChange}>
               <SelectTrigger 
-                className="w-20 min-h-[36px]"
+                className="w-18 min-h-[32px]"
                 aria-label="Animation speed"
               >
                 <SelectValue placeholder="Speed" />
@@ -130,8 +173,8 @@ export const Toolbar = memo(function Toolbar({
             </Select>
           </div>
 
-          {/* Input Value Slider - Hidden on mobile */}
-          <div className="hidden lg:flex flex-1 items-center gap-3 max-w-md">
+          {/* Input Value Slider - Show at md but narrower, full width at lg */}
+          <div className="hidden md:flex flex-1 items-center gap-1.5 lg:gap-2 max-w-[12rem] lg:max-w-xs">
             <span className="text-xs text-muted-foreground font-medium whitespace-nowrap">
               Input
             </span>
@@ -151,9 +194,9 @@ export const Toolbar = memo(function Toolbar({
           </div>
 
           {/* Spacer */}
-          <div className="flex-1 lg:flex-none" />
+          <div className="flex-1 md:flex-none" />
 
-          {/* Preview Type Toggles */}
+          {/* Preview Type Toggles - Responsive text */}
           <div role="group" aria-label="Preview type selection" className="hidden sm:block">
             <ToggleGroup 
               type="multiple" 
@@ -165,33 +208,37 @@ export const Toolbar = memo(function Toolbar({
                 value="glow" 
                 aria-label="Toggle glow preview"
                 onClick={() => onTogglePreview('glow')}
-                className="min-h-[44px] min-w-[44px] px-2 sm:px-3 text-xs sm:text-sm"
+                className="min-h-[36px] min-w-[36px] px-1.5 md:px-2 text-xs"
               >
-                G
+                <span className="hidden lg:inline">Glow</span>
+                <span className="lg:hidden">G</span>
               </ToggleGroupItem>
               <ToggleGroupItem 
                 value="graph" 
                 aria-label="Toggle graph preview"
                 onClick={() => onTogglePreview('graph')}
-                className="min-h-[44px] min-w-[44px] px-2 sm:px-3 text-xs sm:text-sm"
+                className="min-h-[36px] min-w-[36px] px-1.5 md:px-2 text-xs"
               >
-                Γ
+                <span className="hidden lg:inline">Graph</span>
+                <span className="lg:hidden">Γ</span>
               </ToggleGroupItem>
               <ToggleGroupItem 
                 value="camera" 
                 aria-label="Toggle camera preview"
                 onClick={() => onTogglePreview('camera')}
-                className="min-h-[44px] min-w-[44px] px-2 sm:px-3 text-xs sm:text-sm"
+                className="min-h-[36px] min-w-[36px] px-1.5 md:px-2 text-xs"
               >
-                📷
+                <span className="hidden lg:inline">Cam</span>
+                <span className="lg:hidden">📷</span>
               </ToggleGroupItem>
               <ToggleGroupItem 
                 value="value" 
                 aria-label="Toggle value preview"
                 onClick={() => onTogglePreview('value')}
-                className="min-h-[44px] min-w-[44px] px-2 sm:px-3 text-xs sm:text-sm"
+                className="min-h-[36px] min-w-[36px] px-1.5 md:px-2 text-xs"
               >
-                #
+                <span className="hidden lg:inline">Value</span>
+                <span className="lg:hidden">#</span>
               </ToggleGroupItem>
             </ToggleGroup>
           </div>
@@ -201,48 +248,101 @@ export const Toolbar = memo(function Toolbar({
             size="sm"
             variant="outline"
             onClick={onAddPanel}
-            className="min-h-[44px] min-w-[44px] gap-1.5"
+            className="min-h-[36px] min-w-[36px] gap-1 btn-press"
             aria-label="Add new panel"
           >
-            <Plus size={18} aria-hidden="true" />
+            <Plus size={16} aria-hidden="true" />
             <span className="hidden md:inline">Add</span>
           </Button>
 
-          {/* Presets Button */}
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={onOpenPresets}
-            className="min-h-[44px] min-w-[44px] gap-1.5"
-            aria-label="Open presets"
-          >
-            <FolderOpen size={18} aria-hidden="true" />
-            <span className="hidden lg:inline">Presets</span>
-          </Button>
+          {/* Desktop: Individual buttons for Presets, Share, Settings */}
+          <div className="hidden md:flex items-center gap-1.5">
+            {/* Presets Button */}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={onOpenPresets}
+              className="min-h-[36px] min-w-[36px] gap-1"
+              aria-label="Open presets"
+            >
+              <FolderOpen size={16} aria-hidden="true" />
+              <span className="hidden lg:inline">Presets</span>
+            </Button>
 
-          {/* Share Button */}
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={onShare}
-            className="min-h-[44px] min-w-[44px] gap-1.5"
-            aria-label="Share configuration"
-          >
-            <Export size={18} aria-hidden="true" />
-            <span className="hidden lg:inline">Share</span>
-          </Button>
+            {/* Share Button */}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={onShare}
+              className="min-h-[36px] min-w-[36px] gap-1"
+              aria-label="Share configuration"
+            >
+              <Export size={16} aria-hidden="true" />
+              <span className="hidden lg:inline">Share</span>
+            </Button>
 
-          {/* Advanced Settings Toggle */}
-          <Button
-            size="sm"
-            variant={showAdvanced ? "secondary" : "ghost"}
-            onClick={onToggleAdvanced}
-            className="min-h-[44px] min-w-[44px]"
-            aria-label={showAdvanced ? "Hide advanced settings" : "Show advanced settings"}
-            aria-expanded={showAdvanced}
-          >
-            <GearSix size={18} aria-hidden="true" />
-          </Button>
+            {/* Advanced Settings Toggle */}
+            <Button
+              size="sm"
+              variant={showAdvanced ? "secondary" : "ghost"}
+              onClick={onToggleAdvanced}
+              className="min-h-[36px] min-w-[36px]"
+              aria-label={showAdvanced ? "Hide advanced settings" : "Show advanced settings"}
+              aria-expanded={showAdvanced}
+            >
+              <GearSix size={16} aria-hidden="true" />
+            </Button>
+          </div>
+
+          {/* Mobile: Overflow menu for secondary actions */}
+          <div className="md:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="min-h-[36px] min-w-[36px]"
+                  aria-label="More options"
+                >
+                  <DotsThreeVertical size={18} weight="bold" aria-hidden="true" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                {/* Mode Switcher - Mobile Only */}
+                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  Mode
+                </div>
+                <DropdownMenuItem 
+                  onClick={() => onModeChange('normal')}
+                  className={cn("gap-2 cursor-pointer", mode === 'normal' && "bg-accent")}
+                >
+                  <SquaresFour size={16} aria-hidden="true" />
+                  Easing
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => onModeChange('scriptmapper')}
+                  className={cn("gap-2 cursor-pointer", mode === 'scriptmapper' && "bg-accent")}
+                >
+                  <Video size={16} aria-hidden="true" />
+                  ScriptMapper
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={onOpenPresets} className="gap-2 cursor-pointer">
+                  <FolderOpen size={16} aria-hidden="true" />
+                  Presets
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onShare} className="gap-2 cursor-pointer">
+                  <Export size={16} aria-hidden="true" />
+                  Share
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={onToggleAdvanced} className="gap-2 cursor-pointer">
+                  <GearSix size={16} aria-hidden="true" />
+                  {showAdvanced ? 'Hide Settings' : 'Show Settings'}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
     </header>
