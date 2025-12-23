@@ -9,6 +9,7 @@ import { useEffect, useRef, memo, useMemo } from 'react'
 import * as THREE from 'three'
 import type { CameraPath } from '@/lib/scriptMapperTypes'
 import { interpolateCameraPath, generatePathPreviewPoints } from '@/lib/cameraPathInterpolation'
+import { createHumanoidModel, disposeHumanoidModel } from '@/lib/humanoidModel'
 
 interface ScriptMapperPreviewProps {
   /** Camera path to visualize */
@@ -154,7 +155,7 @@ export const ScriptMapperPreview = memo(function ScriptMapperPreview({
   const pathLineRef = useRef<THREE.Line | null>(null)
   const waypointMarkersRef = useRef<THREE.Group | null>(null)
   const cameraModelRef = useRef<THREE.Group | null>(null)
-  const cubeRef = useRef<THREE.Mesh | null>(null)
+  const humanoidRef = useRef<THREE.Group | null>(null)
   const previewCameraRef = useRef<THREE.PerspectiveCamera | null>(null)
   
   // Generate path preview points
@@ -181,13 +182,15 @@ export const ScriptMapperPreview = memo(function ScriptMapperPreview({
     sceneRef.current = scene
     
     // View camera (observer camera)
-    const viewCamera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000)
+    // Beat Saber typical clip planes: near=0.01, far=1000
+    const viewCamera = new THREE.PerspectiveCamera(60, width / height, 0.01, 1000)
     viewCamera.position.set(10, 8, 10)
     viewCamera.lookAt(0, 0, 0)
     viewCameraRef.current = viewCamera
     
     // Preview camera (shows path camera frustum - for debugging)
-    const previewCamera = new THREE.PerspectiveCamera(50, 16/9, 0.1, 100)
+    // Beat Saber typical clip planes: near=0.01, far=1000
+    const previewCamera = new THREE.PerspectiveCamera(50, 16/9, 0.01, 1000)
     previewCameraRef.current = previewCamera
     
     // Renderer
@@ -201,20 +204,10 @@ export const ScriptMapperPreview = memo(function ScriptMapperPreview({
     container.appendChild(renderer.domElement)
     rendererRef.current = renderer
     
-    // Target cube at origin
-    const cubeGeometry = new THREE.BoxGeometry(1, 1, 1)
-    const cubeMaterials = [
-      new THREE.MeshPhongMaterial({ color: 0xff0000, shininess: 100 }),
-      new THREE.MeshPhongMaterial({ color: 0xff0000, shininess: 100 }),
-      new THREE.MeshPhongMaterial({ color: 0x00ff00, shininess: 100 }),
-      new THREE.MeshPhongMaterial({ color: 0x00ff00, shininess: 100 }),
-      new THREE.MeshPhongMaterial({ color: 0x0000ff, shininess: 100 }),
-      new THREE.MeshPhongMaterial({ color: 0x0000ff, shininess: 100 })
-    ]
-    const cube = new THREE.Mesh(cubeGeometry, cubeMaterials)
-    cube.position.set(0, 0, 0)
-    scene.add(cube)
-    cubeRef.current = cube
+    // Humanoid model positioned for ScriptMapper: head at y=1.5 (default #height)
+    const humanoid = createHumanoidModel(1.5)
+    scene.add(humanoid)
+    humanoidRef.current = humanoid
     
     // Lights
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.4)
@@ -224,9 +217,9 @@ export const ScriptMapperPreview = memo(function ScriptMapperPreview({
     directionalLight.position.set(5, 10, 5)
     scene.add(directionalLight)
     
-    // Grid
+    // Grid at floor level (y=0)
     const gridHelper = new THREE.GridHelper(20, 20, 0x444444, 0x222222)
-    gridHelper.position.y = -1
+    gridHelper.position.y = 0
     scene.add(gridHelper)
     
     // Axes helper
@@ -268,9 +261,10 @@ export const ScriptMapperPreview = memo(function ScriptMapperPreview({
         renderer.dispose()
       }
       
-      // Dispose geometries and materials
-      cubeGeometry.dispose()
-      cubeMaterials.forEach(mat => mat.dispose())
+      // Dispose humanoid model
+      if (humanoidRef.current) {
+        disposeHumanoidModel(humanoidRef.current)
+      }
       
       // Dispose camera model resources
       if (cameraModelRef.current) {
@@ -371,55 +365,17 @@ export const ScriptMapperPreview = memo(function ScriptMapperPreview({
     const x = coordinateSystem === 'left-handed' ? -pos.x : pos.x
     cameraModel.position.set(x, pos.y, pos.z)
     
-    // Parse rotation from waypoint bookmarkCommand if available
-    // Format: q_x_y_z_rx_ry_rz_fov
-    let rx = 0, ry = 0, rz = 0
-    const currentSegment = currentPosition.currentSegment
-    const fromWaypointIdx = cameraPath.waypoints.findIndex(wp => wp.id === currentSegment.fromWaypointId)
-    const toWaypointIdx = cameraPath.waypoints.findIndex(wp => wp.id === currentSegment.toWaypointId)
-    
-    if (fromWaypointIdx >= 0 && toWaypointIdx >= 0) {
-      const fromWp = cameraPath.waypoints[fromWaypointIdx]
-      const toWp = cameraPath.waypoints[toWaypointIdx]
-      
-      // Try to extract rotation from bookmark commands
-      const extractRotation = (cmd?: string): { rx: number; ry: number; rz: number } | null => {
-        if (!cmd) return null
-        const qMatch = cmd.match(/q_(-?\d+(?:\.\d+)?(?:e[+-]?\d+)?)_(-?\d+(?:\.\d+)?(?:e[+-]?\d+)?)_(-?\d+(?:\.\d+)?(?:e[+-]?\d+)?)_(-?\d+(?:\.\d+)?(?:e[+-]?\d+)?)_(-?\d+(?:\.\d+)?(?:e[+-]?\d+)?)_(-?\d+(?:\.\d+)?(?:e[+-]?\d+)?)(?:_(-?\d+(?:\.\d+)?(?:e[+-]?\d+)?))?/)
-        if (qMatch) {
-          return {
-            rx: parseFloat(qMatch[4]) || 0,
-            ry: parseFloat(qMatch[5]) || 0,
-            rz: parseFloat(qMatch[6]) || 0
-          }
-        }
-        return null
-      }
-      
-      const fromRot = extractRotation(fromWp.bookmarkCommand)
-      const toRot = extractRotation(toWp.bookmarkCommand)
-      
-      // Interpolate rotation between waypoints
-      const t = currentPosition.segmentLocalTime
-      if (fromRot && toRot) {
-        rx = fromRot.rx + (toRot.rx - fromRot.rx) * t
-        ry = fromRot.ry + (toRot.ry - fromRot.ry) * t
-        rz = fromRot.rz + (toRot.rz - fromRot.rz) * t
-      } else if (fromRot) {
-        rx = fromRot.rx
-        ry = fromRot.ry
-        rz = fromRot.rz
-      } else if (toRot) {
-        rx = toRot.rx
-        ry = toRot.ry
-        rz = toRot.rz
-      }
-    }
-    
-    // Apply rotation (convert degrees to radians)
-    // Apply in order: Y (yaw), X (pitch), Z (roll)
+    // Apply rotation from interpolation result (convert degrees to radians)
+    // The interpolation result already handles easing and proper interpolation
     const degToRad = Math.PI / 180
-    cameraModel.rotation.set(rx * degToRad, ry * degToRad, rz * degToRad, 'YXZ')
+    const rotation = currentPosition.rotation ?? { rx: 0, ry: 0, rz: 0 }
+    // Apply in order: Y (yaw), X (pitch), Z (roll)
+    cameraModel.rotation.set(
+      rotation.rx * degToRad,
+      rotation.ry * degToRad,
+      rotation.rz * degToRad,
+      'YXZ'
+    )
     
     // Flip for left-handed coordinate system
     if (coordinateSystem === 'left-handed') {
@@ -436,36 +392,20 @@ export const ScriptMapperPreview = memo(function ScriptMapperPreview({
   }, [currentPosition, coordinateSystem, cameraPath.waypoints])
   
   return (
-    <div className="flex flex-col items-center gap-2 w-full">
+    <div className="flex flex-col items-center w-full h-full">
       <div 
         ref={mountRef}
-        className="w-full rounded border border-border overflow-hidden bg-card"
-        style={{ aspectRatio }}
-      />
-      
-      <div className="w-full bg-secondary rounded px-4 py-2.5 space-y-2">
-        <div className="flex items-center justify-between text-[10px] px-0.5">
-          <span className="text-muted-foreground">Time</span>
-          <span className="font-mono font-medium">{globalTime.toFixed(3)}</span>
+        className="relative w-full h-full rounded border border-border overflow-hidden bg-card"
+      >
+        {/* Compact overlay info panel */}
+        <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm px-3 py-1.5 flex items-center justify-between text-[9px] font-mono text-white/90">
+          <span>t={globalTime.toFixed(3)}</span>
+          <span>{(currentPosition.segmentLocalTime * 100).toFixed(0)}%</span>
+          <span>pos=({currentPosition.position.x.toFixed(2)}, {currentPosition.position.y.toFixed(2)}, {currentPosition.position.z.toFixed(2)})</span>
+          {cameraPath.waypoints.length > 0 && (
+            <span className="text-white/60">{cameraPath.waypoints.length} pts</span>
+          )}
         </div>
-        <div className="flex items-center justify-between text-[10px] px-0.5">
-          <span className="text-muted-foreground">Progress</span>
-          <span className="font-mono font-medium">
-            {(currentPosition.segmentLocalTime * 100).toFixed(0)}%
-          </span>
-        </div>
-        <div className="flex items-center justify-between text-[10px] px-0.5">
-          <span className="text-muted-foreground">Position</span>
-          <span className="font-mono font-medium text-[9px]">
-            ({currentPosition.position.x.toFixed(2)}, {currentPosition.position.y.toFixed(2)}, {currentPosition.position.z.toFixed(2)})
-          </span>
-        </div>
-        {cameraPath.waypoints.length > 0 && (
-          <div className="flex items-center justify-between text-[10px] px-0.5">
-            <span className="text-muted-foreground">Waypoints</span>
-            <span className="font-mono font-medium">{cameraPath.waypoints.length}</span>
-          </div>
-        )}
       </div>
     </div>
   )

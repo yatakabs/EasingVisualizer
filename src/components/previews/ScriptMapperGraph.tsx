@@ -227,14 +227,16 @@ export const ScriptMapperGraph = memo(function ScriptMapperGraph({
   const { paddingLeft, paddingTop, innerWidth, innerHeight, graphBottom, graphRight } = GRAPH_CONFIG
   
   return (
-    <div className="flex flex-col items-center gap-2 w-full">
-      <svg
-        viewBox={`0 0 ${GRAPH_CONFIG.viewBoxWidth} ${GRAPH_CONFIG.viewBoxHeight}`}
-        className="w-full bg-card rounded border border-border"
-        preserveAspectRatio="xMidYMid meet"
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-      >
+    <div className="flex flex-col lg:flex-row gap-2 w-full h-full">
+      {/* Graph SVG - Takes full height and maintains aspect ratio */}
+      <div className="flex-1 min-w-0 h-full">
+        <svg
+          viewBox={`0 0 ${GRAPH_CONFIG.viewBoxWidth} ${GRAPH_CONFIG.viewBoxHeight}`}
+          className="w-full h-full bg-card rounded border border-border"
+          preserveAspectRatio="xMidYMid meet"
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
         {/* Grid lines */}
         <g className="text-muted-foreground/30">
           {/* Horizontal grid lines */}
@@ -461,23 +463,21 @@ export const ScriptMapperGraph = memo(function ScriptMapperGraph({
             </g>
           )
         })()}
-      </svg>
+        </svg>
+      </div>
       
-      {/* Enhanced Legend with Time/Beat Ranges and Interactive Highlighting */}
-      <div className="w-full bg-secondary rounded px-4 py-2.5 space-y-2">
-        <div className="flex items-center justify-between text-[10px] px-0.5">
+      {/* Enhanced Legend with Time/Beat Ranges and Interactive Highlighting - Side panel on lg screens */}
+      <div className="lg:w-40 xl:w-48 flex-shrink-0 bg-secondary rounded px-2 py-1.5 lg:h-full lg:overflow-y-auto">
+        <div className="flex items-center justify-between text-[9px] px-0.5 mb-1">
           <span className="text-muted-foreground">Path</span>
-          <span className="font-medium">{cameraPath.name}</span>
+          <span className="font-medium truncate ml-1">{cameraPath.name}</span>
         </div>
-        <div className={cn(
-          "space-y-1.5",
-          segmentPaths.length > 6 && "max-h-32 overflow-y-auto pr-1"
-        )}>
+        <div className="space-y-0.5 max-h-24 lg:max-h-none overflow-y-auto">
           {segmentPaths.map((path, i) => (
             <div 
               key={i} 
               className={cn(
-                "flex items-start gap-2 text-[9px] leading-relaxed rounded px-1.5 py-1 transition-colors",
+                "flex items-start gap-1.5 text-[8px] leading-tight rounded px-1 py-0.5 transition-colors",
                 "cursor-pointer",
                 hoveredSegmentIndex === i && "bg-accent/50"
               )}
@@ -494,29 +494,17 @@ export const ScriptMapperGraph = memo(function ScriptMapperGraph({
               }}
             >
               <span 
-                className="w-2 h-2 rounded-full mt-0.5 flex-shrink-0"
+                className="w-1.5 h-1.5 rounded-full mt-0.5 flex-shrink-0"
                 style={{ backgroundColor: path.color }}
               />
               <div className="flex-1 min-w-0">
-                <div className="font-medium text-foreground">
+                <div className="font-medium text-foreground truncate">
                   {i + 1}: {path.label}
                 </div>
-                <div className="text-muted-foreground text-[8px]">
-                  {path.timeRange.from.toFixed(2)} → {path.timeRange.to.toFixed(2)}
-                  {path.beatRange && ` (b${path.beatRange.from}→b${path.beatRange.to})`}
+                <div className="text-muted-foreground text-[7px] truncate">
+                  {path.timeRange.from.toFixed(2)}→{path.timeRange.to.toFixed(2)}
+                  {path.beatRange && ` b${path.beatRange.from}→${path.beatRange.to}`}
                 </div>
-                {path.bookmarkCommands && (
-                  <div className="text-primary/80 text-[8px] font-mono break-all" title={path.bookmarkCommands}>
-                    {path.bookmarkCommands.length > 50 
-                      ? path.bookmarkCommands.substring(0, 50) + '…'
-                      : path.bookmarkCommands}
-                  </div>
-                )}
-                {path.waypointNames && (path.waypointNames.from || path.waypointNames.to) && !path.bookmarkCommands && (
-                  <div className="text-muted-foreground/70 text-[8px] italic">
-                    {path.waypointNames.from || '?'} → {path.waypointNames.to || '?'}
-                  </div>
-                )}
               </div>
             </div>
           ))}

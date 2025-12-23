@@ -30,16 +30,16 @@ export const ScriptMapperPresetSelector = memo(function ScriptMapperPresetSelect
   }, [onSelectPreset])
   
   return (
-    <div className="space-y-2">
+    <div className="space-y-1">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium">Presets</span>
-        <Badge variant="outline" className="text-[10px]">
-          {CAMERA_PATH_PRESETS.length} available
+        <span className="text-xs font-medium">Presets</span>
+        <Badge variant="outline" className="text-[9px]">
+          {CAMERA_PATH_PRESETS.length}
         </Badge>
       </div>
       
       <ScrollArea className="w-full whitespace-nowrap">
-        <div className="flex space-x-2 pb-2">
+        <div className="flex space-x-1.5 pb-1">
           {CAMERA_PATH_PRESETS.map((preset) => {
             const isActive = activePath?.id === preset.id || 
                            activePath?.name.replace(' (Copy)', '') === preset.name
@@ -50,16 +50,11 @@ export const ScriptMapperPresetSelector = memo(function ScriptMapperPresetSelect
                 key={preset.id}
                 variant={isActive ? 'default' : 'outline'}
                 size="sm"
-                className="flex-shrink-0 h-auto py-2 px-3 flex flex-col items-start gap-0.5"
+                className="flex-shrink-0 h-auto py-1 px-2 text-[10px]"
                 onClick={() => handleSelect(preset)}
+                title={`${preset.name} (${waypointCount} waypoints)`}
               >
-                <span className="text-xs font-medium truncate max-w-[120px]">
-                  {preset.name}
-                </span>
-                <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                  <Play weight="fill" className="w-2.5 h-2.5" />
-                  {waypointCount} waypoints
-                </span>
+                {preset.name} <span className="ml-1 opacity-60">{waypointCount}</span>
               </Button>
             )
           })}

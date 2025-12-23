@@ -411,7 +411,7 @@ export const ScriptMapperControls = memo(function ScriptMapperControls({
       </CardHeader>
       
       {enabled && (
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           {/* Preset Quick Selector */}
           <ScriptMapperPresetSelector
             activePath={activePath}
@@ -453,89 +453,55 @@ export const ScriptMapperControls = memo(function ScriptMapperControls({
             <>
               <Separator />
               
-              <div className="space-y-3">
+              <div className="space-y-2">
+                {/* Compact Path Info - single row */}
+                <div className="flex items-center gap-3 text-xs">
+                  <Info weight="duotone" className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <span className="text-muted-foreground">Pts:</span>
+                  <span className="font-mono">{activePath.waypoints.length}</span>
+                  <span className="text-muted-foreground">Dur:</span>
+                  <span className="font-mono">{activePath.totalDuration}ms</span>
+                  <span className="text-muted-foreground">Coord:</span>
+                  <span className="font-mono">{activePath.coordinateSystem}</span>
+                </div>
+                
+                {/* BPM Section - compact single row */}
                 <div className="flex items-center gap-2">
-                  <Info weight="duotone" className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Path Info</span>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Waypoints:</span>
-                    <span className="font-mono">{activePath.waypoints.length}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Duration:</span>
-                    <span className="font-mono">{activePath.totalDuration}ms</span>
-                  </div>
-                  <div className="flex justify-between col-span-2">
-                    <span className="text-muted-foreground">Coord:</span>
-                    <span className="font-mono text-xs">{activePath.coordinateSystem}</span>
-                  </div>
-                </div>
-                
-                {/* BPM Section */}
-                <div className="space-y-2 pt-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs">BPM (optional)</Label>
-                    {activePath.bpm && activePath.beatDuration && (
-                      <Badge variant="outline" className="text-[10px]">
-                        {activePath.beatDuration} beats
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <Input
-                      type="number"
-                      placeholder="e.g., 140"
-                      value={bpmInput}
-                      onChange={(e) => setBpmInput(e.target.value)}
-                      className="h-8 text-sm"
-                      min={60}
-                      max={300}
-                      step={1}
-                    />
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        const bpm = parseInt(bpmInput, 10)
-                        if (bpm >= 60 && bpm <= 300) {
-                          const beatDuration = calculateBeatDuration(activePath.totalDuration, bpm)
-                          onSelectPath({
-                            ...activePath,
-                            bpm,
-                            beatOffset: 0,
-                            beatDuration
-                          })
-                        }
-                      }}
-                      disabled={!bpmInput || parseInt(bpmInput, 10) < 60 || parseInt(bpmInput, 10) > 300}
-                    >
-                      Apply
-                    </Button>
-                  </div>
-                  
-                  {/* Beat numbers per waypoint (shown when BPM is set) */}
+                  <Label className="text-xs flex-shrink-0">BPM:</Label>
+                  <Input
+                    type="number"
+                    placeholder="140"
+                    value={bpmInput}
+                    onChange={(e) => setBpmInput(e.target.value)}
+                    className="h-7 text-xs w-16"
+                    min={60}
+                    max={300}
+                    step={1}
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 px-2 text-xs"
+                    onClick={() => {
+                      const bpm = parseInt(bpmInput, 10)
+                      if (bpm >= 60 && bpm <= 300) {
+                        const beatDuration = calculateBeatDuration(activePath.totalDuration, bpm)
+                        onSelectPath({
+                          ...activePath,
+                          bpm,
+                          beatOffset: 0,
+                          beatDuration
+                        })
+                      }
+                    }}
+                    disabled={!bpmInput || parseInt(bpmInput, 10) < 60 || parseInt(bpmInput, 10) > 300}
+                  >
+                    Apply
+                  </Button>
                   {activePath.bpm && activePath.beatDuration && (
-                    <div className="text-xs space-y-1 p-2 bg-muted rounded">
-                      <span className="font-medium">Waypoint Beats:</span>
-                      <div className="flex flex-wrap gap-1">
-                        {activePath.waypoints.map((wp, idx) => {
-                          const beat = normalizedToBeat(
-                            wp.time,
-                            activePath.beatDuration!,
-                            activePath.beatOffset ?? 0
-                          )
-                          return (
-                            <Badge key={wp.id} variant="secondary" className="text-[9px]">
-                              {wp.name ?? `P${idx}`}: {beat.toFixed(0)}
-                            </Badge>
-                          )
-                        })}
-                      </div>
-                    </div>
+                    <Badge variant="outline" className="text-[10px] ml-auto">
+                      {activePath.beatDuration} beats
+                    </Badge>
                   )}
                 </div>
               </div>
@@ -543,21 +509,21 @@ export const ScriptMapperControls = memo(function ScriptMapperControls({
               <Separator />
               
               {/* Waypoints Overview - Shows q/dpos toggle, raw Command, and Copy for each waypoint */}
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Waypoints</span>
+                  <span className="text-xs font-medium">Waypoints</span>
                   {isPreset && (
                     <Badge variant="outline" className="text-[9px]">Read-only</Badge>
                   )}
                 </div>
                 {/* Column headers */}
-                <div className="flex items-center gap-2 px-2 text-[10px] text-muted-foreground">
-                  <span className="w-3 flex-shrink-0" /> {/* Color dot spacer */}
-                  <span className="w-14 flex-shrink-0 text-center">Mode</span>
-                  <span className="flex-1">Command (raw script)</span>
-                  <span className="w-8" /> {/* Copy button spacer */}
+                <div className="flex items-center gap-2 px-2 text-[9px] text-muted-foreground">
+                  <span className="w-2.5 flex-shrink-0" /> {/* Color dot spacer */}
+                  <span className="w-12 flex-shrink-0 text-center">Mode</span>
+                  <span className="flex-1">Command</span>
+                  <span className="w-6" /> {/* Copy button spacer */}
                 </div>
-                <div className="space-y-1.5 max-h-[280px] overflow-y-auto pr-1">
+                <div className="space-y-1 max-h-[140px] overflow-y-auto pr-1 border rounded-md p-1 bg-muted/30">
                   {activePath.waypoints.map((waypoint, idx) => {
                     // Check if current time is at or past this waypoint
                     const isActive = globalTime >= waypoint.time && 
@@ -576,15 +542,15 @@ export const ScriptMapperControls = memo(function ScriptMapperControls({
                       <div
                         key={waypoint.id}
                         className={cn(
-                          'rounded text-xs p-2',
-                          isActive ? 'bg-primary/10 border border-primary/30' : 'bg-secondary',
+                          'rounded text-xs p-1.5',
+                          isActive ? 'bg-primary/10 border border-primary/30' : 'bg-background',
                           error && 'border-destructive/50'
                         )}
                       >
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                           {/* Color dot with active indicator */}
                           <span
-                            className={`w-3 h-3 rounded-full flex-shrink-0 ${isActive ? 'ring-2 ring-primary ring-offset-1 ring-offset-background' : ''}`}
+                            className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${isActive ? 'ring-2 ring-primary ring-offset-1 ring-offset-background' : ''}`}
                             style={{ backgroundColor: SEGMENT_COLORS[idx % SEGMENT_COLORS.length] }}
                           />
                           
@@ -592,12 +558,12 @@ export const ScriptMapperControls = memo(function ScriptMapperControls({
                           <Button
                             size="sm"
                             variant={currentMode === 'q' ? 'default' : 'secondary'}
-                            className="h-6 w-14 px-1 text-[10px] font-mono flex-shrink-0"
+                            className="h-5 w-12 px-1 text-[9px] font-mono flex-shrink-0"
                             onClick={() => handleToggleWaypointMode(idx)}
                             disabled={isPreset}
                             title={currentMode === 'q' 
-                              ? 'Manual Rotation (q_X_Y_Z_RX_RY_RZ_FOV) - Click to switch to dpos' 
-                              : 'Look-At Player (dpos_X_Y_Z_FOV) - Click to switch to q'}
+                              ? 'Manual Rotation - Click for dpos' 
+                              : 'Look-At Player - Click for q'}
                           >
                             {currentMode}
                           </Button>
@@ -608,10 +574,10 @@ export const ScriptMapperControls = memo(function ScriptMapperControls({
                             value={rawCommand}
                             onChange={(e) => handleCommandChange(idx, e.target.value)}
                             className={cn(
-                              'h-7 text-xs font-mono flex-1 min-w-0',
+                              'h-5 text-[10px] font-mono flex-1 min-w-0 px-1.5',
                               error && 'border-destructive focus-visible:ring-destructive'
                             )}
-                            placeholder="q_0_1_-5_0_0_0_60,InOutSine"
+                            placeholder="q_0_1_-5_0_0_0_60"
                             disabled={isPreset}
                             title={rawCommand}
                           />
@@ -620,19 +586,19 @@ export const ScriptMapperControls = memo(function ScriptMapperControls({
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="h-6 w-6 flex-shrink-0 hover:bg-primary/10"
+                            className="h-5 w-5 flex-shrink-0 hover:bg-primary/10"
                             onClick={() => navigator.clipboard.writeText(rawCommand)}
                             title={`Copy: ${rawCommand}`}
                           >
-                            <Copy className="w-3 h-3" />
+                            <Copy className="w-2.5 h-2.5" />
                           </Button>
                         </div>
                         
-                        {/* Error message display */}
+                        {/* Error message display - inline */}
                         {error && (
-                          <div className="flex items-center gap-1.5 mt-1.5 text-destructive">
-                            <WarningCircle className="w-3 h-3 flex-shrink-0" />
-                            <span className="text-[10px]">{error}</span>
+                          <div className="flex items-center gap-1 mt-1 text-destructive">
+                            <WarningCircle className="w-2.5 h-2.5 flex-shrink-0" />
+                            <span className="text-[9px] truncate">{error}</span>
                           </div>
                         )}
                       </div>
@@ -643,20 +609,20 @@ export const ScriptMapperControls = memo(function ScriptMapperControls({
               
               <Separator />
               
-              {/* Export Section */}
-              <Accordion type="single" collapsible className="w-full">
+              {/* Export Section - collapsed by default with max-height */}
+              <Accordion type="single" collapsible defaultValue="" className="w-full">
                 <AccordionItem value="export" className="border-none">
-                  <AccordionTrigger className="py-2 hover:no-underline">
+                  <AccordionTrigger className="py-1.5 hover:no-underline">
                     <div className="flex items-center gap-2">
-                      <Download className="w-4 h-4" />
-                      <span className="text-sm font-medium">Export</span>
+                      <Download className="w-3.5 h-3.5" />
+                      <span className="text-xs font-medium">Export</span>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="space-y-3 pt-2">
+                  <AccordionContent className="space-y-2 pt-1 max-h-[180px] overflow-y-auto">
                     {/* Segment Commands */}
-                    <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Segment Commands</Label>
-                      <div className="space-y-1.5 max-h-[150px] overflow-y-auto pr-1">
+                    <div className="space-y-1">
+                      <Label className="text-[10px] text-muted-foreground">Segment Commands</Label>
+                      <div className="space-y-1 max-h-[80px] overflow-y-auto pr-1">
                         {activePath.segments.map((segment, idx) => {
                           const command = formatAsScriptMapperShortCommand(
                             segment.functionId,
