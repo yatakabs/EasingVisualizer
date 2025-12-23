@@ -8,7 +8,6 @@ import { FunctionSelector } from '@/components/FunctionSelector'
 import { PresetManager } from '@/components/PresetManager'
 import { URLPreviewBanner } from '@/components/URLPreviewBanner'
 import { DriftControls } from '@/components/DriftControls'
-import { ScriptMapperExport } from '@/components/ScriptMapperExport'
 import { ScriptMapperControls } from '@/components/ScriptMapperControls'
 import { ScriptMapperPreview } from '@/components/previews/ScriptMapperPreview'
 import { ScriptMapperFirstPersonView } from '@/components/previews/ScriptMapperFirstPersonView'
@@ -564,30 +563,6 @@ function App() {
     setDriftParams(() => ({ x: 6, y: 6 }))
   }, [setDriftParams])
 
-  const handleScriptMapperImport = useCallback((functionId: string, easeType: EaseType, params?: { x: number; y: number }) => {
-    // If params are provided (Drift function), update drift params
-    if (params) {
-      setDriftParams(() => params)
-    }
-    
-    // Add a new panel with the imported function
-    const func = EASING_FUNCTIONS.find(f => f.id === functionId)
-    if (func) {
-      handleAddPanel()
-      // Update the newly added panel with the correct function and ease type
-      setPanels((currentPanels) => {
-        const panels = currentPanels || []
-        if (panels.length === 0) return panels
-        const lastPanel = panels[panels.length - 1]
-        return panels.map(panel => 
-          panel.id === lastPanel.id 
-            ? { ...panel, functionId, easeType } 
-            : panel
-        )
-      })
-    }
-  }, [setDriftParams, handleAddPanel, setPanels])
-
   const handleSetAllEaseType = useCallback((easeType: EaseType) => {
     setPanels((currentPanels) => 
       (currentPanels || []).map(panel => ({ ...panel, easeType }))
@@ -773,31 +748,23 @@ function App() {
                   visible={true}
                 />
               )}
-
-              {/* ScriptMapper Export/Import */}
-              <ScriptMapperExport
-                functionId={(panels || [])[0]?.functionId ?? 'linear'}
-                easeType={(panels || [])[0]?.easeType ?? 'easein'}
-                driftParams={driftParams ?? { x: 6, y: 6 }}
-                onImport={handleScriptMapperImport}
-                visible={true}
-              />
             </div>
           )}
 
-          {/* Panels Grid or Empty State */}
-          {(panels || []).length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-              <div className="text-6xl sm:text-7xl mb-4">📊</div>
-              <h2 className="text-2xl sm:text-3xl font-semibold mb-2">パネルがありません</h2>
-              <p className="text-muted-foreground text-base sm:text-lg mb-6 max-w-md">
-                最初のパネルを追加して関数の比較を開始
-              </p>
-              <Button onClick={handleAddPanel} size="lg" className="min-h-[44px]">
-                Add Panel
-              </Button>
-            </div>
-          ) : (
+          {/* Panels Grid or Empty State - Only shown when NOT in ScriptMapper mode */}
+          {!scriptMapperMode && (
+            (panels || []).length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-center">
+                <div className="text-6xl sm:text-7xl mb-4">📊</div>
+                <h2 className="text-2xl sm:text-3xl font-semibold mb-2">パネルがありません</h2>
+                <p className="text-muted-foreground text-base sm:text-lg mb-6 max-w-md">
+                  最初のパネルを追加して関数の比較を開始
+                </p>
+                <Button onClick={handleAddPanel} size="lg" className="min-h-[44px]">
+                  Add Panel
+                </Button>
+              </div>
+            ) : (
             <div 
               className="h-full"
               style={{ 
@@ -860,6 +827,7 @@ function App() {
                 </div>
               </div>
             </div>
+            )
           )}
         </div>
       </main>
