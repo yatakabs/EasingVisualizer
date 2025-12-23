@@ -3,7 +3,9 @@ import {
   getScriptMapperName,
   isScriptMapperCompatible,
   formatAsScriptMapperCommand,
+  formatAsScriptMapperShortCommand,
   parseScriptMapperCommand,
+  extractEasingFromBookmarkName,
   SCRIPTMAPPER_NAMES,
   SCRIPTMAPPER_COMPATIBLE_IDS
 } from './scriptMapperCompat'
@@ -237,6 +239,222 @@ describe('scriptMapperCompat', () => {
         // Convert back
         const command2 = formatAsScriptMapperCommand(parsed!.functionId, parsed!.easeType, parsed!.params)
         expect(command2).toBe(command)
+      })
+    })
+
+    describe('short-form prefix parsing', () => {
+      // Tests for abbreviated prefixes: I (In), O (Out), IO (InOut)
+      // These are used in real Beat Saber map bookmarks (e.g., ExpertPlusStandard.dat)
+      
+      it('should parse I (short In) commands', () => {
+        expect(parseScriptMapperCommand('ISine')).toEqual({
+          functionId: 'sine',
+          easeType: 'easein'
+        })
+        expect(parseScriptMapperCommand('IBack')).toEqual({
+          functionId: 'back',
+          easeType: 'easein'
+        })
+        expect(parseScriptMapperCommand('IQuad')).toEqual({
+          functionId: 'quadratic',
+          easeType: 'easein'
+        })
+        expect(parseScriptMapperCommand('IQuint')).toEqual({
+          functionId: 'quintic',
+          easeType: 'easein'
+        })
+        expect(parseScriptMapperCommand('ICubic')).toEqual({
+          functionId: 'cubic',
+          easeType: 'easein'
+        })
+        expect(parseScriptMapperCommand('IQuart')).toEqual({
+          functionId: 'quartic',
+          easeType: 'easein'
+        })
+        expect(parseScriptMapperCommand('IExpo')).toEqual({
+          functionId: 'exponential',
+          easeType: 'easein'
+        })
+        expect(parseScriptMapperCommand('ICirc')).toEqual({
+          functionId: 'circular',
+          easeType: 'easein'
+        })
+        expect(parseScriptMapperCommand('IElastic')).toEqual({
+          functionId: 'elastic',
+          easeType: 'easein'
+        })
+        expect(parseScriptMapperCommand('IBounce')).toEqual({
+          functionId: 'bounce',
+          easeType: 'easein'
+        })
+      })
+      
+      it('should parse O (short Out) commands', () => {
+        expect(parseScriptMapperCommand('OSine')).toEqual({
+          functionId: 'sine',
+          easeType: 'easeout'
+        })
+        expect(parseScriptMapperCommand('OBack')).toEqual({
+          functionId: 'back',
+          easeType: 'easeout'
+        })
+        expect(parseScriptMapperCommand('OQuad')).toEqual({
+          functionId: 'quadratic',
+          easeType: 'easeout'
+        })
+        expect(parseScriptMapperCommand('OQuint')).toEqual({
+          functionId: 'quintic',
+          easeType: 'easeout'
+        })
+        expect(parseScriptMapperCommand('OCubic')).toEqual({
+          functionId: 'cubic',
+          easeType: 'easeout'
+        })
+        expect(parseScriptMapperCommand('OQuart')).toEqual({
+          functionId: 'quartic',
+          easeType: 'easeout'
+        })
+        expect(parseScriptMapperCommand('OExpo')).toEqual({
+          functionId: 'exponential',
+          easeType: 'easeout'
+        })
+        expect(parseScriptMapperCommand('OCirc')).toEqual({
+          functionId: 'circular',
+          easeType: 'easeout'
+        })
+      })
+      
+      it('should parse IO (short InOut) commands', () => {
+        expect(parseScriptMapperCommand('IOSine')).toEqual({
+          functionId: 'sine',
+          easeType: 'easeboth'
+        })
+        expect(parseScriptMapperCommand('IOBack')).toEqual({
+          functionId: 'back',
+          easeType: 'easeboth'
+        })
+        expect(parseScriptMapperCommand('IOQuad')).toEqual({
+          functionId: 'quadratic',
+          easeType: 'easeboth'
+        })
+        expect(parseScriptMapperCommand('IOQuint')).toEqual({
+          functionId: 'quintic',
+          easeType: 'easeboth'
+        })
+        expect(parseScriptMapperCommand('IOCubic')).toEqual({
+          functionId: 'cubic',
+          easeType: 'easeboth'
+        })
+        expect(parseScriptMapperCommand('IOQuart')).toEqual({
+          functionId: 'quartic',
+          easeType: 'easeboth'
+        })
+        expect(parseScriptMapperCommand('IOExpo')).toEqual({
+          functionId: 'exponential',
+          easeType: 'easeboth'
+        })
+        expect(parseScriptMapperCommand('IOCirc')).toEqual({
+          functionId: 'circular',
+          easeType: 'easeboth'
+        })
+        expect(parseScriptMapperCommand('IOElastic')).toEqual({
+          functionId: 'elastic',
+          easeType: 'easeboth'
+        })
+        expect(parseScriptMapperCommand('IOBounce')).toEqual({
+          functionId: 'bounce',
+          easeType: 'easeboth'
+        })
+      })
+      
+      it('should round-trip short-form commands correctly', () => {
+        // Use formatAsScriptMapperShortCommand -> parseScriptMapperCommand -> verify
+        const testCases: Array<{ id: string; easeType: 'easein' | 'easeout' | 'easeboth' }> = [
+          { id: 'sine', easeType: 'easein' },
+          { id: 'back', easeType: 'easein' },
+          { id: 'quadratic', easeType: 'easeout' },
+          { id: 'quintic', easeType: 'easeout' },
+          { id: 'cubic', easeType: 'easeboth' },
+          { id: 'exponential', easeType: 'easeboth' }
+        ]
+        
+        testCases.forEach(({ id, easeType }) => {
+          const shortCommand = formatAsScriptMapperShortCommand(id, easeType)
+          expect(shortCommand).toBeTruthy()
+          
+          const parsed = parseScriptMapperCommand(shortCommand!)
+          expect(parsed).toBeTruthy()
+          expect(parsed!.functionId).toBe(id)
+          expect(parsed!.easeType).toBe(easeType)
+        })
+      })
+    })
+  })
+  
+  describe('extractEasingFromBookmarkName', () => {
+    describe('basic extraction', () => {
+      it('should extract easing from simple bookmark name', () => {
+        expect(extractEasingFromBookmarkName('IBack')).toBe('IBack')
+        expect(extractEasingFromBookmarkName('IOQuad')).toBe('IOQuad')
+        expect(extractEasingFromBookmarkName('OSine')).toBe('OSine')
+      })
+      
+      it('should extract easing from comma-separated bookmark name', () => {
+        expect(extractEasingFromBookmarkName('dpos_-0.5_3_-3,spin60,IBack')).toBe('IBack')
+        expect(extractEasingFromBookmarkName('spin60,IOQuad')).toBe('IOQuad')
+        expect(extractEasingFromBookmarkName('foo,bar,OQuint')).toBe('OQuint')
+      })
+      
+      it('should extract long-form easing commands', () => {
+        expect(extractEasingFromBookmarkName('InSine')).toBe('InSine')
+        expect(extractEasingFromBookmarkName('OutQuad')).toBe('OutQuad')
+        expect(extractEasingFromBookmarkName('InOutCubic')).toBe('InOutCubic')
+        expect(extractEasingFromBookmarkName('dpos_0_0_0,InBack')).toBe('InBack')
+      })
+      
+      it('should extract Drift easing', () => {
+        expect(extractEasingFromBookmarkName('ease_6_6')).toBe('ease_6_6')
+        expect(extractEasingFromBookmarkName('ease_3_7')).toBe('ease_3_7')
+        expect(extractEasingFromBookmarkName('dpos_0_0_0,ease_5_5')).toBe('ease_5_5')
+      })
+    })
+    
+    describe('edge cases', () => {
+      it('should return null for bookmark with no easing', () => {
+        expect(extractEasingFromBookmarkName('dpos_0_0_0')).toBeNull()
+        expect(extractEasingFromBookmarkName('spin60')).toBeNull()
+        expect(extractEasingFromBookmarkName('foo,bar,baz')).toBeNull()
+      })
+      
+      it('should return null for empty string', () => {
+        expect(extractEasingFromBookmarkName('')).toBeNull()
+      })
+      
+      it('should handle whitespace around parts', () => {
+        expect(extractEasingFromBookmarkName('foo, IBack')).toBe('IBack')
+        expect(extractEasingFromBookmarkName('spin60 , IOQuad')).toBe('IOQuad')
+      })
+      
+      it('should find easing even if not at the end', () => {
+        // While easing typically appears last, the function searches from end
+        // and returns the first valid easing found
+        expect(extractEasingFromBookmarkName('IBack,dpos_0_0_0')).toBe('IBack')
+      })
+      
+      it('should return the rightmost easing when multiple exist', () => {
+        // Searches from end, so returns last valid easing
+        expect(extractEasingFromBookmarkName('ISine,OBack')).toBe('OBack')
+      })
+    })
+    
+    describe('real-world bookmark names from Beat Saber maps', () => {
+      // Test cases derived from actual ExpertPlusStandard.dat data
+      it('should extract easing from real bookmark patterns', () => {
+        expect(extractEasingFromBookmarkName('dpos_-0.5_3_-3,spin60,IBack')).toBe('IBack')
+        expect(extractEasingFromBookmarkName('rot_15_-15_0,IOQuad')).toBe('IOQuad')
+        expect(extractEasingFromBookmarkName('spin_90,OBack')).toBe('OBack')
+        expect(extractEasingFromBookmarkName('spin_-30,ease_3_7')).toBe('ease_3_7')
+        expect(extractEasingFromBookmarkName('dpos_0_2_-2,IOExpo')).toBe('IOExpo')
       })
     })
   })
