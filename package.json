@@ -18,9 +18,13 @@
         "test": "vitest",
         "test:ui": "vitest --ui",
         "test:run": "vitest run",
+        "test:fast": "vitest run --bail 1 --reporter=dot",
+        "test:ci": "vitest run --bail 1",
         "test:e2e": "playwright test",
+        "test:e2e:fast": "playwright test --max-failures=3",
         "test:e2e:ui": "playwright test --ui",
-        "test:e2e:headed": "playwright test --headed"
+        "test:e2e:headed": "playwright test --headed",
+        "test:all": "vitest run && playwright test"
     },
     "dependencies": {
         "@github/spark": ">=0.43.1 <1",

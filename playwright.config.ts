@@ -22,11 +22,11 @@ export default defineConfig({
   /* Fail the build on CI if you accidentally left test.only in the source code */
   forbidOnly: isCI,
   
-  /* Retry on CI only */
-  retries: isCI ? 2 : 0,
+  /* Retry on CI only - reduced for faster feedback */
+  retries: isCI ? 1 : 0,
   
-  /* Opt out of parallel tests on CI for stability */
-  workers: isCI ? 1 : undefined,
+  /* Allow parallel tests on CI for better performance */
+  workers: isCI ? 2 : undefined,
   
   /* Reporter to use */
   reporter: [
@@ -39,18 +39,34 @@ export default defineConfig({
     /* Base URL - use environment variable or default to localhost:5173 */
     baseURL,
     
-    /* Collect trace when retrying the failed test */
-    trace: 'on-first-retry',
+    /* Faster action/navigation timeouts */
+    actionTimeout: 5000,      // 5s for clicks/fills
+    navigationTimeout: 10000, // 10s for navigation
+    
+    /* Reduce trace overhead - only keep on failure */
+    trace: 'retain-on-failure',
     
     /* Take screenshot on failure */
     screenshot: 'only-on-failure',
+    
+    /* Disable video for performance */
+    video: 'off',
   },
 
   /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { 
+        ...devices['Desktop Chrome'],
+        launchOptions: {
+          args: [
+            '--disable-gpu',
+            '--disable-dev-shm-usage',
+            '--no-sandbox',
+          ],
+        },
+      },
     },
   ],
 
@@ -63,16 +79,16 @@ export default defineConfig({
     command: isCI ? 'npm run dev -- --port 5173 --strictPort' : 'npm run dev',
     url: baseURL,
     reuseExistingServer: !isCI,
-    timeout: 120 * 1000,
+    timeout: 30 * 1000,  // 30s (reduced from 120s)
     stdout: 'pipe',
     stderr: 'pipe',
   },
 
-  /* Global timeout for each test */
-  timeout: 60 * 1000,
+  /* Stricter global timeout - 15 seconds (reduced from 60s) */
+  timeout: 15 * 1000,
   
-  /* Timeout for each assertion/expect */
+  /* Faster assertion timeout - 3 seconds (reduced from 10s) */
   expect: {
-    timeout: 10 * 1000,
+    timeout: 3 * 1000,
   },
 })

@@ -9,6 +9,20 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    
+    // Strict timeouts for fast feedback
+    testTimeout: 2000,      // 2 seconds max per test
+    hookTimeout: 3000,      // 3 seconds for setup/teardown
+    
+    // Performance: Use threads pool for better parallelization
+    pool: 'threads',
+    fileParallelism: true,   // Run files in parallel
+    
+    // VS Code Test Explorer compatible reporters
+    reporters: ['default'],
+    
+    // No retries for fast local dev (CI can override)
+    retry: 0,
   },
   resolve: {
     alias: {
