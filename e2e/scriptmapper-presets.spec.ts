@@ -12,12 +12,13 @@ import { CAMERA_PATH_PRESETS } from '../src/lib/cameraPathPresets'
 
 // Helper to wait for app to be fully loaded
 async function waitForAppReady(page: import('@playwright/test').Page) {
-  // Wait for main app container
-  await page.waitForSelector('[data-testid="app-container"], .app-container, main', { 
-    timeout: 30000 
-  })
-  // Wait for any loading states to complete
-  await page.waitForTimeout(500)
+  // Wait for app container and DOM ready state in parallel
+  await Promise.all([
+    page.waitForSelector('[data-testid="app-container"], .app-container, main', { 
+      timeout: 5000  // Reduced from 30s
+    }),
+    page.waitForLoadState('domcontentloaded'),
+  ])
 }
 
 test.describe('ScriptMapper Preset Selection', () => {
@@ -75,10 +76,8 @@ test.describe('ScriptMapper Preset Selection', () => {
       }
     }
     
-    // Verify some UI response - could be waypoint count, graph update, etc.
-    await page.waitForTimeout(500)
-    
     // Check if we see any indication of loaded preset (waypoints, segments, etc.)
+    // Use locator assertions instead of waitForTimeout
     const waypointIndicator = page.getByText(/\d+\s*pts|\d+\s*waypoints|\d+\s*points/i)
     const hasWaypointInfo = await waypointIndicator.first().isVisible().catch(() => false)
     
@@ -102,9 +101,9 @@ test.describe('ScriptMapper Preset Selection', () => {
       const presetButton = page.getByRole('button', { name: new RegExp(basicPreset.name, 'i') })
       if (await presetButton.isVisible().catch(() => false)) {
         await presetButton.click()
-        await page.waitForTimeout(300)
         
         // Check for waypoint count display (3 points)
+        // Playwright auto-waits on locator operations
         const waypointCount = page.getByText(new RegExp(`${basicPreset.waypoints.length}\\s*pts`, 'i'))
         const hasCorrectCount = await waypointCount.isVisible().catch(() => false) ||
           await page.getByText(/3\s*pts|3\s*points|3\s*waypoints/i).isVisible().catch(() => false)
@@ -134,7 +133,6 @@ test.describe('ScriptMapper Bookmark Generation', () => {
     
     if (await presetButton.isVisible().catch(() => false)) {
       await presetButton.click()
-      await page.waitForTimeout(300)
     }
 
     // Look for export/bookmark commands section
@@ -163,7 +161,6 @@ test.describe('ScriptMapper Bookmark Generation', () => {
       
       if (await presetButton.isVisible().catch(() => false)) {
         await presetButton.click()
-        await page.waitForTimeout(500)
         
         // In the keyframe-centric model, N waypoints = N bookmarks
         // The zigzag preset has 8 waypoints
@@ -197,7 +194,6 @@ test.describe('ScriptMapper Bookmark Generation', () => {
     
     if (await presetButton.isVisible().catch(() => false)) {
       await presetButton.click()
-      await page.waitForTimeout(300)
     }
 
     // Look for 'stop' command in the bookmark output
@@ -253,7 +249,6 @@ test.describe('ScriptMapper Export Functionality', () => {
     
     if (await presetButton.isVisible().catch(() => false)) {
       await presetButton.click()
-      await page.waitForTimeout(300)
     }
 
     // Find and click copy button
@@ -261,9 +256,9 @@ test.describe('ScriptMapper Export Functionality', () => {
     
     if (await copyButton.isVisible().catch(() => false)) {
       await copyButton.click()
-      await page.waitForTimeout(300)
       
       // Try to verify clipboard content or success toast
+      // Playwright auto-waits on assertions
       const successToast = page.getByText(/copied|clipboard|success/i)
       const hasSuccessMessage = await successToast.isVisible().catch(() => false)
       
