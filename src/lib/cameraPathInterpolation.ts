@@ -9,8 +9,71 @@
  *   where easedTime = easingFunction(localTime) if easing enabled, else localTime
  */
 
+import * as THREE from 'three'
 import { EASING_FUNCTIONS } from './easingFunctions'
-import type { CameraPath, CameraSegment, InterpolationResult } from './scriptMapperTypes'
+import type { CameraPath, CameraSegment, CameraWaypoint, InterpolationResult } from './scriptMapperTypes'
+import { parsePositionCommand } from './scriptMapperTypes'
+import type { EasingType } from './easingFunctions'
+
+/** Camera rotation in degrees (ScriptMapper convention) */
+export interface CameraRotation {
+  rx: number;  // X-axis rotation (pitch)
+  ry: number;  // Y-axis rotation (yaw)
+  rz: number;  // Z-axis rotation (roll)
+}
+
+/**
+ * Convert Euler angles (degrees) to Quaternion
+ * Uses YXZ order (Yaw-Pitch-Roll) as per ScriptMapper convention
+ */
+function eulerToQuaternion(rotation: { rx: number; ry: number; rz: number }): THREE.Quaternion {
+  const euler = new THREE.Euler(
+    rotation.rx * Math.PI / 180,  // pitch
+    rotation.ry * Math.PI / 180,  // yaw
+    rotation.rz * Math.PI / 180,  // roll
+    'YXZ'
+  )
+  return new THREE.Quaternion().setFromEuler(euler)
+}
+
+/**
+ * Convert Quaternion back to Euler angles (degrees)
+ * Preserves YXZ order for ScriptMapper compatibility
+ */
+function quaternionToEuler(q: THREE.Quaternion): { rx: number; ry: number; rz: number } {
+  const euler = new THREE.Euler().setFromQuaternion(q, 'YXZ')
+  return {
+    rx: euler.x * 180 / Math.PI,
+    ry: euler.y * 180 / Math.PI,
+    rz: euler.z * 180 / Math.PI
+  }
+}
+
+/** 3D camera position with optional rotation */
+export interface CameraPoint {
+  x: number;
+  y: number;
+  z: number;
+  rotation?: CameraRotation;
+}
+
+/** Keyframe for camera animation with position and timing */
+export interface KeyFrame {
+  beat: number;
+  position: CameraPoint;
+  easingType?: EasingType;
+  rotation?: CameraRotation;
+}
+
+/**
+ * Extract rotation from a waypoint's bookmarkCommand
+ * Returns undefined if no rotation data available
+ */
+function getWaypointRotation(wp: CameraWaypoint): { rx: number; ry: number; rz: number } | undefined {
+  if (!wp.bookmarkCommand) return undefined
+  const parsed = parsePositionCommand(wp.bookmarkCommand)
+  return parsed?.rotation
+}
 
 /**
  * Find which segment contains the given global time
@@ -84,24 +147,29 @@ export function interpolateCameraPath(
   }
   
   if (path.waypoints.length === 1) {
+    const singleWp = path.waypoints[0]
+    const rotation = getWaypointRotation(singleWp)
     return {
-      position: { ...path.waypoints[0].position },
+      position: { ...singleWp.position },
       currentSegment: path.segments[0] ?? createFallbackSegment(),
       currentSegmentIndex: 0,
       segmentLocalTime: 0,
-      globalTime: t
+      globalTime: t,
+      ...(rotation && { rotation })
     }
   }
   
   // Edge case: t = 0, return first waypoint
   if (t === 0) {
     const firstWp = path.waypoints[0]
+    const rotation = getWaypointRotation(firstWp)
     return {
       position: { ...firstWp.position },
       currentSegment: path.segments[0],
       currentSegmentIndex: 0,
       segmentLocalTime: 0,
-      globalTime: 0
+      globalTime: 0,
+      ...(rotation && { rotation })
     }
   }
   
@@ -109,12 +177,14 @@ export function interpolateCameraPath(
   if (t === 1) {
     const lastWp = path.waypoints[path.waypoints.length - 1]
     const lastSegment = path.segments[path.segments.length - 1]
+    const rotation = getWaypointRotation(lastWp)
     return {
       position: { ...lastWp.position },
       currentSegment: lastSegment,
       currentSegmentIndex: path.segments.length - 1,
       segmentLocalTime: 1,
-      globalTime: 1
+      globalTime: 1,
+      ...(rotation && { rotation })
     }
   }
   
@@ -153,12 +223,33 @@ export function interpolateCameraPath(
     z: fromWp.position.z + (toWp.position.z - fromWp.position.z) * easedTime
   }
   
+  // Interpolate rotation using the SAME eased progress as position
+  const fromRotation = getWaypointRotation(fromWp)
+  const toRotation = getWaypointRotation(toWp)
+  
+  let rotation: { rx: number; ry: number; rz: number } | undefined
+  if (fromRotation && toRotation) {
+    // Both have rotation - use quaternion SLERP to avoid gimbal lock
+    const fromQuat = eulerToQuaternion(fromRotation)
+    const toQuat = eulerToQuaternion(toRotation)
+    const resultQuat = new THREE.Quaternion().slerpQuaternions(fromQuat, toQuat, easedTime)
+    rotation = quaternionToEuler(resultQuat)
+  } else if (fromRotation) {
+    // Only start has rotation - use it
+    rotation = { ...fromRotation }
+  } else if (toRotation) {
+    // Only end has rotation - use it
+    rotation = { ...toRotation }
+  }
+  // If neither has rotation, rotation stays undefined
+  
   return {
     position,
     currentSegment: segment,
     currentSegmentIndex: segmentIndex,
     segmentLocalTime: localTime,
-    globalTime: t
+    globalTime: t,
+    ...(rotation && { rotation })
   }
 }
 

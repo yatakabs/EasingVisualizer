@@ -8,6 +8,37 @@
 import type { EaseType } from './easeTypes'
 
 /**
+ * Calculate rotation angles to look at a target point from a given position.
+ * Used for dpos commands which auto-calculate camera orientation toward avatar.
+ * 
+ * @param position Camera position
+ * @param target Target point to look at (default: avatar head at y=1.5, ScriptMapper #height default)
+ * @returns Rotation in degrees (rx=pitch, ry=yaw, rz=roll)
+ */
+export function calculateLookAtRotation(
+  position: { x: number; y: number; z: number },
+  target: { x: number; y: number; z: number } = { x: 0, y: 1.5, z: 0 }
+): { rx: number; ry: number; rz: number } {
+  // Direction vector from camera to target
+  const dx = target.x - position.x
+  const dy = target.y - position.y
+  const dz = target.z - position.z
+  
+  // Yaw: rotation around Y axis (horizontal angle)
+  // atan2(dx, dz) gives angle in XZ plane
+  const ry = Math.atan2(dx, dz) * (180 / Math.PI)
+  
+  // Pitch: rotation around X axis (vertical angle)
+  const horizontalDist = Math.sqrt(dx * dx + dz * dz)
+  const rx = -Math.atan2(dy, horizontalDist) * (180 / Math.PI)
+  
+  // Roll: typically 0 for look-at (no tilt)
+  const rz = 0
+  
+  return { rx, ry, rz }
+}
+
+/**
  * A single waypoint in a camera path
  * Represents a camera position at a specific normalized time (0-1)
  * 
@@ -117,6 +148,8 @@ export interface InterpolationResult {
   segmentLocalTime: number
   /** Global time (0-1) */
   globalTime: number
+  /** Interpolated rotation (if rotation data available) */
+  rotation?: { rx: number; ry: number; rz: number }
 }
 
 /**
@@ -184,24 +217,63 @@ export function validateCameraPath(path: CameraPath): string[] {
 }
 
 /**
- * Parse position from ScriptMapper command
+ * Parse position and rotation from ScriptMapper command
  * Supports: q_X_Y_Z_RX_RY_RZ_FOV, dpos_X_Y_Z_FOV
  * Returns null for non-position commands (spin, stop, etc.)
  * 
- * @param command - ScriptMapper command string like 'q_0_1_-5_0_0_0_60,IOSine'
- * @returns Position object or null if not a position command
+ * Format: q_X_Y_Z_RX_RY_RZ_FOV_DURATION_EASING
+ * - X, Y, Z: position
+ * - RX, RY, RZ: rotation in degrees
+ * - FOV: field of view (optional)
+ * - DURATION: beat duration (optional)
+ * - EASING: easing type (optional)
+ * 
+ * @param command - ScriptMapper command string like 'q_0_1.5_-3_45_30_0_70,IOSine'
+ * @returns Position and optional rotation, or null if not a position command
  */
-export function parsePositionCommand(command: string): { x: number; y: number; z: number } | null {
-  // q_X_Y_Z_RX_RY_RZ_FOV
-  const qMatch = command.match(/^q_(-?[\d.]+)_(-?[\d.]+)_(-?[\d.]+)_/)
+export function parsePositionCommand(command: string): { 
+  x: number; 
+  y: number; 
+  z: number;
+  rotation?: { rx: number; ry: number; rz: number }
+} | null {
+  // q_X_Y_Z_RX_RY_RZ_FOV (rotation values are optional but typically present)
+  // Match: q_X_Y_Z followed by optional _RX_RY_RZ_FOV...
+  const qMatch = command.match(/^q_(-?[\d.]+)_(-?[\d.]+)_(-?[\d.]+)(?:_(-?[\d.]+)_(-?[\d.]+)_(-?[\d.]+))?/)
   if (qMatch) {
-    return { x: parseFloat(qMatch[1]), y: parseFloat(qMatch[2]), z: parseFloat(qMatch[3]) }
+    const position = { 
+      x: parseFloat(qMatch[1]), 
+      y: parseFloat(qMatch[2]), 
+      z: parseFloat(qMatch[3]) 
+    }
+    
+    // Extract rotation if present (groups 4, 5, 6)
+    if (qMatch[4] !== undefined && qMatch[5] !== undefined && qMatch[6] !== undefined) {
+      return {
+        ...position,
+        rotation: {
+          rx: parseFloat(qMatch[4]),
+          ry: parseFloat(qMatch[5]),
+          rz: parseFloat(qMatch[6])
+        }
+      }
+    }
+    
+    return position
   }
   
-  // dpos_X_Y_Z_FOV
+  // dpos_X_Y_Z_FOV - automatically calculate rotation to look at avatar/center
   const dposMatch = command.match(/^dpos_(-?[\d.]+)_(-?[\d.]+)_(-?[\d.]+)_/)
   if (dposMatch) {
-    return { x: parseFloat(dposMatch[1]), y: parseFloat(dposMatch[2]), z: parseFloat(dposMatch[3]) }
+    const position = {
+      x: parseFloat(dposMatch[1]),
+      y: parseFloat(dposMatch[2]),
+      z: parseFloat(dposMatch[3])
+    }
+    return {
+      ...position,
+      rotation: calculateLookAtRotation(position)
+    }
   }
   
   return null

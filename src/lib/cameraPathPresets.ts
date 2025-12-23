@@ -222,6 +222,281 @@ const PRESET_DEFINITIONS: PresetDefinition[] = [
     ],
     totalDuration: 2000,
     coordinateSystem: 'left-handed'
+  },
+  
+  // ============================================
+  // 9. Orbit Around Player (dpos)
+  // Demonstrates: dpos auto-look-at functionality
+  // Camera circles around avatar, always facing center
+  // 5 waypoints = 5 bookmarks, 16 beats total
+  // ============================================
+  {
+    id: 'preset-dpos-orbit',
+    name: 'Orbit Around Player (dpos)',
+    beatDuration: 16,
+    waypoints: [
+      wp(0, 0, 'dpos_0_1.5_-5_60,IOSine'),     // Front
+      wp(1, 4, 'dpos_5_1.5_0_60,IOSine'),      // Right
+      wp(2, 8, 'dpos_0_1.5_5_60,IOSine'),      // Back
+      wp(3, 12, 'dpos_-5_1.5_0_60,IOSine'),    // Left
+      wp(4, 16, 'dpos_0_1.5_-5_60,stop')       // Return to front
+    ],
+    totalDuration: 4000,
+    coordinateSystem: 'left-handed'
+  },
+  
+  // ============================================
+  // 10. Dynamic Height Sweep (dpos)
+  // Demonstrates: dpos with varying heights
+  // Camera sweeps up and down while moving around
+  // 4 waypoints = 4 bookmarks, 12 beats total
+  // ============================================
+  {
+    id: 'preset-dpos-height',
+    name: 'Dynamic Height Sweep (dpos)',
+    beatDuration: 12,
+    waypoints: [
+      wp(0, 0, 'dpos_3_0.5_-4_60,IOQuad'),    // Low right-front
+      wp(1, 4, 'dpos_-2_3_-3_50,IOQuad'),     // High left-front
+      wp(2, 8, 'dpos_0_1.5_-5_65,IOQuad'),    // Center front
+      wp(3, 12, 'dpos_4_2_2_55,stop')         // Behind high-right
+    ],
+    totalDuration: 3500,
+    coordinateSystem: 'left-handed'
+  },
+  
+  // ============================================
+  // 11. Cinematic Pull Back (dpos)
+  // Demonstrates: dramatic zoom-out with dpos
+  // Simple 2-point close-up to wide shot
+  // 2 waypoints = 2 bookmarks, 8 beats total
+  // ============================================
+  {
+    id: 'preset-dpos-pullback',
+    name: 'Cinematic Pull Back (dpos)',
+    beatDuration: 8,
+    waypoints: [
+      wp(0, 0, 'dpos_0_1.2_-2_75,IOExpo'),    // Close-up
+      wp(1, 8, 'dpos_0_2_-8_45,stop')         // Wide shot
+    ],
+    totalDuration: 2500,
+    coordinateSystem: 'left-handed'
+  },
+  
+  // ============================================
+  // 12. Figure-8 Pattern (dpos)
+  // Demonstrates: complex path with auto-look
+  // Camera traces a figure-8 pattern around player
+  // 9 waypoints = 9 bookmarks, 24 beats total
+  // ============================================
+  {
+    id: 'preset-dpos-figure8',
+    name: 'Figure-8 Pattern (dpos)',
+    beatDuration: 24,
+    waypoints: [
+      wp(0, 0, 'dpos_0_1.5_-4_60,IOCubic'),    // Start front
+      wp(1, 3, 'dpos_3_1.5_-2_60,IOCubic'),    // Right-front
+      wp(2, 6, 'dpos_4_1.5_2_60,IOCubic'),     // Right-back
+      wp(3, 9, 'dpos_0_1.5_4_60,IOCubic'),     // Center back
+      wp(4, 12, 'dpos_-4_1.5_2_60,IOCubic'),   // Left-back
+      wp(5, 15, 'dpos_-3_1.5_-2_60,IOCubic'),  // Left-front
+      wp(6, 18, 'dpos_0_1.5_-4_60,IOCubic'),   // Return front (cross point)
+      wp(7, 21, 'dpos_2_2_-3_55,IOCubic'),     // Rise slightly
+      wp(8, 24, 'dpos_0_1.5_-4_60,stop')       // End front
+    ],
+    totalDuration: 6000,
+    coordinateSystem: 'left-handed'
+  },
+  
+  // ============================================
+  // 13. Mixed q_ and dpos Demo
+  // Demonstrates: combining explicit rotation with auto-look
+  // Shows transition between manual and auto camera control
+  // 6 waypoints = 6 bookmarks, 20 beats total
+  // ============================================
+  {
+    id: 'preset-mixed-qdpos',
+    name: 'Mixed q_ and dpos Demo',
+    beatDuration: 20,
+    waypoints: [
+      wp(0, 0, 'q_0_1.5_-5_0_0_0_60,IOQuad'),      // Manual: straight ahead
+      wp(1, 4, 'dpos_3_1.5_-3_60,IOQuad'),         // Auto: look at center
+      wp(2, 8, 'q_4_2_0_0_-45_0_55,IOQuad'),       // Manual: angled left
+      wp(3, 12, 'dpos_0_2.5_3_50,IOQuad'),         // Auto: from behind
+      wp(4, 16, 'q_-3_1_-4_15_30_0_65,IOQuad'),    // Manual: tilted view
+      wp(5, 20, 'dpos_0_1.5_-5_60,stop')           // Auto: return front
+    ],
+    totalDuration: 5000,
+    coordinateSystem: 'left-handed'
+  },
+  
+  // ============================================
+  // 14. Spiral Descent (dpos)
+  // Demonstrates: vertical spiral motion with dpos
+  // Camera spirals down while orbiting
+  // 7 waypoints = 7 bookmarks, 21 beats total
+  // ============================================
+  {
+    id: 'preset-dpos-spiral',
+    name: 'Spiral Descent (dpos)',
+    beatDuration: 21,
+    waypoints: [
+      wp(0, 0, 'dpos_0_4_-5_45,IOSine'),       // High front
+      wp(1, 3, 'dpos_4_3.5_-2_50,IOSine'),     // High right
+      wp(2, 6, 'dpos_3_3_3_55,IOSine'),        // Mid back-right
+      wp(3, 9, 'dpos_-2_2.5_4_55,IOSine'),     // Mid back-left
+      wp(4, 12, 'dpos_-4_2_-1_60,IOSine'),     // Low left
+      wp(5, 15, 'dpos_-1_1.5_-4_60,IOSine'),   // Low front-left
+      wp(6, 18, 'dpos_2_1_-3_65,IOSine'),      // Low front-right
+      wp(7, 21, 'dpos_0_0.8_-2.5_70,stop')     // Close-up low
+    ],
+    totalDuration: 5500,
+    coordinateSystem: 'left-handed'
+  },
+  
+  // ============================================
+  // 15. Easing Showcase (Multi-Easing)
+  // Demonstrates: different easings for each transition
+  // Each segment uses a unique easing function
+  // 8 waypoints = 8 bookmarks, 28 beats total
+  // ============================================
+  {
+    id: 'preset-easing-showcase',
+    name: 'Easing Showcase',
+    beatDuration: 28,
+    waypoints: [
+      wp(0, 0, 'q_0_1.5_-5_0_0_0_60,IQuad'),       // Start: ease-in quad
+      wp(1, 4, 'q_3_1.5_-3_0_-30_0_55,OQuad'),     // Out quad
+      wp(2, 8, 'q_4_2_0_0_-60_0_50,ICubic'),       // In cubic
+      wp(3, 12, 'q_2_2.5_3_-15_-120_0_45,OCubic'), // Out cubic
+      wp(4, 16, 'q_-2_2_3_-10_120_0_50,IExpo'),    // In expo (dramatic)
+      wp(5, 20, 'q_-4_1.5_0_0_60_0_55,OExpo'),     // Out expo
+      wp(6, 24, 'q_-2_1_-4_10_30_0_60,IOBack'),    // In-out back (overshoot)
+      wp(7, 28, 'q_0_1.5_-5_0_0_0_60,stop')        // Return to start
+    ],
+    totalDuration: 7000,
+    coordinateSystem: 'left-handed'
+  },
+  
+  // ============================================
+  // 16. Bounce & Elastic Demo (Multi-Easing)
+  // Demonstrates: bouncy and elastic easings
+  // Great for energetic/playful movements
+  // 6 waypoints = 6 bookmarks, 24 beats total
+  // ============================================
+  {
+    id: 'preset-bounce-elastic',
+    name: 'Bounce & Elastic Demo',
+    beatDuration: 24,
+    waypoints: [
+      wp(0, 0, 'dpos_0_1.5_-5_60,IBounce'),       // In bounce (bouncy start)
+      wp(1, 4, 'dpos_4_1_-2_65,OBounce'),         // Out bounce
+      wp(2, 8, 'dpos_3_2.5_2_50,IElastic'),       // In elastic (spring)
+      wp(3, 12, 'dpos_-2_2_3_55,OElastic'),       // Out elastic
+      wp(4, 18, 'dpos_-4_1.5_-1_60,IOBounce'),    // In-out bounce
+      wp(5, 24, 'dpos_0_1.5_-5_60,stop')          // Return to start
+    ],
+    totalDuration: 6000,
+    coordinateSystem: 'left-handed'
+  },
+  
+  // ============================================
+  // 17. Dramatic Transitions (Multi-Easing)
+  // Demonstrates: contrasting slow and fast easings
+  // Combines smooth and snappy movements
+  // 7 waypoints = 7 bookmarks, 24 beats total
+  // ============================================
+  {
+    id: 'preset-dramatic-transitions',
+    name: 'Dramatic Transitions',
+    beatDuration: 24,
+    waypoints: [
+      wp(0, 0, 'q_0_1.5_-6_0_0_0_55,OCirc'),       // Slow start, fast end
+      wp(1, 4, 'q_5_2_-2_-5_-45_0_50,ICirc'),      // Fast start, slow end
+      wp(2, 8, 'dpos_4_3_2_45,OQuint'),            // Very slow end
+      wp(3, 12, 'dpos_-1_1_4_60,IQuint'),          // Very fast start
+      wp(4, 16, 'q_-4_2_0_10_75_0_50,IOExpo'),     // Dramatic in-out
+      wp(5, 20, 'dpos_-3_1.5_-3_55,OBack'),        // Overshoot finish
+      wp(6, 24, 'q_0_1.5_-5_0_0_0_60,stop')        // End position
+    ],
+    totalDuration: 6000,
+    coordinateSystem: 'left-handed'
+  },
+  
+  // ============================================
+  // 18. Action Sequence (Multi-Easing)
+  // Demonstrates: fast-paced easing combinations
+  // Quick cuts with varied timing
+  // 10 waypoints = 10 bookmarks, 20 beats total
+  // ============================================
+  {
+    id: 'preset-action-sequence',
+    name: 'Action Sequence',
+    beatDuration: 20,
+    waypoints: [
+      wp(0, 0, 'dpos_0_1.5_-4_65,OExpo'),         // Quick zoom in
+      wp(1, 2, 'dpos_3_1_-2_70,IExpo'),           // Snap to side
+      wp(2, 4, 'q_4_2_1_-10_-60_5_55,OQuad'),     // Fast pan
+      wp(3, 6, 'dpos_0_2.5_3_45,IBack'),          // Overshoot high
+      wp(4, 8, 'dpos_-3_1_2_65,OCirc'),           // Smooth behind
+      wp(5, 10, 'q_-4_1.5_-1_5_50_-5_60,IOCubic'),// Stabilize
+      wp(6, 12, 'dpos_-2_0.8_-3_75,OExpo'),       // Low angle
+      wp(7, 14, 'dpos_2_1_-3_70,IQuad'),          // Side shift
+      wp(8, 17, 'q_3_2_-2_-5_-30_0_55,OElastic'), // Elastic settle
+      wp(9, 20, 'dpos_0_1.5_-4_60,stop')          // Return front
+    ],
+    totalDuration: 5000,
+    coordinateSystem: 'left-handed'
+  },
+  
+  // ============================================
+  // 19. Smooth Cinematic (Multi-Easing)
+  // Demonstrates: smooth professional easings
+  // Film-like camera movements
+  // 6 waypoints = 6 bookmarks, 32 beats total
+  // ============================================
+  {
+    id: 'preset-smooth-cinematic',
+    name: 'Smooth Cinematic',
+    beatDuration: 32,
+    waypoints: [
+      wp(0, 0, 'q_-3_1.2_-5_5_15_0_65,IOSine'),    // Gentle start
+      wp(1, 8, 'q_0_1.8_-3_0_0_0_55,IOQuad'),      // Slow push in
+      wp(2, 14, 'dpos_2_2_-2_50,IOCubic'),         // Smooth arc
+      wp(3, 20, 'q_3_1.5_1_-5_-45_0_55,IOSine'),   // Graceful pan
+      wp(4, 26, 'dpos_0_2.5_2_45,IOQuad'),         // Rise behind
+      wp(5, 32, 'q_-2_1.5_-4_5_20_0_60,stop')      // Settle front-left
+    ],
+    totalDuration: 8000,
+    coordinateSystem: 'left-handed'
+  },
+  
+  // ============================================
+  // 20. Easing Sampler (All Categories)
+  // Demonstrates: one example from each easing family
+  // Educational preset showing easing variety
+  // 12 waypoints = 12 bookmarks, 44 beats total
+  // ============================================
+  {
+    id: 'preset-easing-sampler',
+    name: 'Easing Sampler (All Types)',
+    beatDuration: 44,
+    waypoints: [
+      wp(0, 0, 'dpos_0_1.5_-5_60,Linear'),         // Linear (no easing)
+      wp(1, 4, 'dpos_3_1.5_-3_60,IOSine'),         // Sine (smooth wave)
+      wp(2, 8, 'dpos_4_2_0_55,IOQuad'),            // Quad (gentle curve)
+      wp(3, 12, 'dpos_3_2_3_50,IOCubic'),          // Cubic (medium curve)
+      wp(4, 16, 'dpos_0_2.5_4_45,IOQuart'),        // Quart (strong curve)
+      wp(5, 20, 'dpos_-3_2_3_50,IOQuint'),         // Quint (very strong)
+      wp(6, 24, 'dpos_-4_1.5_0_55,IOExpo'),        // Expo (extreme)
+      wp(7, 28, 'dpos_-3_1_-3_60,IOCirc'),         // Circ (circular)
+      wp(8, 32, 'dpos_0_1.5_-4_60,IOBack'),        // Back (overshoot)
+      wp(9, 36, 'dpos_2_2_-3_55,IOElastic'),       // Elastic (spring)
+      wp(10, 40, 'dpos_3_1.5_-2_60,IOBounce'),     // Bounce (bouncy)
+      wp(11, 44, 'dpos_0_1.5_-5_60,stop')          // End
+    ],
+    totalDuration: 11000,
+    coordinateSystem: 'left-handed'
   }
 ]
 

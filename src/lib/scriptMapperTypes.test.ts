@@ -8,6 +8,7 @@ import {
   computeSegmentsFromWaypoints,
   extractEasingFromBookmarkCommand,
   parsePositionCommand,
+  calculateLookAtRotation,
   createWaypoint,
   createSegment,
   type CameraPath
@@ -373,24 +374,81 @@ describe('computeSegmentsFromWaypoints', () => {
 })
 
 describe('parsePositionCommand', () => {
-  it('parses q_ command format', () => {
+  it('parses q_ command format with position and rotation', () => {
     const result = parsePositionCommand('q_0_1_-5_0_0_0_60,IOSine')
-    expect(result).toEqual({ x: 0, y: 1, z: -5 })
+    expect(result).toEqual({ 
+      x: 0, 
+      y: 1, 
+      z: -5,
+      rotation: { rx: 0, ry: 0, rz: 0 }
+    })
   })
   
-  it('parses q_ command with negative values', () => {
+  it('parses q_ command with negative values and rotation', () => {
     const result = parsePositionCommand('q_-3.5_2.1_-10_0_0_0_60')
-    expect(result).toEqual({ x: -3.5, y: 2.1, z: -10 })
+    expect(result).toEqual({ 
+      x: -3.5, 
+      y: 2.1, 
+      z: -10,
+      rotation: { rx: 0, ry: 0, rz: 0 }
+    })
+  })
+  
+  it('parses q_ command with non-zero rotation values', () => {
+    const result = parsePositionCommand('q_0_1.5_-3_45_30_0_70')
+    expect(result).toEqual({
+      x: 0,
+      y: 1.5,
+      z: -3,
+      rotation: { rx: 45, ry: 30, rz: 0 }
+    })
+  })
+  
+  it('parses q_ command with full format including duration and easing', () => {
+    const result = parsePositionCommand('q_0_1.5_-3_45_30_0_70_2_easeOutCubic')
+    expect(result).toEqual({
+      x: 0,
+      y: 1.5,
+      z: -3,
+      rotation: { rx: 45, ry: 30, rz: 0 }
+    })
+  })
+  
+  it('parses q_ command with negative rotation values', () => {
+    const result = parsePositionCommand('q_1_2_3_-15_-30_-45_60')
+    expect(result).toEqual({
+      x: 1,
+      y: 2,
+      z: 3,
+      rotation: { rx: -15, ry: -30, rz: -45 }
+    })
+  })
+  
+  it('parses q_ command with only position (no rotation)', () => {
+    // Edge case: q_ with only 3 position values (missing rotation)
+    const result = parsePositionCommand('q_1_2_3')
+    expect(result).toEqual({ x: 1, y: 2, z: 3 })
+    expect(result?.rotation).toBeUndefined()
   })
   
   it('parses dpos_ command format', () => {
     const result = parsePositionCommand('dpos_5_3_-2_60')
-    expect(result).toEqual({ x: 5, y: 3, z: -2 })
+    expect(result?.x).toBe(5)
+    expect(result?.y).toBe(3)
+    expect(result?.z).toBe(-2)
+    // dpos auto-calculates look-at rotation toward avatar (0, 1, 0)
+    expect(result?.rotation).toBeDefined()
+    expect(result?.rotation?.rz).toBe(0) // no roll
   })
   
   it('parses dpos_ command with decimal values', () => {
     const result = parsePositionCommand('dpos_1.5_0.5_-0.75_45')
-    expect(result).toEqual({ x: 1.5, y: 0.5, z: -0.75 })
+    expect(result?.x).toBe(1.5)
+    expect(result?.y).toBe(0.5)
+    expect(result?.z).toBe(-0.75)
+    // dpos auto-calculates look-at rotation toward avatar (0, 1, 0)
+    expect(result?.rotation).toBeDefined()
+    expect(result?.rotation?.rz).toBe(0) // no roll
   })
   
   it('returns null for spin commands', () => {
@@ -411,5 +469,55 @@ describe('parsePositionCommand', () => {
   it('returns null for easing-only commands', () => {
     const result = parsePositionCommand('IOSine')
     expect(result).toBeNull()
+  })
+})
+
+describe('calculateLookAtRotation', () => {
+  it('calculates rotation to look at default target (avatar head at y=1.5)', () => {
+    // Camera behind avatar at head height, should look forward (no rotation)
+    const result = calculateLookAtRotation({ x: 0, y: 1.5, z: -5 })
+    expect(result.rx).toBeCloseTo(0)
+    expect(result.ry).toBeCloseTo(0)
+    expect(result.rz).toBe(0)
+  })
+
+  it('calculates yaw for camera positioned to the side', () => {
+    // Camera to the right of avatar at head height, should look left (negative yaw)
+    const result = calculateLookAtRotation({ x: 5, y: 1.5, z: 0 })
+    expect(result.ry).toBeCloseTo(-90) // Looking left toward center
+    expect(result.rx).toBeCloseTo(0)   // No pitch needed
+    expect(result.rz).toBe(0)
+  })
+
+  it('calculates pitch for camera above target', () => {
+    // Camera directly above avatar head, looking straight down
+    const result = calculateLookAtRotation({ x: 0, y: 6.5, z: 0 })
+    expect(result.rx).toBeCloseTo(90)  // Looking down
+    expect(result.rz).toBe(0)
+  })
+
+  it('calculates pitch for camera below target', () => {
+    // Camera below avatar head, looking up
+    const result = calculateLookAtRotation({ x: 0, y: -3.5, z: -5 })
+    expect(result.rx).toBeCloseTo(-45) // Looking up
+    expect(result.ry).toBeCloseTo(0)
+  })
+
+  it('supports custom target point', () => {
+    // Camera at origin, look at point (5, 0, 0) which is to the right
+    const result = calculateLookAtRotation(
+      { x: 0, y: 0, z: 0 },
+      { x: 5, y: 0, z: 0 }
+    )
+    expect(result.ry).toBeCloseTo(90) // Looking right (positive x direction)
+    expect(result.rx).toBeCloseTo(0)
+  })
+
+  it('handles diagonal positions correctly', () => {
+    // Camera at 45 degree angle, should have both yaw and pitch
+    const result = calculateLookAtRotation({ x: 5, y: 3, z: -5 })
+    expect(result.ry).not.toBe(0)  // Has yaw
+    expect(result.rx).not.toBe(0)  // Has pitch
+    expect(result.rz).toBe(0)      // Never has roll
   })
 })
