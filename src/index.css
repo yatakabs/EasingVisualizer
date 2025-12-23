@@ -81,3 +81,107 @@
 body {
   overflow-x: hidden;
 }
+
+/* ===== Responsive Panel Grid ===== */
+.panel-grid {
+  display: grid;
+  gap: clamp(8px, 1.5vw, 16px);
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  align-content: start;
+}
+
+@media (min-width: 640px) {
+  .panel-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .panel-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .panel-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+@media (min-width: 1536px) {
+  .panel-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+}
+
+@media (min-width: 1920px) {
+  .panel-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+/* ===== Panel Card Hover Effects ===== */
+.panel-card {
+  transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+}
+
+.panel-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px hsl(0 0% 0% / 0.15);
+}
+
+/* ===== Accessibility: Reduced Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.1ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .panel-card:hover {
+    transform: none;
+  }
+}
+
+/* ===== Accessibility: Focus Rings ===== */
+.focus-ring {
+  @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+}
+
+/* ===== Touch Targets ===== */
+@media (pointer: coarse) {
+  button,
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"],
+  select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ===== Toolbar Glass Effect ===== */
+.toolbar-glass {
+  background: hsl(var(--background) / 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+}
+
+/* ===== Skip Link for Accessibility ===== */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  padding: 8px 16px;
+  background: var(--background);
+  color: var(--foreground);
+  z-index: 100;
+  transition: top 0.2s;
+}
+
+.skip-link:focus {
+  top: 0;
+}

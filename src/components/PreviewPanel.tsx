@@ -10,6 +10,7 @@ import { GlowPreview } from '@/components/previews/GlowPreview'
 import { GraphPreview } from '@/components/previews/GraphPreview'
 import { CameraPreview } from '@/components/previews/CameraPreview'
 import { ValuePreview } from '@/components/previews/ValuePreview'
+import { EasingComparePreview } from '@/components/previews/EasingComparePreview'
 
 interface PreviewPanelProps {
   easingFunction: EasingFunction
@@ -30,6 +31,8 @@ interface PreviewPanelProps {
   canToggleCamera: boolean
   canActivateCamera: boolean
   title?: string
+  scriptMapperMode?: boolean
+  driftParams?: { x: number; y: number }
   onRemove?: () => void
   onToggleCamera: () => void
   onEaseTypeChange: (easeType: EaseType) => void
@@ -58,6 +61,8 @@ export const PreviewPanel = memo(function PreviewPanel({
   canToggleCamera,
   canActivateCamera,
   title,
+  scriptMapperMode = false,
+  driftParams,
   onRemove,
   onToggleCamera,
   onEaseTypeChange,
@@ -212,6 +217,14 @@ export const PreviewPanel = memo(function PreviewPanel({
           />
         )}
         
+        {enabledPreviews.includes('easing-compare') && (
+          <EasingComparePreview
+            easingFunction={easingFunction}
+            input={input}
+            easeType={easeType}
+          />
+        )}
+        
         {enabledPreviews.includes('graph') && (
           <GraphPreview
             easingFunction={easingFunction}
@@ -222,6 +235,8 @@ export const PreviewPanel = memo(function PreviewPanel({
             easeType={easeType}
             enabledFilters={enabledFilters}
             filterParams={filterParams}
+            scriptMapperMode={scriptMapperMode}
+            driftParams={driftParams}
           />
         )}
         

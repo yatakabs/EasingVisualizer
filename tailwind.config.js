@@ -22,6 +22,8 @@ const defaultTheme = {
       coarse: { raw: "(pointer: coarse)" },
       fine: { raw: "(pointer: fine)" },
       pwa: { raw: "(display-mode: standalone)" },
+      // Desktop large breakpoint for Full-HD and larger layouts
+      '3xl': '1920px',
     },
     colors: {
       neutral: {

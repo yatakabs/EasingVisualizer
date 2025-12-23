@@ -12,6 +12,8 @@ interface GraphPreviewProps {
   easeType: EaseType
   enabledFilters: string[]
   filterParams: Record<string, number>
+  scriptMapperMode?: boolean
+  driftParams?: { x: number; y: number }
 }
 
 // Graph configuration constants
@@ -36,7 +38,9 @@ export const GraphPreview = memo(function GraphPreview({
   isTriangularMode,
   easeType,
   enabledFilters,
-  filterParams
+  filterParams,
+  scriptMapperMode = false,
+  driftParams
 }: GraphPreviewProps) {
   const [hoverPosition, setHoverPosition] = useState<{ x: number; y: number } | null>(null)
 
@@ -64,7 +68,7 @@ export const GraphPreview = memo(function GraphPreview({
     setHoverPosition(null)
   }, [])
 
-  const { position, graphPath, trailPath, originalGraphPath, hoverPoint } = useMemo(() => {
+  const { position, graphPath, trailPath, originalGraphPath, baseGraphPath, hoverPoint } = useMemo(() => {
     const { paddingLeft, paddingTop, innerWidth, innerHeight } = GRAPH_CONFIG
     
     const x = paddingLeft + input * innerWidth
@@ -72,14 +76,40 @@ export const GraphPreview = memo(function GraphPreview({
     
     const points: string[] = []
     const originalPoints: string[] = []
+    const basePoints: string[] = []
     const steps = 100
     
-    if (isTriangularMode) {
+    // ScriptMapper mode: always use linear input (0→1), no triangular wave
+    // ScriptMapper curves map input 0-1 directly to output 0-1
+    if (scriptMapperMode) {
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps
+        const xPos = paddingLeft + t * innerWidth
+        const yVal = easingFunction.calculate(t, easeType, driftParams)
+        
+        // Base function (always easein - the raw function without transformation)
+        const baseYVal = easingFunction.calculate(t, 'easein', driftParams)
+        const baseYPos = paddingTop + (1 - baseYVal) * innerHeight
+        basePoints.push(`${xPos},${baseYPos}`)
+        
+        const originalYPos = paddingTop + (1 - yVal) * innerHeight
+        originalPoints.push(`${xPos},${originalYPos}`)
+        
+        // In ScriptMapper mode, no filters are applied - raw easing curve
+        const yPos = paddingTop + (1 - yVal) * innerHeight
+        points.push(`${xPos},${yPos}`)
+      }
+    } else if (isTriangularMode) {
       for (let i = 0; i <= steps; i++) {
         const t = i / steps
         const triangularT = t < 0.5 ? t * 2 : 2 - t * 2
         const xPos = paddingLeft + t * innerWidth
-        const yVal = easingFunction.calculate(triangularT, easeType)
+        const yVal = easingFunction.calculate(triangularT, easeType, driftParams)
+        
+        // Base function (always easein - the raw function without transformation)
+        const baseYVal = easingFunction.calculate(triangularT, 'easein', driftParams)
+        const baseYPos = paddingTop + (1 - baseYVal) * innerHeight
+        basePoints.push(`${xPos},${baseYPos}`)
         
         const originalYPos = paddingTop + (1 - yVal) * innerHeight
         originalPoints.push(`${xPos},${originalYPos}`)
@@ -92,7 +122,12 @@ export const GraphPreview = memo(function GraphPreview({
       for (let i = 0; i <= steps; i++) {
         const t = i / steps
         const xPos = paddingLeft + t * innerWidth
-        const yVal = easingFunction.calculate(t, easeType)
+        const yVal = easingFunction.calculate(t, easeType, driftParams)
+        
+        // Base function (always easein - the raw function without transformation)
+        const baseYVal = easingFunction.calculate(t, 'easein', driftParams)
+        const baseYPos = paddingTop + (1 - baseYVal) * innerHeight
+        basePoints.push(`${xPos},${baseYPos}`)
         
         const originalYPos = paddingTop + (1 - yVal) * innerHeight
         originalPoints.push(`${xPos},${originalYPos}`)
@@ -106,12 +141,21 @@ export const GraphPreview = memo(function GraphPreview({
     const trailPoints: string[] = []
     const currentStep = Math.floor(baseInput * steps)
     
-    if (isTriangularMode) {
+    // ScriptMapper mode: simple linear trail from 0 to current position
+    if (scriptMapperMode) {
+      for (let i = 0; i <= currentStep; i++) {
+        const t = i / steps
+        const xPos = paddingLeft + t * innerWidth
+        const yVal = easingFunction.calculate(t, easeType, driftParams)
+        const yPos = paddingTop + (1 - yVal) * innerHeight
+        trailPoints.push(`${xPos},${yPos}`)
+      }
+    } else if (isTriangularMode) {
       for (let i = 0; i <= currentStep; i++) {
         const t = i / steps
         const triangularT = t < 0.5 ? t * 2 : 2 - t * 2
         const xPos = paddingLeft + t * innerWidth
-        const yVal = easingFunction.calculate(triangularT, easeType)
+        const yVal = easingFunction.calculate(triangularT, easeType, driftParams)
         const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
         const yPos = paddingTop + (1 - filteredYVal) * innerHeight
         trailPoints.push(`${xPos},${yPos}`)
@@ -120,7 +164,7 @@ export const GraphPreview = memo(function GraphPreview({
       for (let i = 0; i <= currentStep; i++) {
         const t = i / steps
         const xPos = paddingLeft + t * innerWidth
-        const yVal = easingFunction.calculate(t, easeType)
+        const yVal = easingFunction.calculate(t, easeType, driftParams)
         const filteredYVal = applyFilters(yVal, enabledFilters, filterParams)
         const yPos = paddingTop + (1 - filteredYVal) * innerHeight
         trailPoints.push(`${xPos},${yPos}`)
@@ -132,20 +176,28 @@ export const GraphPreview = memo(function GraphPreview({
       svgY: number
       xValue: number
       yValue: number
+      baseYValue: number
     } | null = null
     if (hoverPosition) {
       const hoverX = hoverPosition.x
-      const triangularHoverX = isTriangularMode 
-        ? (hoverX < 0.5 ? hoverX * 2 : 2 - hoverX * 2)
-        : hoverX
-      const hoverYVal = easingFunction.calculate(triangularHoverX, easeType)
-      const filteredHoverYVal = applyFilters(hoverYVal, enabledFilters, filterParams)
+      // ScriptMapper mode: no triangular transformation on hover
+      const effectiveHoverX = scriptMapperMode 
+        ? hoverX 
+        : (isTriangularMode ? (hoverX < 0.5 ? hoverX * 2 : 2 - hoverX * 2) : hoverX)
+      const hoverYVal = easingFunction.calculate(effectiveHoverX, easeType, driftParams)
+      const filteredHoverYVal = scriptMapperMode 
+        ? hoverYVal 
+        : applyFilters(hoverYVal, enabledFilters, filterParams)
+      
+      // Calculate base value for hover tooltip
+      const baseHoverYVal = easingFunction.calculate(effectiveHoverX, 'easein', driftParams)
       
       hoverPointData = {
         svgX: paddingLeft + hoverX * innerWidth,
         svgY: paddingTop + (1 - filteredHoverYVal) * innerHeight,
         xValue: hoverX,
-        yValue: filteredHoverYVal
+        yValue: filteredHoverYVal,
+        baseYValue: baseHoverYVal
       }
     }
     
@@ -154,9 +206,10 @@ export const GraphPreview = memo(function GraphPreview({
       graphPath: points.join(' '),
       trailPath: trailPoints.join(' '),
       originalGraphPath: originalPoints.join(' '),
+      baseGraphPath: basePoints.join(' '),
       hoverPoint: hoverPointData
     }
-  }, [input, baseInput, filteredOutput, easingFunction, enabledFilters, filterParams, easeType, isTriangularMode, hoverPosition])
+  }, [input, baseInput, filteredOutput, easingFunction, enabledFilters, filterParams, easeType, isTriangularMode, hoverPosition, scriptMapperMode, driftParams])
 
   const { paddingLeft, paddingTop, innerWidth, innerHeight, graphRight, graphBottom, viewBoxWidth, viewBoxHeight } = GRAPH_CONFIG
   const graphMidX = paddingLeft + innerWidth / 2
@@ -236,6 +289,51 @@ export const GraphPreview = memo(function GraphPreview({
         <text x={8} y={graphMidY} textAnchor="middle" dominantBaseline="middle" className="text-[10px] fill-muted-foreground font-mono" transform={`rotate(-90 8 ${graphMidY})`}>
           Output (y)
         </text>
+        
+        {/* Legend - only show when easeType is not 'easein' */}
+        {easeType !== 'easein' && (
+          <g>
+            <text x={graphRight - 2} y={paddingTop + 8} textAnchor="end" className="text-[9px] fill-muted-foreground font-medium">
+              Legend:
+            </text>
+            <line
+              x1={graphRight - 26}
+              y1={paddingTop + 16}
+              x2={graphRight - 14}
+              y2={paddingTop + 16}
+              stroke="oklch(0.5 0.08 250)"
+              strokeWidth="1.5"
+              strokeDasharray="4 4"
+              opacity="0.35"
+            />
+            <text x={graphRight - 12} y={paddingTop + 18} textAnchor="start" className="text-[9px] fill-muted-foreground font-mono">
+              Base
+            </text>
+            <line
+              x1={graphRight - 26}
+              y1={paddingTop + 24}
+              x2={graphRight - 14}
+              y2={paddingTop + 24}
+              stroke={easingFunction.color}
+              strokeWidth="2"
+            />
+            <text x={graphRight - 12} y={paddingTop + 26} textAnchor="start" className="text-[9px] fill-muted-foreground font-mono">
+              Eased
+            </text>
+          </g>
+        )}
+        
+        {/* Base curve (dotted line) - only show when easeType is not 'easein' */}
+        {easeType !== 'easein' && (
+          <polyline
+            points={baseGraphPath}
+            fill="none"
+            stroke="oklch(0.5 0.08 250)"
+            strokeWidth="1.5"
+            opacity="0.35"
+            strokeDasharray="4 4"
+          />
+        )}
         
         {/* Original curve (before filters) */}
         <polyline
@@ -323,8 +421,9 @@ export const GraphPreview = memo(function GraphPreview({
             />
             {/* Tooltip - position dynamically based on hover location */}
             {(() => {
-              const tooltipWidth = 56
-              const tooltipHeight = 24
+              const showBase = easeType !== 'easein'
+              const tooltipWidth = 64
+              const tooltipHeight = showBase ? 36 : 24
               const tooltipMargin = 8
               
               // Determine tooltip position based on hover point location
@@ -361,7 +460,7 @@ export const GraphPreview = memo(function GraphPreview({
                   />
                   <text
                     x={tooltipX}
-                    y={tooltipY - 3}
+                    y={tooltipY - (showBase ? 9 : 3)}
                     textAnchor="middle"
                     className="text-[10px] fill-primary font-mono font-medium"
                   >
@@ -369,12 +468,22 @@ export const GraphPreview = memo(function GraphPreview({
                   </text>
                   <text
                     x={tooltipX}
-                    y={tooltipY + 6}
+                    y={tooltipY + (showBase ? 0 : 6)}
                     textAnchor="middle"
                     className="text-[10px] fill-primary font-mono font-medium"
                   >
                     y:{hoverPoint.yValue.toFixed(3)}
                   </text>
+                  {showBase && (
+                    <text
+                      x={tooltipX}
+                      y={tooltipY + 9}
+                      textAnchor="middle"
+                      className="text-[9px] fill-muted-foreground font-mono"
+                    >
+                      base:{hoverPoint.baseYValue.toFixed(3)}
+                    </text>
+                  )}
                 </>
               )
             })()}

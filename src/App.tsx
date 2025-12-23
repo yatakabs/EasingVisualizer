@@ -1,23 +1,27 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useLocalKV, isSparkEnvironment } from '@/hooks/useLocalKV'
+import { useLocalKV } from '@/hooks/useLocalKV'
 import { usePresets } from '@/hooks/usePresets'
 import { PreviewPanel } from '@/components/PreviewPanel'
-import { ControlPanel } from '@/components/ControlPanel'
+import { Toolbar } from '@/components/Toolbar'
+import { AdvancedSettings } from '@/components/AdvancedSettings'
 import { FunctionSelector } from '@/components/FunctionSelector'
 import { PresetManager } from '@/components/PresetManager'
-import { ShareButton } from '@/components/ShareButton'
 import { URLPreviewBanner } from '@/components/URLPreviewBanner'
 import { DriftControls } from '@/components/DriftControls'
 import { ScriptMapperExport } from '@/components/ScriptMapperExport'
+import { ScriptMapperControls } from '@/components/ScriptMapperControls'
+import { ScriptMapperPreview } from '@/components/previews/ScriptMapperPreview'
+import { ScriptMapperGraph } from '@/components/previews/ScriptMapperGraph'
 import { VersionBadge } from '@/components/VersionBadge'
 import { Button } from '@/components/ui/button'
-import { GearSix, FolderOpen } from '@phosphor-icons/react'
 import { EASING_FUNCTIONS, type EasingFunction } from '@/lib/easingFunctions'
 import { applyFilters } from '@/lib/outputFilters'
 import { type EaseType } from '@/lib/easeTypes'
 import { type PreviewType } from '@/lib/previewTypes'
 import { type AppState } from '@/lib/urlState'
 import { useURLState } from '@/hooks/useURLState'
+import type { CameraPath } from '@/lib/scriptMapperTypes'
+import { CAMERA_PATH_PRESETS } from '@/lib/cameraPathPresets'
 import { Toaster as Sonner } from 'sonner'
 import { toast } from 'sonner'
 
@@ -82,6 +86,7 @@ function App() {
   const [endPauseDuration, setEndPauseDuration] = useKV<number>('end-pause-duration', urlState?.endPauseDuration ?? 2.0, forceURLState)
   const [scriptMapperMode, setScriptMapperMode] = useKV<boolean>('scriptmapper-mode', urlState?.scriptMapperMode ?? false, forceURLState)
   const [driftParams, setDriftParams] = useKV<{ x: number; y: number }>('drift-params', urlState?.driftParams ?? { x: 6, y: 6 }, forceURLState)
+  const [activeCameraPath, setActiveCameraPath] = useKV<CameraPath | null>('active-camera-path', CAMERA_PATH_PRESETS[0] ?? null, forceURLState)
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
@@ -92,6 +97,7 @@ function App() {
   const [selectorOpen, setSelectorOpen] = useState(false)
   const [presetManagerOpen, setPresetManagerOpen] = useState(false)
   const [draggedPanelId, setDraggedPanelId] = useState<string | null>(null)
+  const [showAdvancedSettings, setShowAdvancedSettings] = useState(false)
   
   const lastFrameTime = useRef(Date.now())
   const fpsFrames = useRef<number[]>([])
@@ -238,6 +244,30 @@ function App() {
       }
     }
   }, [])
+
+  // Keyboard shortcut: Space → Play/Pause
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Skip if user is in an input field or slider
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        (e.target as HTMLElement).closest('[role="slider"]')
+      ) {
+        return
+      }
+
+      if (e.key === ' ' || e.code === 'Space') {
+        e.preventDefault()
+        if (!(manualInputMode ?? false)) {
+          setIsPlaying((current) => !current)
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [manualInputMode, setIsPlaying])
 
   // ResizeObserver to measure grid height and compensate for scaling
   useEffect(() => {
@@ -601,6 +631,20 @@ function App() {
     })
   }, [setActiveCameraPanels, maxCameraPreviews])
 
+  // Share handler - uses ShareButton's internal logic but provides callback for Toolbar
+  const handleShare = useCallback(async () => {
+    const state = getAppState()
+    try {
+      const { encodeAppState } = await import('@/lib/urlState')
+      const encoded = encodeAppState(state)
+      const url = `${window.location.origin}${window.location.pathname}?state=${encoded}`
+      await navigator.clipboard.writeText(url)
+      toast.success('Share URL copied to clipboard!')
+    } catch (err) {
+      toast.error('Failed to generate share URL')
+    }
+  }, [getAppState])
+
   const handleEaseTypeChange = useCallback((panelId: string, newEaseType: EaseType) => {
     setPanels((currentPanels) =>
       (currentPanels || []).map(p =>
@@ -613,10 +657,16 @@ function App() {
   const currentInputValue = (triangularWaveMode ?? false) ? getTriangularWave(baseInputValue) : baseInputValue
   const usedFunctionIds = (panels || []).map(p => p.functionId)
   const isTriangularMode = triangularWaveMode ?? false
+  const showCameraSettings = (enabledPreviews ?? []).includes('camera')
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="h-screen bg-background text-foreground flex flex-col overflow-hidden">
       <Sonner position="top-center" theme="dark" />
+      
+      {/* Skip Link for Accessibility */}
+      <a href="#main-content" className="skip-link focus-ring">
+        Skip to main content
+      </a>
       
       {/* URL Preview Banner */}
       {showPreviewBanner && urlState && (
@@ -628,106 +678,103 @@ function App() {
         />
       )}
       
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-[120rem]">
-        <header className="mb-4 sm:mb-6 flex items-center justify-between">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight" style={{ letterSpacing: '-0.02em' }}>
-            Easing Function Visualizer
-          </h1>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => setPresetManagerOpen(true)}>
-              <FolderOpen className="h-4 w-4 mr-2" />
-              Presets
-            </Button>
-            <ShareButton getState={getAppState} />
-          </div>
-        </header>
+      {/* Sticky Toolbar */}
+      <Toolbar
+        isPlaying={isPlaying ?? true}
+        isPausedAtEnd={isPaused}
+        manualMode={manualInputMode ?? false}
+        speed={speed}
+        inputValue={currentInputValue}
+        enabledPreviews={enabledPreviews ?? ['camera', 'graph', 'value']}
+        onPlayPause={() => setIsPlaying((current) => !current)}
+        onSpeedChange={handleSpeedChange}
+        onInputValueChange={handleInputValueChange}
+        onAddPanel={handleAddPanel}
+        onTogglePreview={handleTogglePreview}
+        onOpenPresets={() => setPresetManagerOpen(true)}
+        onShare={handleShare}
+        onToggleAdvanced={() => setShowAdvancedSettings(prev => !prev)}
+        showAdvanced={showAdvancedSettings}
+      />
+      
+      {/* Main Content Area - Fills remaining viewport height */}
+      <main id="main-content" className="flex-1 overflow-auto min-h-0" aria-label="Easing function panels">
+        <div className="h-full px-3 sm:px-4 py-3 sm:py-4">
+          {/* ScriptMapper Controls - conditionally visible */}
+          {scriptMapperMode && (
+            <div className="space-y-4 mb-4">
+              {/* ScriptMapper Controls - path selection, segment overview */}
+              <ScriptMapperControls
+                enabled={scriptMapperMode ?? false}
+                onToggleEnabled={(enabled) => setScriptMapperMode(() => enabled)}
+                activePath={activeCameraPath ?? null}
+                onSelectPath={(path) => setActiveCameraPath(() => path)}
+                globalTime={baseInputValue}
+                isPlaying={isPlaying ?? true}
+                onTogglePlay={() => setIsPlaying((current) => !current)}
+              />
+              
+              {/* ScriptMapper Previews - only if a path is selected */}
+              {activeCameraPath && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {/* 3D Camera Path Preview */}
+                  <div className="aspect-video">
+                    <ScriptMapperPreview
+                      cameraPath={activeCameraPath}
+                      globalTime={baseInputValue}
+                      aspectRatio={cameraAspectRatio ?? '16/9'}
+                      coordinateSystem={coordinateSystem ?? 'left-handed'}
+                    />
+                  </div>
+                  
+                  {/* Timing Graph */}
+                  <div className="aspect-video">
+                    <ScriptMapperGraph
+                      cameraPath={activeCameraPath}
+                      globalTime={baseInputValue}
+                    />
+                  </div>
+                </div>
+              )}
+              
+              {/* Drift Controls - only visible when at least one panel uses Drift */}
+              {(panels || []).some(panel => panel.functionId === 'drift') && (
+                <DriftControls
+                  x={driftParams?.x ?? 6}
+                  y={driftParams?.y ?? 6}
+                  onXChange={(x) => handleDriftParamsChange(x, driftParams?.y ?? 6)}
+                  onYChange={(y) => handleDriftParamsChange(driftParams?.x ?? 6, y)}
+                  onReset={handleDriftReset}
+                  visible={true}
+                />
+              )}
 
-        <div className="space-y-4">
-          {!(showControlPanel ?? true) && (
-            <div className="flex justify-end mb-2">
-              <Button variant="outline" size="sm" onClick={() => setShowControlPanel(() => true)}>
-                <GearSix className="h-4 w-4 mr-2" />
-                コントロールを表示
-              </Button>
+              {/* ScriptMapper Export/Import */}
+              <ScriptMapperExport
+                functionId={(panels || [])[0]?.functionId ?? 'linear'}
+                easeType={(panels || [])[0]?.easeType ?? 'easein'}
+                driftParams={driftParams ?? { x: 6, y: 6 }}
+                onImport={handleScriptMapperImport}
+                visible={true}
+              />
             </div>
           )}
-          {(showControlPanel ?? true) && (
-            <ControlPanel
-              isPlaying={isPlaying ?? true}
-              speed={speed ?? 1}
-              gamma={gamma ?? 2.2}
-              fps={fps}
-              enabledPreviews={enabledPreviews ?? ['glow', 'value']}
-              enabledFilters={enabledFilters ?? []}
-              inputValue={currentInputValue}
-              baseInputValue={baseInputValue}
-              manualInputMode={manualInputMode ?? false}
-              triangularWaveMode={triangularWaveMode ?? false}
-              scriptMapperMode={scriptMapperMode ?? false}
-              onPlayPause={() => setIsPlaying((current) => !current)}
-              onSpeedChange={handleSpeedChange}
-              onGammaChange={handleGammaChange}
-              onAddPanel={handleAddPanel}
-              onTogglePreview={handleTogglePreview}
-              onToggleFilter={handleToggleFilter}
-              onInputValueChange={handleInputValueChange}
-              onManualInputModeChange={handleManualInputModeChange}
-              onTriangularWaveModeChange={(enabled) => setTriangularWaveMode(() => enabled)}
-              onScriptMapperModeChange={(enabled) => setScriptMapperMode(() => enabled)}
-              onSetAllEaseType={handleSetAllEaseType}
-              cameraStartPos={cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 }}
-              cameraEndPos={cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }}
-              cameraAspectRatio={cameraAspectRatio ?? '16/9'}
-              maxCameraPreviews={maxCameraPreviews ?? 6}
-              onCameraStartPosChange={(pos) => setCameraStartPos(() => pos)}
-              onCameraEndPosChange={(pos) => setCameraEndPos(() => pos)}
-              onCameraAspectRatioChange={(aspectRatio) => setCameraAspectRatio(() => aspectRatio)}
-              onMaxCameraPreviewsChange={(max) => setMaxCameraPreviews(() => max)}
-              cardScale={cardScale ?? 1.0}
-              onCardScaleChange={(scale) => setCardScale(() => scale)}
-              coordinateSystem={coordinateSystem ?? 'left-handed'}
-              onCoordinateSystemChange={(system) => setCoordinateSystem(() => system)}
-              onHideControlPanel={() => setShowControlPanel(() => false)}
-              endPauseDuration={endPauseDuration ?? 2.0}
-              onEndPauseDurationChange={handleEndPauseDurationChange}
-              isPausedAtEnd={isPaused}
-              pauseProgress={pauseProgress}
-            />
-          )}
 
-          {/* Drift Controls - only visible when at least one panel uses Drift */}
-          {scriptMapperMode && (panels || []).some(panel => panel.functionId === 'drift') && (
-            <DriftControls
-              x={driftParams?.x ?? 6}
-              y={driftParams?.y ?? 6}
-              onXChange={(x) => handleDriftParamsChange(x, driftParams?.y ?? 6)}
-              onYChange={(y) => handleDriftParamsChange(driftParams?.x ?? 6, y)}
-              onReset={handleDriftReset}
-              visible={true}
-            />
-          )}
-
-          {/* ScriptMapper Export/Import - visible in ScriptMapper mode */}
-          {scriptMapperMode && (
-            <ScriptMapperExport
-              functionId={(panels || [])[0]?.functionId ?? 'linear'}
-              easeType={(panels || [])[0]?.easeType ?? 'easein'}
-              driftParams={driftParams ?? { x: 6, y: 6 }}
-              onImport={handleScriptMapperImport}
-              visible={true}
-            />
-          )}
-
+          {/* Panels Grid or Empty State */}
           {(panels || []).length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center">
+            <div className="flex flex-col items-center justify-center h-full text-center">
               <div className="text-6xl sm:text-7xl mb-4">📊</div>
               <h2 className="text-2xl sm:text-3xl font-semibold mb-2">パネルがありません</h2>
               <p className="text-muted-foreground text-base sm:text-lg mb-6 max-w-md">
                 最初のパネルを追加して関数の比較を開始
               </p>
+              <Button onClick={handleAddPanel} size="lg" className="min-h-[44px]">
+                Add Panel
+              </Button>
             </div>
           ) : (
             <div 
+              className="h-full"
               style={{ 
                 minHeight: scaledGridHeight > 0 ? scaledGridHeight : undefined 
               }}
@@ -740,13 +787,9 @@ function App() {
                   width: `calc(100% / ${cardScale ?? 1.0})`,
                 }}
               >
-                <div 
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 gap-3 sm:gap-4"
-                  style={{
-                    gridTemplateColumns: `repeat(auto-fill, minmax(200px, 1fr))`
-                  }}
-                >
-                  {(panels || []).map((panel, panelIndex) => {
+                {/* Responsive Auto-fit Grid */}
+                <div className="panel-grid">
+                  {(panels || []).map((panel) => {
                     const func = EASING_FUNCTIONS.find(f => f.id === panel.functionId)
                     if (!func) return null
 
@@ -759,7 +802,7 @@ function App() {
                     const canActivateCamera = !isCameraActive && (activeCameraPanels || []).length < (maxCameraPreviews ?? 6)
 
                     return (
-                      <div key={panel.id}>
+                      <div key={panel.id} className="panel-card">
                         <PreviewPanel
                           easingFunction={func}
                           output={output}
@@ -794,7 +837,39 @@ function App() {
             </div>
           )}
         </div>
-      </div>
+      </main>
+      
+      {/* Collapsible Advanced Settings */}
+      <AdvancedSettings
+        open={showAdvancedSettings}
+        onOpenChange={setShowAdvancedSettings}
+        gamma={gamma}
+        onGammaChange={handleGammaChange}
+        manualInputMode={manualInputMode ?? false}
+        triangularWaveMode={triangularWaveMode ?? false}
+        scriptMapperMode={scriptMapperMode ?? false}
+        inputValue={baseInputValue}
+        onManualInputModeChange={handleManualInputModeChange}
+        onTriangularWaveModeChange={(enabled) => setTriangularWaveMode(() => enabled)}
+        onScriptMapperModeChange={(enabled) => setScriptMapperMode(() => enabled)}
+        onInputValueChange={handleInputValueChange}
+        onSetAllEaseType={handleSetAllEaseType}
+        showCameraSettings={showCameraSettings}
+        cameraStartPos={cameraStartPos ?? { x: 2.0, y: 1.0, z: -5.0 }}
+        cameraEndPos={cameraEndPos ?? { x: 2.0, y: 1.0, z: 5.0 }}
+        cameraAspectRatio={cameraAspectRatio ?? '16/9'}
+        maxCameraPreviews={maxCameraPreviews ?? 6}
+        coordinateSystem={coordinateSystem ?? 'left-handed'}
+        onCameraStartPosChange={(pos) => setCameraStartPos(() => pos)}
+        onCameraEndPosChange={(pos) => setCameraEndPos(() => pos)}
+        onCameraAspectRatioChange={(aspectRatio) => setCameraAspectRatio(() => aspectRatio)}
+        onMaxCameraPreviewsChange={(max) => setMaxCameraPreviews(() => max)}
+        onCoordinateSystemChange={(system) => setCoordinateSystem(() => system)}
+        cardScale={cardScale ?? 1.0}
+        endPauseDuration={endPauseDuration ?? 2.0}
+        onCardScaleChange={(scale) => setCardScale(() => scale)}
+        onEndPauseDurationChange={handleEndPauseDurationChange}
+      />
 
       <FunctionSelector
         open={selectorOpen}
