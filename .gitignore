@@ -46,3 +46,9 @@ playwright-report/
 test-results/
 docs/scriptmapper-specification.md
 docs/yas-writing-style-guide.md
+
+# E2E test screenshots (generated artifacts)
+e2e/screenshots/
+
+# Claude Code local settings
+docs/.claude/
