@@ -2,6 +2,7 @@ import { useEffect, useRef, memo } from 'react'
 import * as THREE from 'three'
 import type { EasingFunction } from '@/lib/easingFunctions'
 import { createHumanoidModel, disposeHumanoidModel } from '@/lib/humanoidModel'
+import { rendererPool } from '@/lib/rendererPool'
 
 interface CameraPreviewProps {
   easingFunction: EasingFunction
@@ -36,6 +37,16 @@ export const CameraPreview = memo(function CameraPreview({
   useEffect(() => {
     if (!mountRef.current) return
 
+    // Acquire renderer from pool
+    const poolResult = rendererPool.acquire()
+    if (!poolResult) {
+      console.warn('[CameraPreview] WebGL renderer pool exhausted')
+      return
+    }
+    
+    const { renderer, canvas } = poolResult
+    rendererRef.current = renderer
+
     const width = mountRef.current.clientWidth
     const height = mountRef.current.clientHeight
 
@@ -48,11 +59,9 @@ export const CameraPreview = memo(function CameraPreview({
     camera.position.set(0, 1.5, 5)  // Eye level with humanoid head
     cameraRef.current = camera
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' })
+    // Configure renderer and append canvas to container
     renderer.setSize(width, height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    mountRef.current.appendChild(renderer.domElement)
-    rendererRef.current = renderer
+    mountRef.current.appendChild(canvas)
 
     // Humanoid model - feet at y=0, head at y=1.5 (Beat Saber standard player height)
     const humanoid = createHumanoidModel(1.5)
@@ -103,9 +112,14 @@ export const CameraPreview = memo(function CameraPreview({
         cancelAnimationFrame(frameIdRef.current)
       }
       
-      if (rendererRef.current && mountRef.current) {
-        mountRef.current.removeChild(rendererRef.current.domElement)
-        rendererRef.current.dispose()
+      // Release renderer back to pool (do NOT dispose it)
+      if (rendererRef.current) {
+        rendererPool.release(rendererRef.current)
+        
+        // Remove canvas from DOM
+        if (mountRef.current && mountRef.current.contains(canvas)) {
+          mountRef.current.removeChild(canvas)
+        }
       }
       
       // Dispose humanoid model
@@ -139,8 +153,21 @@ export const CameraPreview = memo(function CameraPreview({
     const cameraZ = logicalCameraZ
     
     camera.position.set(cameraX, cameraY, cameraZ)
-    // Look at the head position (y=1.0 for this preview)
-    camera.lookAt(humanoid.position.x, 1.0, humanoid.position.z)
+    // Resolve head world position from humanoid model if available
+    const headMesh = humanoid.getObjectByName('head') as THREE.Object3D | undefined
+    const headWorldPos = new THREE.Vector3()
+    if (headMesh) {
+      headMesh.getWorldPosition(headWorldPos)
+    } else {
+      // Fallback to humanoid.userData.headHeight or default 1.5
+      headWorldPos.set(
+        humanoid.position.x ?? 0,
+        // @ts-ignore userData may be untyped
+        humanoid.userData?.headHeight ?? 1.5,
+        humanoid.position.z ?? 0
+      )
+    }
+    camera.lookAt(headWorldPos)
     
     renderer.render(scene, camera)
   }, [baseInput, filteredOutput, startPos, endPos, coordinateSystem])

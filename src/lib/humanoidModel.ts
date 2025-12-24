@@ -3,6 +3,9 @@
  * 
  * Creates a simple humanoid figure using basic geometries.
  * Positioned so that feet are at y=0 (ground level) and head is at the specified height.
+ * 
+ * Performance Optimization: Uses shared geometry instances to reduce GPU memory usage.
+ * Each geometry is created once and reused across all humanoid instances.
  */
 
 import * as THREE from 'three'
@@ -15,6 +18,80 @@ const HUMANOID_COLORS = {
   hands: 0xffcc99,   // Skin tone
   legs: 0x333333,    // Dark pants
   feet: 0x222222     // Dark shoes
+}
+
+/**
+ * Shared geometry cache to reduce GPU memory consumption.
+ * These geometries are reused across all humanoid instances.
+ */
+class GeometryCache {
+  private static headGeometry: THREE.SphereGeometry | null = null
+  private static bodyGeometry: THREE.BoxGeometry | null = null
+  private static armGeometry: THREE.CylinderGeometry | null = null
+  private static handGeometry: THREE.SphereGeometry | null = null
+  private static legGeometry: THREE.CylinderGeometry | null = null
+  private static footGeometry: THREE.BoxGeometry | null = null
+  
+  static getHeadGeometry(radius: number): THREE.SphereGeometry {
+    if (!this.headGeometry) {
+      this.headGeometry = new THREE.SphereGeometry(radius, 16, 12)
+    }
+    return this.headGeometry
+  }
+  
+  static getBodyGeometry(width: number, height: number, depth: number): THREE.BoxGeometry {
+    if (!this.bodyGeometry) {
+      this.bodyGeometry = new THREE.BoxGeometry(width, height, depth)
+    }
+    return this.bodyGeometry
+  }
+  
+  static getArmGeometry(radius: number, length: number): THREE.CylinderGeometry {
+    if (!this.armGeometry) {
+      this.armGeometry = new THREE.CylinderGeometry(radius, radius, length, 8)
+    }
+    return this.armGeometry
+  }
+  
+  static getHandGeometry(radius: number): THREE.SphereGeometry {
+    if (!this.handGeometry) {
+      this.handGeometry = new THREE.SphereGeometry(radius, 8, 6)
+    }
+    return this.handGeometry
+  }
+  
+  static getLegGeometry(radius: number, length: number): THREE.CylinderGeometry {
+    if (!this.legGeometry) {
+      this.legGeometry = new THREE.CylinderGeometry(radius, radius, length, 8)
+    }
+    return this.legGeometry
+  }
+  
+  static getFootGeometry(width: number, height: number, length: number): THREE.BoxGeometry {
+    if (!this.footGeometry) {
+      this.footGeometry = new THREE.BoxGeometry(width, height, length)
+    }
+    return this.footGeometry
+  }
+  
+  /**
+   * Dispose all cached geometries. Only call when shutting down the application.
+   */
+  static disposeAll(): void {
+    this.headGeometry?.dispose()
+    this.bodyGeometry?.dispose()
+    this.armGeometry?.dispose()
+    this.handGeometry?.dispose()
+    this.legGeometry?.dispose()
+    this.footGeometry?.dispose()
+    
+    this.headGeometry = null
+    this.bodyGeometry = null
+    this.armGeometry = null
+    this.handGeometry = null
+    this.legGeometry = null
+    this.footGeometry = null
+  }
 }
 
 /**
@@ -71,24 +148,24 @@ export function createHumanoidModel(headHeight: number = 1.5): THREE.Group {
   const bodyTopY = bodyBottomY + bodyHeight
   const headY = bodyTopY + neckGap + headRadius  // This should equal headHeight
   
-  // Store geometries and materials for disposal
-  const geometries: THREE.BufferGeometry[] = []
+  // Store materials for disposal (geometries are shared and should NOT be disposed per-instance)
   const materials: THREE.Material[] = []
   
-  // Head (sphere)
-  const headGeometry = new THREE.SphereGeometry(headRadius, 16, 12)
+  // Head (sphere) - using shared geometry
+  const headGeometry = GeometryCache.getHeadGeometry(headRadius)
   const headMaterial = new THREE.MeshPhongMaterial({ 
     color: HUMANOID_COLORS.head, 
     shininess: 30 
   })
   const head = new THREE.Mesh(headGeometry, headMaterial)
   head.position.set(0, headY, 0)
+  // mark head mesh so other systems (camera preview) can find it
+  head.name = 'head'
   humanoid.add(head)
-  geometries.push(headGeometry)
   materials.push(headMaterial)
   
-  // Body (box)
-  const bodyGeometry = new THREE.BoxGeometry(bodyWidth, bodyHeight, bodyDepth)
+  // Body (box) - using shared geometry
+  const bodyGeometry = GeometryCache.getBodyGeometry(bodyWidth, bodyHeight, bodyDepth)
   const bodyMaterial = new THREE.MeshPhongMaterial({ 
     color: HUMANOID_COLORS.body, 
     shininess: 30 
@@ -96,11 +173,10 @@ export function createHumanoidModel(headHeight: number = 1.5): THREE.Group {
   const body = new THREE.Mesh(bodyGeometry, bodyMaterial)
   body.position.set(0, bodyCenterY, 0)
   humanoid.add(body)
-  geometries.push(bodyGeometry)
   materials.push(bodyMaterial)
   
-  // Arms (cylinders)
-  const armGeometry = new THREE.CylinderGeometry(armRadius, armRadius, armLength, 8)
+  // Arms (cylinders) - using shared geometry
+  const armGeometry = GeometryCache.getArmGeometry(armRadius, armLength)
   const armMaterial = new THREE.MeshPhongMaterial({ 
     color: HUMANOID_COLORS.arms, 
     shininess: 30 
@@ -116,11 +192,10 @@ export function createHumanoidModel(headHeight: number = 1.5): THREE.Group {
   rightArm.position.set(bodyWidth / 2 + armRadius, bodyTopY - armLength / 2, 0)
   humanoid.add(rightArm)
   
-  geometries.push(armGeometry)
   materials.push(armMaterial)
   
-  // Hands (small spheres)
-  const handGeometry = new THREE.SphereGeometry(armRadius * 1.2, 8, 6)
+  // Hands (small spheres) - using shared geometry
+  const handGeometry = GeometryCache.getHandGeometry(armRadius * 1.2)
   const handMaterial = new THREE.MeshPhongMaterial({ 
     color: HUMANOID_COLORS.hands, 
     shininess: 30 
@@ -134,11 +209,10 @@ export function createHumanoidModel(headHeight: number = 1.5): THREE.Group {
   rightHand.position.set(bodyWidth / 2 + armRadius, bodyTopY - armLength, 0)
   humanoid.add(rightHand)
   
-  geometries.push(handGeometry)
   materials.push(handMaterial)
   
-  // Legs (cylinders)
-  const legGeometry = new THREE.CylinderGeometry(legRadius, legRadius, legLength, 8)
+  // Legs (cylinders) - using shared geometry
+  const legGeometry = GeometryCache.getLegGeometry(legRadius, legLength)
   const legMaterial = new THREE.MeshPhongMaterial({ 
     color: HUMANOID_COLORS.legs, 
     shininess: 20 
@@ -154,11 +228,10 @@ export function createHumanoidModel(headHeight: number = 1.5): THREE.Group {
   rightLeg.position.set(bodyWidth / 4, legCenterY, 0)
   humanoid.add(rightLeg)
   
-  geometries.push(legGeometry)
   materials.push(legMaterial)
   
-  // Feet (boxes)
-  const footGeometry = new THREE.BoxGeometry(legRadius * 2, footHeight, footLength)
+  // Feet (boxes) - using shared geometry
+  const footGeometry = GeometryCache.getFootGeometry(legRadius * 2, footHeight, footLength)
   const footMaterial = new THREE.MeshPhongMaterial({ 
     color: HUMANOID_COLORS.feet, 
     shininess: 20 
@@ -172,26 +245,34 @@ export function createHumanoidModel(headHeight: number = 1.5): THREE.Group {
   rightFoot.position.set(bodyWidth / 4, feetY, footLength / 4)
   humanoid.add(rightFoot)
   
-  geometries.push(footGeometry)
   materials.push(footMaterial)
   
-  // Store references for cleanup
+  // Store references for cleanup and expose head height for external use
   humanoid.userData = {
-    geometries,
-    materials
+    materials,
+    // Expose calculated head center Y so camera preview can fallback if mesh isn't found
+    headHeight: headY
   }
   
   return humanoid
 }
 
 /**
- * Dispose of all geometries and materials in a humanoid model
+ * Dispose of all materials in a humanoid model
+ * Note: Geometries are shared and NOT disposed per-instance
  * @param humanoid The humanoid group to dispose
  */
 export function disposeHumanoidModel(humanoid: THREE.Group): void {
   const userData = humanoid.userData
   if (userData) {
-    userData.geometries?.forEach((g: THREE.BufferGeometry) => g.dispose())
+    // Only dispose materials (not geometries - they are shared)
     userData.materials?.forEach((m: THREE.Material) => m.dispose())
   }
+}
+
+/**
+ * Dispose all shared geometry cache. Only call when shutting down the application.
+ */
+export function disposeGeometryCache(): void {
+  GeometryCache.disposeAll()
 }
