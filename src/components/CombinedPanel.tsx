@@ -211,16 +211,15 @@ export const CombinedPanel = memo(function CombinedPanel({
             value={easeType}
             onValueChange={(value) => value && onEaseTypeChange(value as EaseType)}
             variant="outline"
-            size="sm"
             className="justify-start"
           >
-            <ToggleGroupItem value="easein" aria-label="EaseIn" className="text-[10px] px-1.5 h-6">
+            <ToggleGroupItem value="easein" aria-label="EaseIn" className="text-[10px] px-2 leading-none" style={{ height: 24, minHeight: 24 }}>
               EaseIn
             </ToggleGroupItem>
-            <ToggleGroupItem value="easeout" aria-label="EaseOut" className="text-[10px] px-1.5 h-6">
+            <ToggleGroupItem value="easeout" aria-label="EaseOut" className="text-[10px] px-2 leading-none" style={{ height: 24, minHeight: 24 }}>
               EaseOut
             </ToggleGroupItem>
-            <ToggleGroupItem value="easeboth" aria-label="EaseBoth" className="text-[10px] px-1.5 h-6">
+            <ToggleGroupItem value="easeboth" aria-label="EaseBoth" className="text-[10px] px-2 leading-none" style={{ height: 24, minHeight: 24 }}>
               EaseBoth
             </ToggleGroupItem>
           </ToggleGroup>

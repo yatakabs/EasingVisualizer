@@ -20,7 +20,7 @@ interface PanelActionsMenuProps {
 /**
  * Consolidated dropdown menu for panel actions.
  * Contains camera toggle and remove actions to reduce header visual clutter.
- * Maintains 44x44px touch targets for WCAG compliance.
+ * Optimized for mouse-only operation with compact sizing.
  */
 export const PanelActionsMenu = memo(function PanelActionsMenu({
   showCamera,
@@ -43,11 +43,11 @@ export const PanelActionsMenu = memo(function PanelActionsMenu({
         <Button
           variant="ghost"
           size="icon"
-          className="h-6 w-6 min-h-[44px] min-w-[44px] text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+          className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0 p-0"
           aria-label="Panel actions"
           onClick={(e) => e.stopPropagation()}
         >
-          <DotsThreeVertical size={16} weight="bold" />
+          <DotsThreeVertical size={12} weight="bold" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
