@@ -7,7 +7,6 @@
 
 import { memo, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { CAMERA_PATH_PRESETS, clonePreset } from '@/lib/cameraPathPresets'
 import type { CameraPath } from '@/lib/scriptMapperTypes'
@@ -38,7 +37,7 @@ export const ScriptMapperPresetSelector = memo(function ScriptMapperPresetSelect
         </Badge>
       </div>
       
-      <ScrollArea className="h-[160px] border rounded-md bg-muted/30">
+      <div className="h-[160px] overflow-y-auto border rounded-md bg-muted/30 pr-0.5">
         <div className="flex flex-col gap-1 p-1">
           {CAMERA_PATH_PRESETS.map((preset) => {
             const isActive = activePath?.id === preset.id || 
@@ -52,19 +51,19 @@ export const ScriptMapperPresetSelector = memo(function ScriptMapperPresetSelect
                 key={preset.id}
                 variant={isActive ? 'default' : 'outline'}
                 size="sm"
-                className="w-full h-auto py-1.5 px-2.5 text-[11px] flex flex-col items-start gap-0"
+                className="w-full h-auto py-1.5 px-2.5 text-[11px] flex flex-col items-start gap-0 min-w-0"
                 onClick={() => handleSelect(preset)}
                 title={`${preset.name}\n${waypointCount} waypoints, ${segmentCount} segments\n${preset.totalDuration}ms duration`}
               >
-                <span className="font-medium w-full text-left leading-tight">{preset.name}</span>
-                <span className="text-[9px] opacity-60 w-full text-left">
+                <span className="font-medium w-full text-left leading-tight truncate">{preset.name}</span>
+                <span className="text-[9px] opacity-60 w-full text-left truncate">
                   {waypointCount}pts · {segmentCount}seg · {duration}s
                 </span>
               </Button>
             )
           })}
         </div>
-      </ScrollArea>
+      </div>
     </div>
   )
 })

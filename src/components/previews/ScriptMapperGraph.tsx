@@ -472,7 +472,7 @@ export const ScriptMapperGraph = memo(function ScriptMapperGraph({
           <span className="text-muted-foreground">Path</span>
           <span className="font-medium truncate ml-1">{cameraPath.name}</span>
         </div>
-        <div className="space-y-0.5 max-h-24 lg:max-h-none overflow-y-auto">
+        <div className="space-y-0.5 max-h-24 lg:max-h-none">
           {segmentPaths.map((path, i) => (
             <div 
               key={i} 

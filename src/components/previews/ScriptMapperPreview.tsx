@@ -10,6 +10,7 @@ import * as THREE from 'three'
 import type { CameraPath } from '@/lib/scriptMapperTypes'
 import { interpolateCameraPath, generatePathPreviewPoints } from '@/lib/cameraPathInterpolation'
 import { createHumanoidModel, disposeHumanoidModel } from '@/lib/humanoidModel'
+import { rendererPool } from '@/lib/rendererPool'
 
 interface ScriptMapperPreviewProps {
   /** Camera path to visualize */
@@ -173,6 +174,17 @@ export const ScriptMapperPreview = memo(function ScriptMapperPreview({
     if (!mountRef.current) return
     
     const container = mountRef.current
+    
+    // Acquire renderer from pool
+    const poolResult = rendererPool.acquire()
+    if (!poolResult) {
+      console.warn('[ScriptMapperPreview] WebGL renderer pool exhausted')
+      return
+    }
+    
+    const { renderer, canvas } = poolResult
+    rendererRef.current = renderer
+    
     const width = container.clientWidth
     const height = container.clientHeight
     
@@ -193,16 +205,9 @@ export const ScriptMapperPreview = memo(function ScriptMapperPreview({
     const previewCamera = new THREE.PerspectiveCamera(50, 16/9, 0.01, 1000)
     previewCameraRef.current = previewCamera
     
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({ 
-      antialias: true, 
-      alpha: false,
-      powerPreference: 'high-performance'
-    })
+    // Configure renderer and append canvas to container
     renderer.setSize(width, height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    container.appendChild(renderer.domElement)
-    rendererRef.current = renderer
+    container.appendChild(canvas)
     
     // Humanoid model positioned for ScriptMapper: head at y=1.5 (default #height)
     const humanoid = createHumanoidModel(1.5)
@@ -256,9 +261,14 @@ export const ScriptMapperPreview = memo(function ScriptMapperPreview({
     return () => {
       resizeObserver.disconnect()
       
-      if (renderer && container.contains(renderer.domElement)) {
-        container.removeChild(renderer.domElement)
-        renderer.dispose()
+      // Release renderer back to pool (do NOT dispose it)
+      if (rendererRef.current) {
+        rendererPool.release(rendererRef.current)
+        
+        // Remove canvas from DOM
+        if (container.contains(canvas)) {
+          container.removeChild(canvas)
+        }
       }
       
       // Dispose humanoid model
