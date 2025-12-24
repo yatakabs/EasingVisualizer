@@ -107,19 +107,19 @@ body {
 }
 
 /* ===== Responsive Panel Grid ===== */
-/* Monotonic progression: 280→240→200→180→160→140→120 (never backtracks) */
-/* Compact layout: reduced minmax values by ~20-30% for higher density */
+/* Monotonic progression: 380→340→300→260→220→200→180 (never backtracks) */
+/* Wider layout: increased minmax values by ~50-100px for larger cards */
 .panel-grid {
   display: grid;
   gap: clamp(10px, 1.5vw, 14px);
-  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr));
   align-content: start;
 }
 
 /* Mobile Landscape / Small Tablet (640-899px) */
 @media (min-width: 640px) {
   .panel-grid {
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
     gap: clamp(10px, 1.5vw, 12px);
   }
 }
@@ -127,7 +127,7 @@ body {
 /* Tablet (900-1279px) - NEW BREAKPOINT for iPad Pro optimization */
 @media (min-width: 900px) {
   .panel-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: clamp(10px, 1.4vw, 12px);
   }
 }
@@ -135,7 +135,7 @@ body {
 /* Desktop (1280-1535px) */
 @media (min-width: 1280px) {
   .panel-grid {
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 12px;
   }
 }
@@ -143,15 +143,15 @@ body {
 /* Large Desktop (1536-1919px) */
 @media (min-width: 1536px) {
   .panel-grid {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 12px;
   }
 }
 
-/* Full HD+ (1920-2559px) - Compact: reduced for ~13-14 panels at 1920px */
+/* Full HD+ (1920-2559px) - Wider cards for better readability */
 @media (min-width: 1920px) {
   .panel-grid {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 14px;
     max-width: 2400px;
     margin: 0 auto;
@@ -161,7 +161,7 @@ body {
 /* Ultrawide (2560px+) - NEW BREAKPOINT for 4K and ultrawide monitors */
 @media (min-width: 2560px) {
   .panel-grid {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 14px;
     max-width: 3200px;
   }
