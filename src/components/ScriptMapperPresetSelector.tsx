@@ -1,14 +1,14 @@
 /**
  * ScriptMapper Preset Selector
  * 
- * Horizontal scrollable preset selector for quick camera path selection.
+ * Vertical scrollable preset selector for quick camera path selection.
+ * Designed to be displayed alongside waypoints in a side-by-side layout.
  */
 
 import { memo, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
-import { Play } from '@phosphor-icons/react'
 import { CAMERA_PATH_PRESETS, clonePreset } from '@/lib/cameraPathPresets'
 import type { CameraPath } from '@/lib/scriptMapperTypes'
 
@@ -30,7 +30,7 @@ export const ScriptMapperPresetSelector = memo(function ScriptMapperPresetSelect
   }, [onSelectPreset])
   
   return (
-    <div className="space-y-1">
+    <div className="space-y-1 flex-shrink-0 w-56">
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium">Presets</span>
         <Badge variant="outline" className="text-[9px]">
@@ -38,28 +38,32 @@ export const ScriptMapperPresetSelector = memo(function ScriptMapperPresetSelect
         </Badge>
       </div>
       
-      <ScrollArea className="w-full whitespace-nowrap">
-        <div className="flex space-x-1.5 pb-1">
+      <ScrollArea className="h-[160px] border rounded-md bg-muted/30">
+        <div className="flex flex-col gap-1 p-1">
           {CAMERA_PATH_PRESETS.map((preset) => {
             const isActive = activePath?.id === preset.id || 
                            activePath?.name.replace(' (Copy)', '') === preset.name
             const waypointCount = preset.waypoints.length
+            const segmentCount = preset.segments.length
+            const duration = (preset.totalDuration / 1000).toFixed(1)
             
             return (
               <Button
                 key={preset.id}
                 variant={isActive ? 'default' : 'outline'}
                 size="sm"
-                className="flex-shrink-0 h-auto py-1 px-2 text-[10px]"
+                className="w-full h-auto py-1.5 px-2.5 text-[11px] flex flex-col items-start gap-0"
                 onClick={() => handleSelect(preset)}
-                title={`${preset.name} (${waypointCount} waypoints)`}
+                title={`${preset.name}\n${waypointCount} waypoints, ${segmentCount} segments\n${preset.totalDuration}ms duration`}
               >
-                {preset.name} <span className="ml-1 opacity-60">{waypointCount}</span>
+                <span className="font-medium w-full text-left leading-tight">{preset.name}</span>
+                <span className="text-[9px] opacity-60 w-full text-left">
+                  {waypointCount}pts · {segmentCount}seg · {duration}s
+                </span>
               </Button>
             )
           })}
         </div>
-        <ScrollBar orientation="horizontal" />
       </ScrollArea>
     </div>
   )

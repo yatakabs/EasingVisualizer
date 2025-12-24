@@ -412,14 +412,6 @@ export const ScriptMapperControls = memo(function ScriptMapperControls({
       
       {enabled && (
         <CardContent className="space-y-3">
-          {/* Preset Quick Selector */}
-          <ScriptMapperPresetSelector
-            activePath={activePath}
-            onSelectPreset={onSelectPath}
-          />
-          
-          <Separator />
-          
           {/* Path Selection Dropdown */}
           <div className="space-y-2">
             <Label className="text-sm">Active Path</Label>
@@ -508,103 +500,124 @@ export const ScriptMapperControls = memo(function ScriptMapperControls({
               
               <Separator />
               
-              {/* Waypoints Overview - Shows q/dpos toggle, raw Command, and Copy for each waypoint */}
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium">Waypoints</span>
-                  {isPreset && (
-                    <Badge variant="outline" className="text-[9px]">Read-only</Badge>
-                  )}
-                </div>
-                {/* Column headers */}
-                <div className="flex items-center gap-2 px-2 text-[9px] text-muted-foreground">
-                  <span className="w-2.5 flex-shrink-0" /> {/* Color dot spacer */}
-                  <span className="w-12 flex-shrink-0 text-center">Mode</span>
-                  <span className="flex-1">Command</span>
-                  <span className="w-6" /> {/* Copy button spacer */}
-                </div>
-                <div className="space-y-1 max-h-[140px] overflow-y-auto pr-1 border rounded-md p-1 bg-muted/30">
-                  {activePath.waypoints.map((waypoint, idx) => {
-                    // Check if current time is at or past this waypoint
-                    const isActive = globalTime >= waypoint.time && 
-                      (idx === activePath.waypoints.length - 1 || globalTime < activePath.waypoints[idx + 1].time)
-                    
-                    // Detect current command mode from bookmarkCommand
-                    const currentMode = detectCommandMode(waypoint.bookmarkCommand)
-                    
-                    // Raw command for display and edit
-                    const rawCommand = waypoint.bookmarkCommand ?? ''
-                    
-                    // Get validation error for this waypoint
-                    const error = commandErrors[idx]
-                    
-                    return (
-                      <div
-                        key={waypoint.id}
-                        className={cn(
-                          'rounded text-xs p-1.5',
-                          isActive ? 'bg-primary/10 border border-primary/30' : 'bg-background',
-                          error && 'border-destructive/50'
-                        )}
-                      >
-                        <div className="flex items-center gap-1.5">
-                          {/* Color dot with active indicator */}
-                          <span
-                            className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${isActive ? 'ring-2 ring-primary ring-offset-1 ring-offset-background' : ''}`}
-                            style={{ backgroundColor: SEGMENT_COLORS[idx % SEGMENT_COLORS.length] }}
-                          />
-                          
-                          {/* q/dpos toggle button */}
-                          <Button
-                            size="sm"
-                            variant={currentMode === 'q' ? 'default' : 'secondary'}
-                            className="h-5 w-12 px-1 text-[9px] font-mono flex-shrink-0"
-                            onClick={() => handleToggleWaypointMode(idx)}
-                            disabled={isPreset}
-                            title={currentMode === 'q' 
-                              ? 'Manual Rotation - Click for dpos' 
-                              : 'Look-At Player - Click for q'}
-                          >
-                            {currentMode}
-                          </Button>
-                          
-                          {/* Editable Command input - takes most of the width */}
-                          <Input
-                            type="text"
-                            value={rawCommand}
-                            onChange={(e) => handleCommandChange(idx, e.target.value)}
-                            className={cn(
-                              'h-5 text-[10px] font-mono flex-1 min-w-0 px-1.5',
-                              error && 'border-destructive focus-visible:ring-destructive'
-                            )}
-                            placeholder="q_0_1_-5_0_0_0_60"
-                            disabled={isPreset}
-                            title={rawCommand}
-                          />
-                          
-                          {/* Copy button */}
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-5 w-5 flex-shrink-0 hover:bg-primary/10"
-                            onClick={() => navigator.clipboard.writeText(rawCommand)}
-                            title={`Copy: ${rawCommand}`}
-                          >
-                            <Copy className="w-2.5 h-2.5" />
-                          </Button>
-                        </div>
-                        
-                        {/* Error message display - inline */}
-                        {error && (
-                          <div className="flex items-center gap-1 mt-1 text-destructive">
-                            <WarningCircle className="w-2.5 h-2.5 flex-shrink-0" />
-                            <span className="text-[9px] truncate">{error}</span>
+              {/* Waypoints and Presets - Side by Side Layout */}
+              <div className="flex gap-2">
+                {/* Left: Waypoints Overview */}
+                <div className="space-y-1 flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium">Waypoints</span>
+                    {isPreset && (
+                      <Badge variant="outline" className="text-[9px]">Read-only</Badge>
+                    )}
+                  </div>
+                  {/* Column headers */}
+                  <div className="flex items-center gap-1.5 px-1.5 text-[9px] text-muted-foreground">
+                    <span className="w-2 flex-shrink-0" /> {/* Color dot spacer */}
+                    <span className="w-10 flex-shrink-0 text-center">Mode</span>
+                    <span className="flex-1">Command</span>
+                    <span className="w-5" /> {/* Copy button spacer */}
+                  </div>
+                  <div className="space-y-0.5 h-[160px] overflow-y-auto pr-0.5 border rounded-md p-1 bg-muted/30">
+                    {activePath.waypoints.map((waypoint, idx) => {
+                      // Check if current time is at or past this waypoint
+                      const isActive = globalTime >= waypoint.time && 
+                        (idx === activePath.waypoints.length - 1 || globalTime < activePath.waypoints[idx + 1].time)
+
+                      // Detect current command mode from bookmarkCommand
+                      const currentMode = detectCommandMode(waypoint.bookmarkCommand)
+
+                      // Raw command for display and edit
+                      const rawCommand = waypoint.bookmarkCommand ?? ''
+
+                      // Get validation error for this waypoint
+                      const error = commandErrors[idx]
+
+                      // Waypoint beat数（timeが0-1正規化、activePath.beatDurationがあればそれを使う）
+                      let beat: string | number = ''
+                      if (typeof waypoint.time === 'number' && activePath.beatDuration) {
+                        // 0-1正規化time × beatDuration で小数第2位まで
+                        beat = (waypoint.time * activePath.beatDuration).toFixed(2)
+                      } else if (typeof waypoint.time === 'number') {
+                        beat = waypoint.time.toFixed(3)
+                      }
+
+                      return (
+                        <div
+                          key={waypoint.id}
+                          className={cn(
+                            'rounded text-xs p-1.5',
+                            isActive ? 'bg-primary/10 border border-primary/30' : 'bg-background',
+                            error && 'border-destructive/50'
+                          )}
+                        >
+                          <div className="flex items-center gap-1">
+                            {/* Color dot with active indicator */}
+                            <span
+                              className={`w-2 h-2 rounded-full flex-shrink-0 ${isActive ? 'ring-2 ring-primary ring-offset-1 ring-offset-background' : ''}`}
+                              style={{ backgroundColor: SEGMENT_COLORS[idx % SEGMENT_COLORS.length] }}
+                            />
+
+                            {/* q/dpos toggle button */}
+                            <Button
+                              size="sm"
+                              variant={currentMode === 'q' ? 'default' : 'secondary'}
+                              className="h-5 w-10 px-1 text-[9px] font-mono flex-shrink-0"
+                              onClick={() => handleToggleWaypointMode(idx)}
+                              disabled={isPreset}
+                              title={currentMode === 'q' 
+                                ? 'Manual Rotation - Click for dpos' 
+                                : 'Look-At Player - Click for q'}
+                            >
+                              {currentMode}
+                            </Button>
+
+                            {/* Editable Command input - takes most of the width */}
+                            <Input
+                              type="text"
+                              value={rawCommand}
+                              onChange={(e) => handleCommandChange(idx, e.target.value)}
+                              className={cn(
+                                'h-5 text-[10px] font-mono flex-1 min-w-0 px-1',
+                                error && 'border-destructive focus-visible:ring-destructive'
+                              )}
+                              placeholder="q_0_1_-5_0_0_0_60"
+                              disabled={isPreset}
+                              title={rawCommand}
+                            />
+
+                            {/* Copy button */}
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-5 w-5 flex-shrink-0 hover:bg-primary/10"
+                              onClick={() => {
+                                const textToCopy = `${rawCommand}${beat !== '' ? ` | ${beat}` : ''}`
+                                navigator.clipboard.writeText(textToCopy)
+                              }}
+                              title={`Copy: ${rawCommand}${beat !== '' ? ` | ${beat}` : ''}`}
+                            >
+                              <Copy className="w-2.5 h-2.5" />
+                            </Button>
                           </div>
-                        )}
-                      </div>
-                    )
-                  })}
+
+                          {/* Error message display - inline */}
+                          {error && (
+                            <div className="flex items-center gap-1 mt-1 text-destructive">
+                              <WarningCircle className="w-2.5 h-2.5 flex-shrink-0" />
+                              <span className="text-[9px] truncate">{error}</span>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
+                
+                {/* Right: Preset Selector */}
+                <ScriptMapperPresetSelector
+                  activePath={activePath}
+                  onSelectPreset={onSelectPath}
+                />
               </div>
               
               <Separator />
