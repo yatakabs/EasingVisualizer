@@ -1,0 +1,292 @@
+# Collaborative Agents Configuration
+# ===================================
+# Project-level configuration for customizing collaborative agents package behavior.
+# Place this file at: .github/collaborative-agents.config.yaml
+#
+# Documentation: .github/instructions/project-configuration.instructions.md
+#
+# USAGE:
+# 1. Copy this file to .github/collaborative-agents.config.yaml
+# 2. Modify values as needed for your project
+# 3. Remove sections you don't need (defaults will apply)
+#
+# The minimal valid configuration is just:
+#   version: "1.0"
+
+# =============================================================================
+# SCHEMA VERSION (REQUIRED)
+# =============================================================================
+# Must be "1.0" for compatibility with current schema.
+version: "1.0"
+
+# =============================================================================
+# DEFAULT SETTINGS
+# =============================================================================
+# These apply to all teams unless overridden in the 'teams' section.
+
+defaults:
+  # Fallback team when auto-detection is ambiguous
+  # Options: standard, migration, refactor, verification, incident, prodops,
+  #          prototyping, integration, documentation, security
+  team: standard
+
+  # Curation settings for knowledge and workflow curators
+  curation:
+    # Curation mode affects how knowledge is synthesized
+    # AI_REASONING: Full semantic analysis (slower, higher quality)
+    # FAST: Keyword-based selection (faster, lower quality)
+    mode: AI_REASONING
+
+    # Model tier for curation agents
+    # economy:  Cost-effective, suitable for simple tasks
+    # standard: Balanced cost/quality (default)
+    # premium:  Highest quality, for complex tasks
+    tier: standard
+
+  # Implementer settings
+  implementer:
+    # Model tier for code implementation
+    # economy:  Cost-effective, suitable for simple changes
+    # standard: Balanced cost/quality (default)
+    # premium:  Highest quality, for complex implementations
+    tier: standard
+
+  # Auto-verification settings
+  autoVerify:
+    # Enable automatic verification after implementation
+    # When true, auditor reviews are automatically triggered
+    enabled: false
+
+    # Maximum re-work iterations before escalation to user
+    # Range: 1-10
+    maxIterations: 3
+
+    # Verification strictness
+    # strict:  All checks must pass (APPROVED only)
+    # lenient: Critical checks only (APPROVED or APPROVED_WITH_CONDITIONS)
+    mode: strict
+
+# =============================================================================
+# PATH CONFIGURATION
+# =============================================================================
+# Customize file locations for your project structure.
+# All paths are relative to repository root.
+
+paths:
+  # Base directory for session files
+  # Session directories will be created as: {sessions}/{team}-sessions/{session-id}/
+  sessions: .temp/
+
+  # Custom knowledge files location
+  # Agent knowledge files should be placed here
+  knowledge: .github/instructions/knowledge/
+
+  # Custom workflow context location
+  # Workflow definition files should be placed here
+  workflows: .github/instructions/workflows/
+
+  # Knowledge cache directory
+  # Cached knowledge synthesis results are stored here
+  knowledgeCache: .temp/knowledge-cache/
+
+# =============================================================================
+# EXECUTION SETTINGS
+# =============================================================================
+# Configure command execution timeouts.
+# All values are in milliseconds.
+
+execution:
+  timeout:
+    # Default command timeout (5 minutes)
+    # Applies to general shell commands
+    command: 300000
+
+    # Build command timeout (10 minutes)
+    # Applies to build processes (npm build, tsc, etc.)
+    build: 600000
+
+    # Test execution timeout (15 minutes)
+    # Applies to test runners (jest, playwright, etc.)
+    test: 900000
+
+    # Background process startup wait (30 seconds)
+    # How long to wait for background processes to start
+    background: 30000
+
+# =============================================================================
+# CACHE CONFIGURATION
+# =============================================================================
+# Controls caching behavior for knowledge and workflow curators.
+# Caching reduces redundant synthesis by reusing previous results.
+
+cache:
+  # Master switch for curator caching
+  # Set to false to disable all caching
+  enabled: true
+
+  # Time-to-live (TTL) in seconds before cache entries expire
+  ttl:
+    # Knowledge cache: typically changes less frequently
+    # Default: 86400 (24 hours)
+    knowledge: 86400
+
+    # Workflow cache: may need fresher context
+    # Default: 43200 (12 hours)
+    workflow: 43200
+
+  # Similarity threshold for cache hit (0.0 - 1.0)
+  # Higher values require closer match for cache hit
+  # Default: 0.85
+  matchThreshold: 0.85
+
+  # Maximum cache entries before LRU eviction
+  # Oldest entries are removed when limit is reached
+  # Default: 100
+  maxEntries: 100
+
+  # Cache directory paths (relative to repository root)
+  # Uncomment to override defaults
+  # paths:
+  #   knowledge: .temp/knowledge-cache/synthesized/knowledge/
+  #   workflow: .temp/knowledge-cache/synthesized/workflow/
+
+# =============================================================================
+# TEAM-SPECIFIC OVERRIDES
+# =============================================================================
+# Override default settings for specific teams.
+# Only include the settings you want to override.
+
+teams:
+  # Standard team: enable auto-verify for quality assurance
+  standard:
+    autoVerify:
+      enabled: true
+      maxIterations: 3
+
+  # Migration team: use premium tier for complex refactoring
+  migration:
+    implementer:
+      tier: premium
+    autoVerify:
+      enabled: true
+      maxIterations: 4  # More iterations for complex migrations
+
+  # Incident team: speed priority, full initialization
+  incident:
+    # FULL initialization creates all files immediately (no lazy loading)
+    initializationMode: FULL
+    curation:
+      mode: FAST  # Speed priority for incidents
+    implementer:
+      tier: premium  # Quality matters for production fixes
+
+  # Verification team: strict verification
+  verification:
+    autoVerify:
+      enabled: true
+      mode: strict
+
+  # Prototyping team: speed and cost efficiency
+  prototyping:
+    implementer:
+      tier: economy  # Cost efficiency for throwaway code
+    autoVerify:
+      enabled: false  # Speed priority
+
+  # Integration team: balanced approach
+  # integration:
+  #   autoVerify:
+  #     enabled: true
+  #     maxIterations: 2
+
+# =============================================================================
+# FEATURE FLAGS
+# =============================================================================
+# Enable or disable optional features.
+
+features:
+  # Enable cross-team collaboration (advisory requests, handoff)
+  crossTeamCollaboration: true
+
+  # Enable knowledge caching between sessions
+  # Improves performance for repeated operations
+  knowledgeCache: true
+
+  # Enable execution tracing
+  # Records detailed execution logs for debugging
+  executionTracing: true
+
+  # Enable chat replay collection
+  # Collects conversation data for analysis
+  chatReplayCollection: false
+
+  # Enable tier comparison mode (experimental)
+  # Compares results across different model tiers
+  tierComparison: false
+
+# =============================================================================
+# PROJECT-SPECIFIC KNOWLEDGE
+# =============================================================================
+# Add custom knowledge files specific to your project.
+# These files will be included in knowledge synthesis for specified domains.
+
+knowledge:
+  additional:
+    # Example: Internal coding patterns
+    # Uncomment and modify as needed
+    # - path: docs/internal-patterns.md
+    #   domains: [standard, refactor]
+    #   description: "Internal coding patterns and conventions"
+
+    # Example: Deployment runbook
+    # - path: docs/deployment-runbook.md
+    #   domains: [prodops, incident]
+    #   description: "Production deployment procedures"
+
+    # Example: API design guidelines
+    # - path: docs/api-design-guide.md
+    #   domains: [standard, migration, integration]
+    #   description: "API design guidelines"
+
+    # Example: Security checklist
+    # - path: docs/security-checklist.md
+    #   domains: [security, verification]
+    #   description: "Security review checklist"
+
+# =============================================================================
+# WORKFLOW CUSTOMIZATIONS
+# =============================================================================
+# Customize workflow phases for specific teams.
+# Use this to enforce or relax phase requirements.
+
+workflows:
+  overrides:
+    # Example: Make planning phase optional for prototyping
+    # prototyping:
+    #   phases:
+    #     PLANNING:
+    #       required: false
+    #     REVIEW:
+    #       required: false
+
+    # Example: Enforce minimum planning time for standard team
+    # standard:
+    #   phases:
+    #     PLANNING:
+    #       required: true
+    #       minDuration: "5m"  # Minimum 5 minutes
+    #     REVIEW:
+    #       required: true
+    #       skipConditions: []  # Never skip
+
+    # Example: Strict review requirements for security team
+    # security:
+    #   phases:
+    #     PLANNING:
+    #       required: true
+    #       minDuration: "10m"
+    #     REVIEW:
+    #       required: true
+    #       skipConditions: []
+    #     VERIFICATION:
+    #       required: true

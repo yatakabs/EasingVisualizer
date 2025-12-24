@@ -16,6 +16,30 @@
 }
 
 :root {
+  /* Z-Index Semantic Scale */
+  --z-base: 0;
+  --z-docked: 10;
+  --z-dropdown: 50;
+  --z-sticky: 100;
+  --z-fixed: 200;
+  --z-modal-backdrop: 300;
+  --z-modal: 400;
+  --z-popover: 500;
+  --z-toast: 600;
+  --z-tooltip: 700;
+  --z-overlay: 800;
+  --z-focus-trap: 999;
+  
+  /* Spacing Scale (4px base) - for consistent visual hierarchy */
+  --space-1: 0.25rem;   /* 4px - tight groups */
+  --space-2: 0.5rem;    /* 8px - component internal */
+  --space-3: 0.75rem;   /* 12px - component gaps */
+  --space-4: 1rem;      /* 16px - section spacing */
+  --space-5: 1.25rem;   /* 20px - card padding */
+  --space-6: 1.5rem;    /* 24px - panel gaps */
+  --space-8: 2rem;      /* 32px - major sections */
+  
+  /* Color Tokens */
   --background: oklch(0.2 0.05 250);
   --foreground: oklch(0.95 0.02 200);
   
@@ -80,4 +104,250 @@
 
 body {
   overflow-x: hidden;
+}
+
+/* ===== Responsive Panel Grid ===== */
+/* Monotonic progression: 380→340→300→260→220→200→180 (never backtracks) */
+/* Wider layout: increased minmax values by ~50-100px for larger cards */
+.panel-grid {
+  display: grid;
+  gap: clamp(10px, 1.5vw, 14px);
+  grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr));
+  align-content: start;
+}
+
+/* Mobile Landscape / Small Tablet (640-899px) */
+@media (min-width: 640px) {
+  .panel-grid {
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: clamp(10px, 1.5vw, 12px);
+  }
+}
+
+/* Tablet (900-1279px) - NEW BREAKPOINT for iPad Pro optimization */
+@media (min-width: 900px) {
+  .panel-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: clamp(10px, 1.4vw, 12px);
+  }
+}
+
+/* Desktop (1280-1535px) */
+@media (min-width: 1280px) {
+  .panel-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+  }
+}
+
+/* Large Desktop (1536-1919px) */
+@media (min-width: 1536px) {
+  .panel-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+}
+
+/* Full HD+ (1920-2559px) - Wider cards for better readability */
+@media (min-width: 1920px) {
+  .panel-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    max-width: 2400px;
+    margin: 0 auto;
+  }
+}
+
+/* Ultrawide (2560px+) - NEW BREAKPOINT for 4K and ultrawide monitors */
+@media (min-width: 2560px) {
+  .panel-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    max-width: 3200px;
+  }
+}
+
+/* ===== Panel Card Hover Effects ===== */
+.panel-card {
+  transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+}
+
+.panel-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px hsl(0 0% 0% / 0.15);
+}
+
+/* ===== Microinteractions ===== */
+
+/* Button press feedback */
+.btn-press {
+  transition: transform 100ms ease-out;
+}
+
+.btn-press:active {
+  transform: scale(0.97);
+}
+
+/* Panel enter animation */
+@keyframes panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.panel-enter {
+  animation: panel-enter 200ms ease-out;
+}
+
+/* Panel exit animation */
+@keyframes panel-exit {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+.panel-exit {
+  animation: panel-exit 150ms ease-out forwards;
+}
+
+/* Subtle pulse for active states */
+@keyframes subtle-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.animate-subtle-pulse {
+  animation: subtle-pulse 2s ease-in-out infinite;
+}
+
+/* Drag handle hover effect */
+.drag-handle {
+  transition: opacity 150ms ease-out, color 150ms ease-out;
+}
+
+.drag-handle:hover {
+  opacity: 1;
+}
+
+/* Toast slide in */
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast-enter {
+  animation: toast-slide-in 300ms ease-out;
+}
+
+/* ===== Accessibility: Reduced Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.1ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .panel-card:hover {
+    transform: none;
+  }
+  
+  .btn-press:active {
+    transform: none;
+  }
+  
+  .panel-enter,
+  .panel-exit,
+  .animate-subtle-pulse,
+  .toast-enter {
+    animation: none;
+  }
+}
+
+/* ===== Accessibility: Focus Rings ===== */
+.focus-ring {
+  @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+}
+
+/* ===== Touch Targets ===== */
+@media (pointer: coarse) {
+  button,
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"],
+  select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ===== Toolbar Glass Effect ===== */
+.toolbar-glass {
+  background: hsl(var(--background) / 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+}
+
+/* ===== Skip Link for Accessibility ===== */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  padding: 8px 16px;
+  background: var(--background);
+  color: var(--foreground);
+  z-index: var(--z-focus-trap);
+  transition: top 0.2s;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* ===== Radix UI Z-Index Overrides ===== */
+/* Ensure consistent stacking with our semantic scale */
+[data-radix-dropdown-menu-content] {
+  z-index: var(--z-dropdown) !important;
+}
+
+[data-radix-popover-content] {
+  z-index: var(--z-popover) !important;
+}
+
+[data-radix-tooltip-content] {
+  z-index: var(--z-tooltip) !important;
+}
+
+[data-radix-dialog-overlay] {
+  z-index: var(--z-modal-backdrop) !important;
+}
+
+[data-radix-dialog-content] {
+  z-index: var(--z-modal) !important;
+}
+
+[data-radix-toast-viewport] {
+  z-index: var(--z-toast) !important;
 }

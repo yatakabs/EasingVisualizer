@@ -22,6 +22,8 @@ const defaultTheme = {
       coarse: { raw: "(pointer: coarse)" },
       fine: { raw: "(pointer: fine)" },
       pwa: { raw: "(display-mode: standalone)" },
+      // Desktop large breakpoint for Full-HD and larger layouts
+      '3xl': '1920px',
     },
     colors: {
       neutral: {
@@ -99,6 +101,20 @@ const defaultTheme = {
       xl: "var(--radius-xl)",
       "2xl": "var(--radius-2xl)",
       full: "var(--radius-full)",
+    },
+    zIndex: {
+      'base': 'var(--z-base)',
+      'docked': 'var(--z-docked)',
+      'dropdown': 'var(--z-dropdown)',
+      'sticky': 'var(--z-sticky)',
+      'fixed': 'var(--z-fixed)',
+      'modal-backdrop': 'var(--z-modal-backdrop)',
+      'modal': 'var(--z-modal)',
+      'popover': 'var(--z-popover)',
+      'toast': 'var(--z-toast)',
+      'tooltip': 'var(--z-tooltip)',
+      'overlay': 'var(--z-overlay)',
+      'focus-trap': 'var(--z-focus-trap)',
     },
   },
   spacing: {

@@ -76,7 +76,7 @@ export function URLPreviewBanner({
   
   return (
     <>
-      <Alert className="fixed top-4 left-1/2 -translate-x-1/2 z-50 max-w-3xl shadow-lg border-blue-500 bg-blue-50 dark:bg-blue-950 dark:border-blue-500">
+      <Alert className="fixed top-4 left-1/2 -translate-x-1/2 z-toast max-w-3xl shadow-lg border-blue-500 bg-blue-50 dark:bg-blue-950 dark:border-blue-500">
         <AlertDescription className="flex items-center gap-4 pr-8">
           <div className="flex-1">
             <p className="font-medium text-blue-900 dark:text-blue-100">

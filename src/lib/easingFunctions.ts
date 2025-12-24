@@ -53,9 +53,12 @@ export const EASING_FUNCTIONS: EasingFunction[] = [
   {
     id: 'sine',
     name: 'Sine',
-    formula: 'y = sin(πx/2)',
+    formula: 'y = 1 - cos(πx/2)',
     calculate: (x: number, easeType: EaseType) => {
-      return applyEaseToFunction(x, (t) => Math.sin(Math.PI * t / 2), easeType)
+      // EaseIn: 1 - cos(πt/2) - starts slow, ends fast
+      // EaseOut: sin(πt/2) - starts fast, ends slow  
+      // EaseInOut: -(cos(πt) - 1) / 2
+      return applyEaseToFunction(x, (t) => 1 - Math.cos(Math.PI * t / 2), easeType)
     },
     color: 'oklch(0.75 0.15 280)',
     scriptMapperName: 'Sine',

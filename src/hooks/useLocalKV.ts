@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 
 /**
  * Options for useLocalKV hook
@@ -10,12 +10,20 @@ export interface UseLocalKVOptions {
    * Useful when restoring state from URL - forces URL state to take priority.
    */
   forceValue?: boolean
+  
+  /**
+   * Debounce delay in milliseconds for localStorage writes.
+   * Defaults to 500ms. Set to 0 to disable debouncing.
+   */
+  debounceMs?: number
 }
 
 /**
  * Local storage fallback for @github/spark useKV hook.
  * This hook provides the same API as useKV but uses localStorage instead of Spark KV store.
  * Used when running locally or when Spark backend is unavailable.
+ * 
+ * Features debounced writes to reduce main thread blocking and I/O overhead.
  */
 export function useLocalKV<T>(
   key: string, 
@@ -24,9 +32,14 @@ export function useLocalKV<T>(
 ): [T, (value: T | ((prev: T) => T)) => void] {
   const storageKey = `spark-kv-${key}`
   const forceValue = options?.forceValue ?? false
+  const debounceMs = options?.debounceMs ?? 500
   
   // Track if we've already forced the value to avoid re-forcing on re-renders
   const hasForcedRef = useRef(false)
+  
+  // Refs for debounced write management
+  const writeTimeoutRef = useRef<number | undefined>(undefined)
+  const pendingValueRef = useRef<T | null>(null)
   
   const [value, setValue] = useState<T>(() => {
     if (typeof window === 'undefined') {
@@ -56,22 +69,67 @@ export function useLocalKV<T>(
     return defaultValue
   })
 
+  // Cleanup: flush pending writes on unmount or before new writes
+  useEffect(() => {
+    return () => {
+      // Cancel pending timeout
+      if (writeTimeoutRef.current !== undefined) {
+        clearTimeout(writeTimeoutRef.current)
+        writeTimeoutRef.current = undefined
+      }
+      
+      // Flush pending write immediately on unmount to prevent data loss
+      if (pendingValueRef.current !== null) {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(pendingValueRef.current))
+        } catch {
+          // Ignore errors during cleanup (e.g., storage full, private browsing)
+        }
+        pendingValueRef.current = null
+      }
+    }
+  }, [storageKey])
+
   const setStoredValue = useCallback((newValue: T | ((prev: T) => T)) => {
     setValue(prev => {
       const resolved = typeof newValue === 'function' 
         ? (newValue as (prev: T) => T)(prev) 
         : newValue
       
-      try {
-        localStorage.setItem(storageKey, JSON.stringify(resolved))
-      } catch {
-        // Storage full or unavailable
-        console.warn(`Failed to save to localStorage: ${storageKey}`)
+      // If debouncing is disabled, write immediately
+      if (debounceMs === 0) {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(resolved))
+        } catch {
+          console.warn(`Failed to save to localStorage: ${storageKey}`)
+        }
+        return resolved
       }
+      
+      // Schedule debounced write
+      pendingValueRef.current = resolved
+      
+      // Clear existing timeout if any
+      if (writeTimeoutRef.current !== undefined) {
+        clearTimeout(writeTimeoutRef.current)
+      }
+      
+      // Schedule new write
+      writeTimeoutRef.current = window.setTimeout(() => {
+        try {
+          if (pendingValueRef.current !== null) {
+            localStorage.setItem(storageKey, JSON.stringify(pendingValueRef.current))
+          }
+        } catch {
+          console.warn(`Failed to save to localStorage: ${storageKey}`)
+        }
+        pendingValueRef.current = null
+        writeTimeoutRef.current = undefined
+      }, debounceMs) as unknown as number
       
       return resolved
     })
-  }, [storageKey])
+  }, [storageKey, debounceMs])
 
   return [value, setStoredValue]
 }

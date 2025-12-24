@@ -39,7 +39,7 @@ export const VersionBadge = memo(function VersionBadge() {
       <TooltipTrigger asChild>
         <button
           onClick={handleClick}
-          className="fixed bottom-2 right-2 z-50 px-2 py-1 text-xs rounded-md 
+          className="fixed bottom-2 right-2 z-docked px-2 py-1 text-xs rounded-md 
                      bg-black/30 text-white/50 hover:text-white/90 
                      transition-all duration-200 cursor-pointer
                      backdrop-blur-sm border border-white/10 hover:border-white/20"
