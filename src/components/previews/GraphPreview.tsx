@@ -68,11 +68,10 @@ export const GraphPreview = memo(function GraphPreview({
     setHoverPosition(null)
   }, [])
 
-  const { position, graphPath, trailPath, originalGraphPath, baseGraphPath, hoverPoint } = useMemo(() => {
+  // Phase 2.1: Split path calculation into static and dynamic memos
+  // STATIC PATHS - Only recalculate when easing configuration changes (not every frame)
+  const { graphPath, originalGraphPath, baseGraphPath } = useMemo(() => {
     const { paddingLeft, paddingTop, innerWidth, innerHeight } = GRAPH_CONFIG
-    
-    const x = paddingLeft + input * innerWidth
-    const y = paddingTop + (1 - filteredOutput) * innerHeight
     
     const points: string[] = []
     const originalPoints: string[] = []
@@ -138,7 +137,22 @@ export const GraphPreview = memo(function GraphPreview({
       }
     }
     
+    return {
+      graphPath: points.join(' '),
+      originalGraphPath: originalPoints.join(' '),
+      baseGraphPath: basePoints.join(' ')
+    }
+  }, [easingFunction, easeType, enabledFilters, filterParams, isTriangularMode, scriptMapperMode, driftParams])
+
+  // DYNAMIC POSITION & TRAIL - Lightweight per-frame update
+  const { position, trailPath } = useMemo(() => {
+    const { paddingLeft, paddingTop, innerWidth, innerHeight } = GRAPH_CONFIG
+    
+    const x = paddingLeft + input * innerWidth
+    const y = paddingTop + (1 - filteredOutput) * innerHeight
+    
     const trailPoints: string[] = []
+    const steps = 100
     const currentStep = Math.floor(baseInput * steps)
     
     // ScriptMapper mode: simple linear trail from 0 to current position
@@ -171,49 +185,82 @@ export const GraphPreview = memo(function GraphPreview({
       }
     }
     
-    let hoverPointData: {
-      svgX: number
-      svgY: number
-      xValue: number
-      yValue: number
-      baseYValue: number
-    } | null = null
-    if (hoverPosition) {
-      const hoverX = hoverPosition.x
-      // ScriptMapper mode: no triangular transformation on hover
-      const effectiveHoverX = scriptMapperMode 
-        ? hoverX 
-        : (isTriangularMode ? (hoverX < 0.5 ? hoverX * 2 : 2 - hoverX * 2) : hoverX)
-      const hoverYVal = easingFunction.calculate(effectiveHoverX, easeType, driftParams)
-      const filteredHoverYVal = scriptMapperMode 
-        ? hoverYVal 
-        : applyFilters(hoverYVal, enabledFilters, filterParams)
-      
-      // Calculate base value for hover tooltip
-      const baseHoverYVal = easingFunction.calculate(effectiveHoverX, 'easein', driftParams)
-      
-      hoverPointData = {
-        svgX: paddingLeft + hoverX * innerWidth,
-        svgY: paddingTop + (1 - filteredHoverYVal) * innerHeight,
-        xValue: hoverX,
-        yValue: filteredHoverYVal,
-        baseYValue: baseHoverYVal
-      }
-    }
-    
     return {
       position: { x: paddingLeft + baseInput * innerWidth, y },
-      graphPath: points.join(' '),
-      trailPath: trailPoints.join(' '),
-      originalGraphPath: originalPoints.join(' '),
-      baseGraphPath: basePoints.join(' '),
-      hoverPoint: hoverPointData
+      trailPath: trailPoints.join(' ')
     }
-  }, [input, baseInput, filteredOutput, easingFunction, enabledFilters, filterParams, easeType, isTriangularMode, hoverPosition, scriptMapperMode, driftParams])
+  }, [input, baseInput, filteredOutput, easingFunction, easeType, enabledFilters, filterParams, isTriangularMode, scriptMapperMode, driftParams])
+
+  // HOVER POINT - Only when hovering
+  const hoverPoint = useMemo(() => {
+    if (!hoverPosition) return null
+    
+    const { paddingLeft, paddingTop, innerWidth, innerHeight } = GRAPH_CONFIG
+    const hoverX = hoverPosition.x
+    
+    // ScriptMapper mode: no triangular transformation on hover
+    const effectiveHoverX = scriptMapperMode 
+      ? hoverX 
+      : (isTriangularMode ? (hoverX < 0.5 ? hoverX * 2 : 2 - hoverX * 2) : hoverX)
+    const hoverYVal = easingFunction.calculate(effectiveHoverX, easeType, driftParams)
+    const filteredHoverYVal = scriptMapperMode 
+      ? hoverYVal 
+      : applyFilters(hoverYVal, enabledFilters, filterParams)
+    
+    // Calculate base value for hover tooltip
+    const baseHoverYVal = easingFunction.calculate(effectiveHoverX, 'easein', driftParams)
+    
+    return {
+      svgX: paddingLeft + hoverX * innerWidth,
+      svgY: paddingTop + (1 - filteredHoverYVal) * innerHeight,
+      xValue: hoverX,
+      yValue: filteredHoverYVal,
+      baseYValue: baseHoverYVal
+    }
+  }, [hoverPosition, easingFunction, easeType, enabledFilters, filterParams, isTriangularMode, scriptMapperMode, driftParams])
 
   const { paddingLeft, paddingTop, innerWidth, innerHeight, graphRight, graphBottom, viewBoxWidth, viewBoxHeight } = GRAPH_CONFIG
   const graphMidX = paddingLeft + innerWidth / 2
   const graphMidY = paddingTop + innerHeight / 2
+
+  // Memoize hover tooltip calculations to avoid IIFE allocation per render (P1-3)
+  const hoverTooltipData = useMemo(() => {
+    if (!hoverPoint) return null
+    
+    const showBase = easeType !== 'easein'
+    const tooltipWidth = 64
+    const tooltipHeight = showBase ? 36 : 24
+    const tooltipMargin = 8
+    
+    // Determine tooltip position based on hover point location
+    const wouldOverflowTop = hoverPoint.svgY - tooltipHeight - tooltipMargin < paddingTop
+    const wouldOverflowRight = hoverPoint.svgX + tooltipWidth / 2 > viewBoxWidth - 4
+    const wouldOverflowLeft = hoverPoint.svgX - tooltipWidth / 2 < 4
+    
+    // Calculate tooltip X position
+    let tooltipX = hoverPoint.svgX
+    if (wouldOverflowRight) {
+      tooltipX = hoverPoint.svgX - tooltipWidth / 2 - tooltipMargin
+    } else if (wouldOverflowLeft) {
+      tooltipX = hoverPoint.svgX + tooltipWidth / 2 + tooltipMargin
+    }
+    
+    // Calculate tooltip Y position (show below if would overflow top)
+    const tooltipY = wouldOverflowTop 
+      ? hoverPoint.svgY + tooltipMargin + tooltipHeight / 2
+      : hoverPoint.svgY - tooltipMargin - tooltipHeight / 2
+
+    return {
+      x: tooltipX,
+      y: tooltipY,
+      width: tooltipWidth,
+      height: tooltipHeight,
+      showBase,
+      xValue: hoverPoint.xValue,
+      yValue: hoverPoint.yValue,
+      baseYValue: hoverPoint.baseYValue
+    }
+  }, [hoverPoint, easeType, paddingTop, viewBoxWidth])
 
   return (
     <div className="relative w-full aspect-square flex items-center justify-center bg-secondary/30 rounded border border-border">
@@ -420,73 +467,47 @@ export const GraphPreview = memo(function GraphPreview({
               opacity="0.9"
             />
             {/* Tooltip - position dynamically based on hover location */}
-            {(() => {
-              const showBase = easeType !== 'easein'
-              const tooltipWidth = 64
-              const tooltipHeight = showBase ? 36 : 24
-              const tooltipMargin = 8
-              
-              // Determine tooltip position based on hover point location
-              // Check if tooltip would go outside viewBox boundaries
-              const wouldOverflowTop = hoverPoint.svgY - tooltipHeight - tooltipMargin < paddingTop
-              const wouldOverflowRight = hoverPoint.svgX + tooltipWidth / 2 > viewBoxWidth - 4
-              const wouldOverflowLeft = hoverPoint.svgX - tooltipWidth / 2 < 4
-              
-              // Calculate tooltip X position
-              let tooltipX = hoverPoint.svgX
-              if (wouldOverflowRight) {
-                tooltipX = hoverPoint.svgX - tooltipWidth / 2 - tooltipMargin
-              } else if (wouldOverflowLeft) {
-                tooltipX = hoverPoint.svgX + tooltipWidth / 2 + tooltipMargin
-              }
-              
-              // Calculate tooltip Y position (show below if would overflow top)
-              const tooltipY = wouldOverflowTop 
-                ? hoverPoint.svgY + tooltipMargin + tooltipHeight / 2
-                : hoverPoint.svgY - tooltipMargin - tooltipHeight / 2
-              
-              return (
-                <>
-                  <rect
-                    x={tooltipX - tooltipWidth / 2}
-                    y={tooltipY - tooltipHeight / 2}
-                    width={tooltipWidth}
-                    height={tooltipHeight}
-                    fill="oklch(0.25 0.04 250)"
-                    stroke="oklch(0.75 0.15 200)"
-                    strokeWidth="1"
-                    rx="4"
-                    opacity="0.95"
-                  />
+            {hoverTooltipData && (
+              <>
+                <rect
+                  x={hoverTooltipData.x - hoverTooltipData.width / 2}
+                  y={hoverTooltipData.y - hoverTooltipData.height / 2}
+                  width={hoverTooltipData.width}
+                  height={hoverTooltipData.height}
+                  fill="oklch(0.25 0.04 250)"
+                  stroke="oklch(0.75 0.15 200)"
+                  strokeWidth="1"
+                  rx="4"
+                  opacity="0.95"
+                />
+                <text
+                  x={hoverTooltipData.x}
+                  y={hoverTooltipData.y - (hoverTooltipData.showBase ? 9 : 3)}
+                  textAnchor="middle"
+                  className="text-[10px] fill-primary font-mono font-medium"
+                >
+                  x:{hoverTooltipData.xValue.toFixed(3)}
+                </text>
+                <text
+                  x={hoverTooltipData.x}
+                  y={hoverTooltipData.y + (hoverTooltipData.showBase ? 0 : 6)}
+                  textAnchor="middle"
+                  className="text-[10px] fill-primary font-mono font-medium"
+                >
+                  y:{hoverTooltipData.yValue.toFixed(3)}
+                </text>
+                {hoverTooltipData.showBase && (
                   <text
-                    x={tooltipX}
-                    y={tooltipY - (showBase ? 9 : 3)}
+                    x={hoverTooltipData.x}
+                    y={hoverTooltipData.y + 9}
                     textAnchor="middle"
-                    className="text-[10px] fill-primary font-mono font-medium"
+                    className="text-[9px] fill-muted-foreground font-mono"
                   >
-                    x:{hoverPoint.xValue.toFixed(3)}
+                    base:{hoverTooltipData.baseYValue.toFixed(3)}
                   </text>
-                  <text
-                    x={tooltipX}
-                    y={tooltipY + (showBase ? 0 : 6)}
-                    textAnchor="middle"
-                    className="text-[10px] fill-primary font-mono font-medium"
-                  >
-                    y:{hoverPoint.yValue.toFixed(3)}
-                  </text>
-                  {showBase && (
-                    <text
-                      x={tooltipX}
-                      y={tooltipY + 9}
-                      textAnchor="middle"
-                      className="text-[9px] fill-muted-foreground font-mono"
-                    >
-                      base:{hoverPoint.baseYValue.toFixed(3)}
-                    </text>
-                  )}
-                </>
-              )
-            })()}
+                )}
+              </>
+            )}
           </g>
         )}
       </svg>
