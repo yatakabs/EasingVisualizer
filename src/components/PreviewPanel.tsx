@@ -80,21 +80,21 @@ export const PreviewPanel = memo(function PreviewPanel({
       style={{ padding: 0, gap: 0 }}
     >
       <CardHeader 
-        className="cursor-move active:cursor-grabbing bg-primary/10 touch-none"
+        className="cursor-move active:cursor-grabbing bg-primary/10"
         draggable
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
-        style={{ margin: 0, padding: '4px 6px', gap: 0 }}
+        style={{ margin: 0, padding: '2px 6px', gap: 0 }}
       >
-        <div className="flex items-center justify-between gap-1">
-          <div className="flex items-center gap-1 flex-1 min-w-0">
+        <div className="flex items-center justify-between gap-0.5">
+          <div className="flex items-center gap-0.5 flex-1 min-w-0">
             <DotsSixVertical 
-              size={14} 
+              size={11} 
               className="text-muted-foreground/60 flex-shrink-0 hover:text-muted-foreground transition-colors" 
               weight="bold"
               aria-hidden="true"
             />
-            <CardTitle className="text-xs font-semibold tracking-tight truncate flex-1 min-w-0" style={{ margin: 0, lineHeight: '1.3' }}>
+            <CardTitle className="text-[11px] font-semibold tracking-tight truncate flex-1 min-w-0" style={{ margin: 0, lineHeight: '1' }}>
               {title || easingFunction.name}
             </CardTitle>
           </div>
@@ -108,9 +108,9 @@ export const PreviewPanel = memo(function PreviewPanel({
         </div>
       </CardHeader>
       
-      <div className="px-1.5 py-1 border-b border-border/50">
+      <div className="px-2 py-1 border-b border-border/50">
         <div className="flex items-center justify-between gap-1">
-          <p className="text-[10px] font-mono text-muted-foreground leading-relaxed">
+          <p className="text-[10px] font-mono text-muted-foreground leading-tight flex-1 min-w-0 truncate">
             {easingFunction.formula}
           </p>
           <ToggleGroup 
@@ -118,16 +118,15 @@ export const PreviewPanel = memo(function PreviewPanel({
             value={easeType}
             onValueChange={(value) => value && onEaseTypeChange(value as EaseType)}
             variant="outline"
-            size="sm"
             className="flex-shrink-0"
           >
-            <ToggleGroupItem value="easein" aria-label="EaseIn" className="text-[10px] px-1.5 h-6">
+            <ToggleGroupItem value="easein" aria-label="EaseIn" className="text-[10px] px-1 leading-none" style={{ height: 16, minHeight: 16 }}>
               In
             </ToggleGroupItem>
-            <ToggleGroupItem value="easeout" aria-label="EaseOut" className="text-[10px] px-1.5 h-6">
+            <ToggleGroupItem value="easeout" aria-label="EaseOut" className="text-[10px] px-1 leading-none" style={{ height: 16, minHeight: 16 }}>
               Out
             </ToggleGroupItem>
-            <ToggleGroupItem value="easeboth" aria-label="EaseBoth" className="text-[10px] px-1.5 h-6">
+            <ToggleGroupItem value="easeboth" aria-label="EaseBoth" className="text-[10px] px-1 leading-none" style={{ height: 16, minHeight: 16 }}>
               Both
             </ToggleGroupItem>
           </ToggleGroup>
