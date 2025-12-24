@@ -6,6 +6,16 @@ import { X } from '@phosphor-icons/react'
 import type { EasingFunction } from '@/lib/easingFunctions'
 import type { EaseType } from '@/lib/easeTypes'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { rendererPool } from '@/lib/rendererPool'
+
+// Shared geometry cache for cube preview (reused across all CameraView instances)
+let sharedCubeGeometry: THREE.BoxGeometry | null = null
+function getSharedCubeGeometry(): THREE.BoxGeometry {
+  if (!sharedCubeGeometry) {
+    sharedCubeGeometry = new THREE.BoxGeometry(1, 1, 1)
+  }
+  return sharedCubeGeometry
+}
 
 interface CameraViewProps {
   EasingFunction: EasingFunction
@@ -57,8 +67,19 @@ export const CameraView = memo(function CameraView({
   const cubeRef = useRef<THREE.Mesh | null>(null)
   const frameIdRef = useRef<number | null>(null)
 
+  // Phase 2.2: Combined setup useEffect with ResizeObserver
   useEffect(() => {
     if (!mountRef.current) return
+
+    // Acquire renderer from pool
+    const poolResult = rendererPool.acquire()
+    if (!poolResult) {
+      console.warn('[CameraView] WebGL renderer pool exhausted')
+      return
+    }
+    
+    const { renderer, canvas } = poolResult
+    rendererRef.current = renderer
 
     const width = mountRef.current.clientWidth
     const height = mountRef.current.clientHeight
@@ -71,13 +92,12 @@ export const CameraView = memo(function CameraView({
     camera.position.set(0, 2, 5)
     cameraRef.current = camera
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true })
+    // Configure renderer and append canvas to container
     renderer.setSize(width, height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    mountRef.current.appendChild(renderer.domElement)
-    rendererRef.current = renderer
+    mountRef.current.appendChild(canvas)
 
-    const geometry = new THREE.BoxGeometry(1, 1, 1)
+    // Use shared geometry for cube (reduces GPU memory)
+    const geometry = getSharedCubeGeometry()
     const material = new THREE.MeshPhongMaterial({ 
       color: 0x4488ff,
       shininess: 100
@@ -102,58 +122,48 @@ export const CameraView = memo(function CameraView({
     axesHelper.scale.x = -1
     scene.add(axesHelper)
 
-    const handleResize = () => {
-      if (!mountRef.current || !cameraRef.current || !rendererRef.current) return
-      
-      const newWidth = mountRef.current.clientWidth
-      const newHeight = mountRef.current.clientHeight
-      
-      cameraRef.current.aspect = newWidth / newHeight
-      cameraRef.current.updateProjectionMatrix()
-      rendererRef.current.setSize(newWidth, newHeight)
-    }
-
-    window.addEventListener('resize', handleResize)
+    // ResizeObserver for container-specific resize handling
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (!cameraRef.current || !rendererRef.current) return
+        
+        const { width, height } = entry.contentRect
+        if (width > 0 && height > 0) {
+          cameraRef.current.aspect = width / height
+          cameraRef.current.updateProjectionMatrix()
+          rendererRef.current.setSize(width, height)
+        }
+      }
+    })
+    
+    resizeObserver.observe(mountRef.current)
 
     return () => {
-      window.removeEventListener('resize', handleResize)
+      resizeObserver.disconnect()
       
       if (frameIdRef.current !== null) {
         cancelAnimationFrame(frameIdRef.current)
       }
       
-      if (rendererRef.current && mountRef.current) {
-        mountRef.current.removeChild(rendererRef.current.domElement)
-        rendererRef.current.dispose()
+      // Release renderer back to pool (do NOT dispose it)
+      if (rendererRef.current) {
+        rendererPool.release(rendererRef.current)
+        
+        // Remove canvas from DOM
+        if (mountRef.current && mountRef.current.contains(canvas)) {
+          mountRef.current.removeChild(canvas)
+        }
       }
       
       if (cubeRef.current) {
-        cubeRef.current.geometry.dispose()
+        // Do NOT dispose geometry (it's shared)
+        // Only dispose material
         if (cubeRef.current.material instanceof THREE.Material) {
           cubeRef.current.material.dispose()
         }
       }
     }
   }, [])
-
-  useEffect(() => {
-    if (!mountRef.current || !cameraRef.current || !rendererRef.current) return
-    
-    const rafId = requestAnimationFrame(() => {
-      if (!mountRef.current || !cameraRef.current || !rendererRef.current) return
-      
-      const newWidth = mountRef.current.clientWidth
-      const newHeight = mountRef.current.clientHeight
-      
-      cameraRef.current.aspect = newWidth / newHeight
-      cameraRef.current.updateProjectionMatrix()
-      rendererRef.current.setSize(newWidth, newHeight)
-    })
-
-    return () => {
-      cancelAnimationFrame(rafId)
-    }
-  }, [aspectRatio])
 
   useEffect(() => {
     if (!cameraRef.current || !cubeRef.current || !rendererRef.current || !sceneRef.current) return
