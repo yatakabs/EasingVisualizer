@@ -158,7 +158,7 @@ dpos_4_2_2_55,stop
 
 #### 表示方法の選択
 
-<!-- TOOD: Screenshot of Display Mode Toolbar -->
+<!-- TODO: Screenshot of Display Mode Toolbar -->
 
 ツールバーで4種類の表示方法を選択できます。Glow、Graph、Camera、Value。全部同時に表示することもできます。好きなものだけ選んでください。
 
