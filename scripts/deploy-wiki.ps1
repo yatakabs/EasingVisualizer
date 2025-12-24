@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     This script clones the GitHub Wiki repository, copies the wiki source files
-    from docs/wiki/, and pushes the changes to the wiki repository.
+    from wiki/, and pushes the changes to the wiki repository.
 
 .PARAMETER WikiRepoUrl
     The git clone URL for the wiki repository.
@@ -49,7 +49,7 @@ $ErrorActionPreference = "Stop"
 
 # Configuration
 $TempDir = ".temp/wiki-deploy"
-$WikiSourceDir = "docs/wiki"
+$WikiSourceDir = "wiki"
 $ExcludeFiles = @("README.md")  # Files to exclude from deployment
 
 # Colors for output

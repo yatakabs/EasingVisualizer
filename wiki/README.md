@@ -7,7 +7,7 @@ This directory contains the source files for the [Easing Visualizer Wiki](https:
 GitHub Wiki is a **separate git repository** from the main project repository. This means:
 
 - Wiki content lives in its own repository
-- Changes to `docs/wiki/` in the main repo do NOT automatically update the wiki
+- Changes to `wiki/` in the main repo do NOT automatically update the wiki
 - Wiki must be deployed manually or via automation
 
 ### Wiki URLs
@@ -42,7 +42,7 @@ GitHub Wiki is a **separate git repository** from the main project repository. T
 4. **Copy Wiki Source Files**
    ```bash
    # From the main repository root
-   cp docs/wiki/*.md ../EasingVisualizer.wiki/
+   cp wiki/*.md ../EasingVisualizer.wiki/
    
    # Or use the deployment script
    ./scripts/deploy-wiki.ps1
@@ -84,7 +84,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'docs/wiki/**'
+      - 'wiki/**'
 
 jobs:
   deploy:
@@ -95,7 +95,7 @@ jobs:
       - name: Deploy to Wiki
         uses: Andrew-Chen-Wang/github-wiki-action@v4
         with:
-          path: docs/wiki
+          path: wiki
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
