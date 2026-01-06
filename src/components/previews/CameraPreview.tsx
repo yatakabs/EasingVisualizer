@@ -162,7 +162,7 @@ export const CameraPreview = memo(function CameraPreview({
       // Fallback to humanoid.userData.headHeight or default 1.5
       headWorldPos.set(
         humanoid.position.x ?? 0,
-        // @ts-ignore userData may be untyped
+        // @ts-expect-error userData may be untyped
         humanoid.userData?.headHeight ?? 1.5,
         humanoid.position.z ?? 0
       )
