@@ -7,7 +7,7 @@ test('check scrollbar position', async ({ page }) => {
   
   // Identify scrollable containers
   const scrollInfo = await page.evaluate(() => {
-    const results: any[] = []
+    const results: { tag: string; id: string; class: string; scrollHeight: number; clientHeight: number; overflowY: string; role: string | null }[] = []
     document.querySelectorAll('*').forEach(el => {
       const htmlEl = el as HTMLElement
       const style = window.getComputedStyle(el)
