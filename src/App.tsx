@@ -7,7 +7,6 @@ import { AdvancedSettings } from '@/components/AdvancedSettings'
 import { FunctionSelector } from '@/components/FunctionSelector'
 import { PresetManager } from '@/components/PresetManager'
 import { URLPreviewBanner } from '@/components/URLPreviewBanner'
-import { DriftControls } from '@/components/DriftControls'
 import { ScriptMapperControls } from '@/components/ScriptMapperControls'
 import { ScriptMapperPreview } from '@/components/previews/ScriptMapperPreview'
 import { ScriptMapperFirstPersonView } from '@/components/previews/ScriptMapperFirstPersonView'
@@ -100,11 +99,12 @@ function App() {
   const [showControlPanel, setShowControlPanel] = useKV<boolean>('show-control-panel', urlState?.showControlPanel ?? true, forceURLState)
   const [endPauseDuration, setEndPauseDuration] = useKV<number>('end-pause-duration', urlState?.endPauseDuration ?? 2.0, forceURLState)
   const [scriptMapperMode, setScriptMapperMode] = useKV<boolean>('scriptmapper-mode', urlState?.scriptMapperMode ?? false, forceURLState)
-  const [driftParams, setDriftParams] = useKV<{ x: number; y: number }>('drift-params', urlState?.driftParams ?? { x: 6, y: 6 }, forceURLState)
+  const [savedDriftParams, setSavedDriftParams] = useKV<{ x: number; y: number }>('drift-params', urlState?.driftParams ?? { x: 6, y: 6 }, forceURLState)
   const [activeCameraPath, setActiveCameraPath] = useKV<CameraPath | null>('active-camera-path', CAMERA_PATH_PRESETS[0] ?? null, forceURLState)
   
   const [speed, setSpeed] = useState(1)
   const [gamma, setGamma] = useState(2.2)
+  const [driftParams, setDriftParams] = useState<{ x: number; y: number }>({ x: 6, y: 6 })
   const [time, setTime] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
   const [pauseProgress, setPauseProgress] = useState(0)
@@ -118,6 +118,7 @@ function App() {
   const fpsFrames = useRef<number[]>([])
   const speedTimeoutRef = useRef<number | undefined>(undefined)
   const gammaTimeoutRef = useRef<number | undefined>(undefined)
+  const driftParamsTimeoutRef = useRef<number | undefined>(undefined)
   const pauseTimeoutRef = useRef<number | undefined>(undefined)
   const pauseStartTimeRef = useRef<number>(0)
   const gridContainerRef = useRef<HTMLDivElement>(null)
@@ -134,6 +135,12 @@ function App() {
       setGamma(savedGamma)
     }
   }, [savedGamma])
+
+  useEffect(() => {
+    if (savedDriftParams !== undefined && savedDriftParams !== null) {
+      setDriftParams(savedDriftParams)
+    }
+  }, [savedDriftParams])
 
   // Sync maxCameraPreviews with the renderer pool
   useEffect(() => {
@@ -269,6 +276,9 @@ function App() {
       if (gammaTimeoutRef.current) {
         window.clearTimeout(gammaTimeoutRef.current)
       }
+      if (driftParamsTimeoutRef.current) {
+        window.clearTimeout(driftParamsTimeoutRef.current)
+      }
       if (pauseTimeoutRef.current) {
         window.clearTimeout(pauseTimeoutRef.current)
       }
@@ -397,7 +407,12 @@ function App() {
     setShowControlPanel(urlState.showControlPanel)
     setEndPauseDuration(urlState.endPauseDuration)
     setScriptMapperMode(urlState.scriptMapperMode)
+    // Cancel pending drift params timeout and set both states
+    if (driftParamsTimeoutRef.current) {
+      window.clearTimeout(driftParamsTimeoutRef.current)
+    }
     setDriftParams(urlState.driftParams)
+    setSavedDriftParams(urlState.driftParams)
     
     // Hide banner
     setShowPreviewBanner(false)
@@ -410,7 +425,7 @@ function App() {
     setTriangularWaveMode, setCameraStartPos, setCameraEndPos,
     setCameraAspectRatio, setMaxCameraPreviews, setActiveCameraPanels,
     setCardScale, setCoordinateSystem, setShowControlPanel, setEndPauseDuration,
-    setScriptMapperMode, setDriftParams
+    setScriptMapperMode, setSavedDriftParams
   ])
 
   const handleDismissURLState = useCallback(() => {
@@ -450,13 +465,22 @@ function App() {
     setCoordinateSystem(state.coordinateSystem)
     setShowControlPanel(state.showControlPanel)
     setEndPauseDuration(state.endPauseDuration)
+    // Cancel pending drift params timeout and set both states if available
+    if (driftParamsTimeoutRef.current) {
+      window.clearTimeout(driftParamsTimeoutRef.current)
+    }
+    if (state.driftParams) {
+      setDriftParams(state.driftParams)
+      setSavedDriftParams(state.driftParams)
+    }
     setPresetManagerOpen(false)
   }, [
     setPanels, setSavedSpeed, setSavedGamma, setEnabledPreviews,
     setEnabledFilters, setManualInputMode, setManualInputValue,
     setTriangularWaveMode, setCameraStartPos, setCameraEndPos,
     setCameraAspectRatio, setMaxCameraPreviews, setActiveCameraPanels,
-    setCardScale, setCoordinateSystem, setShowControlPanel, setEndPauseDuration
+    setCardScale, setCoordinateSystem, setShowControlPanel, setEndPauseDuration,
+    setSavedDriftParams
   ])
 
   const getTriangularWave = (t: number): number => {
@@ -589,12 +613,33 @@ function App() {
   }, [setManualInputValue])
 
   const handleDriftParamsChange = useCallback((x: number, y: number) => {
-    setDriftParams(() => ({ x, y }))
-  }, [setDriftParams])
+    const newParams = { x, y }
+    setDriftParams(newParams)
+    if (driftParamsTimeoutRef.current) {
+      window.clearTimeout(driftParamsTimeoutRef.current)
+    }
+    driftParamsTimeoutRef.current = window.setTimeout(() => {
+      setSavedDriftParams(() => newParams)
+    }, 500)
+  }, [setSavedDriftParams])
+
+  // Phase 3: Stable callbacks for individual drift axis changes
+  const handleDriftXChange = useCallback((x: number) => {
+    handleDriftParamsChange(x, driftParams?.y ?? 6)
+  }, [handleDriftParamsChange, driftParams?.y])
+
+  const handleDriftYChange = useCallback((y: number) => {
+    handleDriftParamsChange(driftParams?.x ?? 6, y)
+  }, [handleDriftParamsChange, driftParams?.x])
 
   const handleDriftReset = useCallback(() => {
-    setDriftParams(() => ({ x: 6, y: 6 }))
-  }, [setDriftParams])
+    const defaultParams = { x: 6, y: 6 }
+    setDriftParams(defaultParams)
+    if (driftParamsTimeoutRef.current) {
+      window.clearTimeout(driftParamsTimeoutRef.current)
+    }
+    setSavedDriftParams(() => defaultParams)
+  }, [setSavedDriftParams])
 
   const handleSetAllEaseType = useCallback((easeType: EaseType) => {
     setPanels((currentPanels) => 
@@ -880,6 +925,11 @@ function App() {
                           showCamera={isCameraActive}
                           canToggleCamera={enabledPreviews?.includes('camera') ?? false}
                           canActivateCamera={canActivateCamera}
+                          scriptMapperMode={scriptMapperMode ?? false}
+                          driftParams={params}
+                          onDriftXChange={handleDriftXChange}
+                          onDriftYChange={handleDriftYChange}
+                          onDriftReset={handleDriftReset}
                           onRemove={(panels || []).length > 1 ? handleRemovePanel(panel.id) : undefined}
                           onToggleCamera={() => handleToggleCameraForPanel(panel.id)}
                           onEaseTypeChange={(newEaseType) => handleEaseTypeChange(panel.id, newEaseType)}
@@ -897,17 +947,6 @@ function App() {
             )
           )}
           
-          {/* Drift Controls - only visible in Easing mode when at least one panel uses Drift */}
-          {!scriptMapperMode && (panels || []).some(panel => panel.functionId === 'drift') && (
-            <DriftControls
-              x={driftParams?.x ?? 6}
-              y={driftParams?.y ?? 6}
-              onXChange={(x) => handleDriftParamsChange(x, driftParams?.y ?? 6)}
-              onYChange={(y) => handleDriftParamsChange(driftParams?.x ?? 6, y)}
-              onReset={handleDriftReset}
-              visible={true}
-            />
-          )}
         </div>
       </main>
       

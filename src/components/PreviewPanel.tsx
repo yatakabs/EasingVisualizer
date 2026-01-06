@@ -1,7 +1,12 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Video, Cube, DotsSixVertical } from '@phosphor-icons/react'
+import { Slider } from '@/components/ui/slider'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { Video, Cube, DotsSixVertical, ArrowCounterClockwise, CaretDown } from '@phosphor-icons/react'
+import { cn } from '@/lib/utils'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import type { EasingFunction } from '@/lib/easingFunctions'
 import type { EaseType } from '@/lib/easeTypes'
@@ -34,6 +39,9 @@ interface PreviewPanelProps {
   title?: string
   scriptMapperMode?: boolean
   driftParams?: { x: number; y: number }
+  onDriftXChange?: (x: number) => void
+  onDriftYChange?: (y: number) => void
+  onDriftReset?: () => void
   onRemove?: () => void
   onToggleCamera: () => void
   onEaseTypeChange: (easeType: EaseType) => void
@@ -64,6 +72,9 @@ export const PreviewPanel = memo(function PreviewPanel({
   title,
   scriptMapperMode = false,
   driftParams,
+  onDriftXChange,
+  onDriftYChange,
+  onDriftReset,
   onRemove,
   onToggleCamera,
   onEaseTypeChange,
@@ -72,6 +83,8 @@ export const PreviewPanel = memo(function PreviewPanel({
   onDragOver,
   onDrop
 }: PreviewPanelProps) {
+  const [driftExpanded, setDriftExpanded] = useState(false)
+  
   return (
     <Card 
       className="relative overflow-hidden"
@@ -222,6 +235,68 @@ export const PreviewPanel = memo(function PreviewPanel({
               filteredOutput={filteredOutput}
             />
           </div>
+        )}
+        
+        {/* Inline Drift Controls - only for parametric functions in non-ScriptMapper mode */}
+        {!scriptMapperMode && easingFunction.isParametric && driftParams && onDriftXChange && onDriftYChange && (
+          <Collapsible open={driftExpanded} onOpenChange={setDriftExpanded} className="w-full mt-2 pt-2 border-t border-border/50">
+            <div className="flex items-center justify-between">
+              <CollapsibleTrigger asChild>
+                <button className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  <CaretDown className={cn("w-3 h-3 transition-transform duration-200", driftExpanded && "rotate-180")} />
+                  Drift Parameters
+                  <Badge variant="outline" className="font-mono text-[9px] h-4 px-1 ml-1">X:{driftParams.x} Y:{driftParams.y}</Badge>
+                </button>
+              </CollapsibleTrigger>
+              {onDriftReset && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onDriftReset}
+                  className="h-5 px-1.5 text-[10px] gap-0.5"
+                >
+                  <ArrowCounterClockwise className="w-3 h-3" />
+                  Reset
+                </Button>
+              )}
+            </div>
+            
+            <CollapsibleContent className="space-y-2 pt-2">
+              {/* X Parameter */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor={`drift-x-${easingFunction.id}`} className="text-[10px]">X</Label>
+                  <Badge variant="secondary" className="font-mono text-[9px] h-4 px-1">{driftParams.x}</Badge>
+                </div>
+                <Slider
+                  id={`drift-x-${easingFunction.id}`}
+                  min={0}
+                  max={10}
+                  step={1}
+                  value={[driftParams.x]}
+                  onValueChange={([value]) => onDriftXChange(value)}
+                  className="h-4"
+                />
+              </div>
+              
+              {/* Y Parameter */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor={`drift-y-${easingFunction.id}`} className="text-[10px]">Y</Label>
+                  <Badge variant="secondary" className="font-mono text-[9px] h-4 px-1">{driftParams.y}</Badge>
+                </div>
+                <Slider
+                  id={`drift-y-${easingFunction.id}`}
+                  min={0}
+                  max={10}
+                  step={1}
+                  value={[driftParams.y]}
+                  onValueChange={([value]) => onDriftYChange(value)}
+                  className="h-4"
+                />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         )}
       </CardContent>
     </Card>
