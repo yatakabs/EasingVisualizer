@@ -1,7 +1,7 @@
 {
     "name": "easing-visualizer",
     "private": true,
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Visual comparison tool for easing functions targeting Beat Saber modding and animation workflows",
     "type": "module",
     "repository": {
