@@ -128,6 +128,23 @@ function createCameraModel(fov: number = 60, color: number = 0x00ffff): THREE.Gr
 }
 
 /**
+ * Dispose any Three.js Object3D and its resources
+ * Handles Mesh, Line, Points, and other subtypes
+ */
+function disposeObject3D(obj: THREE.Object3D): void {
+  if (obj instanceof THREE.Mesh || obj instanceof THREE.Line || obj instanceof THREE.Points) {
+    obj.geometry?.dispose()
+    if (obj.material) {
+      if (Array.isArray(obj.material)) {
+        obj.material.forEach(m => m.dispose())
+      } else {
+        obj.material.dispose()
+      }
+    }
+  }
+}
+
+/**
  * Update camera model color based on current segment
  */
 function updateCameraModelColor(cameraModel: THREE.Group, color: number): void {
@@ -291,6 +308,25 @@ export const ScriptMapperPreview = memo(function ScriptMapperPreview({
           userData.edgesGeometry?.dispose()
         }
       }
+      
+      // Dispose path line
+      if (pathLineRef.current) {
+        pathLineRef.current.geometry.dispose()
+        if (Array.isArray(pathLineRef.current.material)) {
+          pathLineRef.current.material.forEach(m => m.dispose())
+        } else {
+          pathLineRef.current.material.dispose()
+        }
+      }
+      
+      // Dispose all waypoint markers
+      if (waypointMarkersRef.current) {
+        while (waypointMarkersRef.current.children.length > 0) {
+          const child = waypointMarkersRef.current.children[0]
+          disposeObject3D(child)
+          waypointMarkersRef.current.remove(child)
+        }
+      }
     }
   }, [coordinateSystem])
   
@@ -315,12 +351,7 @@ export const ScriptMapperPreview = memo(function ScriptMapperPreview({
     // Clear old waypoint markers
     while (waypointGroup.children.length > 0) {
       const child = waypointGroup.children[0]
-      if (child instanceof THREE.Mesh) {
-        child.geometry.dispose()
-        if (child.material instanceof THREE.Material) {
-          child.material.dispose()
-        }
-      }
+      disposeObject3D(child)
       waypointGroup.remove(child)
     }
     
