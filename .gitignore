@@ -52,3 +52,10 @@ e2e/screenshots/
 
 # Claude Code local settings
 docs/.claude/
+
+# Agentic Ensemble
+.github/config/ae.*.json
+.github/chatmodes/ae.*.chatmode.md
+.github/instructions/ae.*.instructions.md
+.github/agents/ae.*.agent.md
+.github/prompts/ae.*.prompt.md
