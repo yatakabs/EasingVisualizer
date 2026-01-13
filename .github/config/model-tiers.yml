@@ -1,0 +1,83 @@
+# Model Tier Configuration
+# Defines available models for each agent tier
+
+tiers:
+  economy:
+    description: "Low-cost, fast models for simple tasks"
+    costMultiplier: 0.33
+    complexityRange: [1, 6]
+    models:
+      - name: claude-haiku-4
+        vendor: anthropic
+        strengths: ["fast", "simple-tasks", "claude-quality-reasoning"]
+      - name: gpt-4o-mini
+        vendor: openai
+        strengths: ["fast", "simple-tasks", "function-calling"]
+      - name: gemini-flash
+        vendor: google
+        strengths: ["fast", "multimodal"]
+
+  standard:
+    description: "Balanced cost/capability for typical tasks"
+    costMultiplier: 1.0
+    complexityRange: [5, 8]
+    models:
+      - name: claude-sonnet-4
+        vendor: anthropic
+        strengths: ["balanced", "code-generation", "analysis"]
+        default: true
+      - name: gpt-4o
+        vendor: openai
+        strengths: ["reasoning", "function-calling"]
+      - name: gemini-pro
+        vendor: google
+        strengths: ["multimodal", "long-context"]
+
+  premium:
+    description: "High-capability models for complex tasks"
+    costMultiplier: 3.0
+    complexityRange: [7, 10]
+    models:
+      - name: claude-opus-4
+        vendor: anthropic
+        strengths: ["complex-reasoning", "architecture", "critical-review"]
+        default: true
+      - name: o1
+        vendor: openai
+        strengths: ["deep-reasoning", "math", "analysis"]
+      - name: o3
+        vendor: openai
+        strengths: ["complex-reasoning", "planning"]
+
+# Model selection rules
+selection:
+  # Default model selection per vendor diversity requirement
+  crossVendorRequired:
+    - auditor  # Auditors should use different vendor than implementer
+
+  # Recommended pairings for cross-vendor verification
+  verificationPairings:
+    - primary: anthropic
+      secondary: openai
+    - primary: openai
+      secondary: anthropic
+    - primary: google
+      secondary: anthropic
+
+# Agent type to tier mapping defaults
+agentDefaults:
+  implementer:
+    defaultTier: standard
+    allowedTiers: [economy, standard, premium]
+  analyst:
+    defaultTier: standard
+    allowedTiers: [standard, premium]
+  architect:
+    defaultTier: premium
+    allowedTiers: [standard, premium]
+  auditor:
+    defaultTier: standard
+    allowedTiers: [standard, premium]
+  curator:
+    defaultTier: economy
+    allowedTiers: [economy, standard, premium]
