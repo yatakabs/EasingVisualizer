@@ -1,6 +1,6 @@
 /**
  * ScriptMapper Preset E2E Tests
- * 
+ *
  * Tests the ScriptMapper preset functionality including:
  * - Preset selection UI
  * - Bookmark command generation
@@ -9,51 +9,28 @@
 
 import { test, expect } from '@playwright/test'
 import { CAMERA_PATH_PRESETS } from '../src/lib/cameraPathPresets'
-
-// Helper to wait for app to be fully loaded
-async function waitForAppReady(page: import('@playwright/test').Page) {
-  // Wait for app container and DOM ready state in parallel
-  await Promise.all([
-    page.waitForSelector('[data-testid="app-container"], .app-container, main', { 
-      timeout: 5000  // Reduced from 30s
-    }),
-    page.waitForLoadState('domcontentloaded'),
-  ])
-}
+import { waitForAppReady, navigateToScriptMapper, isToastVisible } from './helpers'
 
 test.describe('ScriptMapper Preset Selection', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await waitForAppReady(page)
+    await navigateToScriptMapper(page)
   })
 
   test('should display preset selector with correct count', async ({ page }) => {
-    // Look for ScriptMapper section or tab
-    const scriptMapperTab = page.getByRole('tab', { name: /scriptmapper/i })
-    
-    // If there's a tab, click it
-    if (await scriptMapperTab.isVisible().catch(() => false)) {
-      await scriptMapperTab.click()
-    }
-    
     // Check for preset badge showing count
     const presetBadge = page.getByText(new RegExp(`${CAMERA_PATH_PRESETS.length}\\s*available`, 'i'))
-    
+
     // Either we find the badge or we can find the preset buttons
     const hasPresetsUI = await presetBadge.isVisible().catch(() => false) ||
       await page.getByRole('button', { name: /basic 3-point/i }).isVisible().catch(() => false) ||
       await page.getByText(/presets/i).isVisible().catch(() => false)
-    
+
     expect(hasPresetsUI).toBeTruthy()
   })
 
   test('should load preset when clicked', async ({ page }) => {
-    // Navigate to ScriptMapper section if needed
-    const scriptMapperTab = page.getByRole('tab', { name: /scriptmapper/i })
-    if (await scriptMapperTab.isVisible().catch(() => false)) {
-      await scriptMapperTab.click()
-    }
-
     // Find and click a preset button (looking for any preset)
     const presetNames = CAMERA_PATH_PRESETS.map(p => p.name)
     
@@ -88,12 +65,6 @@ test.describe('ScriptMapper Preset Selection', () => {
   })
 
   test('should display waypoint information for selected preset', async ({ page }) => {
-    // Navigate to ScriptMapper
-    const scriptMapperTab = page.getByRole('tab', { name: /scriptmapper/i })
-    if (await scriptMapperTab.isVisible().catch(() => false)) {
-      await scriptMapperTab.click()
-    }
-
     // Click on a preset with known waypoint count
     const basicPreset = CAMERA_PATH_PRESETS.find(p => p.id === 'preset-basic-3point')
     
@@ -118,15 +89,10 @@ test.describe('ScriptMapper Bookmark Generation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await waitForAppReady(page)
+    await navigateToScriptMapper(page)
   })
 
   test('should generate bookmark commands for each waypoint', async ({ page }) => {
-    // Navigate to ScriptMapper
-    const scriptMapperTab = page.getByRole('tab', { name: /scriptmapper/i })
-    if (await scriptMapperTab.isVisible().catch(() => false)) {
-      await scriptMapperTab.click()
-    }
-
     // Select a preset first
     const preset = CAMERA_PATH_PRESETS[0]
     const presetButton = page.getByRole('button', { name: new RegExp(preset.name.replace(/[()]/g, '\\$&'), 'i') })
@@ -147,12 +113,6 @@ test.describe('ScriptMapper Bookmark Generation', () => {
   })
 
   test('should have N bookmarks for N waypoints (keyframe-centric model)', async ({ page }) => {
-    // Navigate to ScriptMapper
-    const scriptMapperTab = page.getByRole('tab', { name: /scriptmapper/i })
-    if (await scriptMapperTab.isVisible().catch(() => false)) {
-      await scriptMapperTab.click()
-    }
-
     // Select the 8-point preset for clear verification
     const zigzagPreset = CAMERA_PATH_PRESETS.find(p => p.id === 'preset-zigzag-quick')
     
@@ -182,12 +142,6 @@ test.describe('ScriptMapper Bookmark Generation', () => {
   })
 
   test('should include stop command for last waypoint', async ({ page }) => {
-    // Navigate to ScriptMapper
-    const scriptMapperTab = page.getByRole('tab', { name: /scriptmapper/i })
-    if (await scriptMapperTab.isVisible().catch(() => false)) {
-      await scriptMapperTab.click()
-    }
-
     // Select a preset
     const preset = CAMERA_PATH_PRESETS[0]
     const presetButton = page.getByRole('button', { name: new RegExp(preset.name.replace(/[()]/g, '\\$&'), 'i') })
@@ -213,15 +167,10 @@ test.describe('ScriptMapper Export Functionality', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await waitForAppReady(page)
+    await navigateToScriptMapper(page)
   })
 
   test('should have copy button for bookmark commands', async ({ page }) => {
-    // Navigate to ScriptMapper
-    const scriptMapperTab = page.getByRole('tab', { name: /scriptmapper/i })
-    if (await scriptMapperTab.isVisible().catch(() => false)) {
-      await scriptMapperTab.click()
-    }
-
     // Look for copy button
     const copyButton = page.getByRole('button', { name: /copy|clipboard/i })
     const hasCopyButton = await copyButton.first().isVisible().catch(() => false)
@@ -236,12 +185,6 @@ test.describe('ScriptMapper Export Functionality', () => {
   test('should copy commands to clipboard when copy button clicked', async ({ page, context }) => {
     // Grant clipboard permissions
     await context.grantPermissions(['clipboard-read', 'clipboard-write'])
-    
-    // Navigate to ScriptMapper
-    const scriptMapperTab = page.getByRole('tab', { name: /scriptmapper/i })
-    if (await scriptMapperTab.isVisible().catch(() => false)) {
-      await scriptMapperTab.click()
-    }
 
     // Select a preset
     const preset = CAMERA_PATH_PRESETS[0]
@@ -256,16 +199,14 @@ test.describe('ScriptMapper Export Functionality', () => {
     
     if (await copyButton.isVisible().catch(() => false)) {
       await copyButton.click()
-      
-      // Try to verify clipboard content or success toast
-      // Playwright auto-waits on assertions
-      const successToast = page.getByText(/copied|clipboard|success/i)
-      const hasSuccessMessage = await successToast.isVisible().catch(() => false)
-      
+
+      // Try to verify clipboard content or success toast using helper
+      const hasSuccessMessage = await isToastVisible(page, /copied|clipboard|success/i)
+
       // Alternatively, read clipboard
       const clipboardContent = await page.evaluate(() => navigator.clipboard.readText()).catch(() => '')
       const hasClipboardContent = clipboardContent.length > 0
-      
+
       expect(hasSuccessMessage || hasClipboardContent).toBeTruthy()
     }
   })

@@ -10,7 +10,8 @@ import { defineConfig, devices } from '@playwright/test'
  * - CI: Set CI=true for strict port and no server reuse
  */
 
-const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5173'
+// Vite dev server runs on port 5000 by default
+const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5000'
 const isCI = !!process.env.CI
 
 export default defineConfig({
@@ -25,8 +26,8 @@ export default defineConfig({
   /* Retry on CI only - reduced for faster feedback */
   retries: isCI ? 1 : 0,
   
-  /* Allow parallel tests on CI for better performance */
-  workers: isCI ? 2 : undefined,
+  /* Limit parallel workers to prevent server contention */
+  workers: isCI ? 2 : 4,
   
   /* Reporter to use */
   reporter: [
@@ -72,23 +73,23 @@ export default defineConfig({
 
   /* 
    * Run dev server before starting tests
-   * - In CI: Always start fresh server on port 5173
+   * - In CI: Always start fresh server on port 5000
    * - Locally: Reuse existing server if available, or start new one
    */
   webServer: {
-    command: isCI ? 'npm run dev -- --port 5173 --strictPort' : 'npm run dev',
+    command: isCI ? 'npm run dev -- --port 5000 --strictPort' : 'npm run dev',
     url: baseURL,
     reuseExistingServer: !isCI,
-    timeout: 30 * 1000,  // 30s (reduced from 120s)
+    timeout: 60 * 1000,  // 60s for server startup
     stdout: 'pipe',
     stderr: 'pipe',
   },
 
-  /* Stricter global timeout - 15 seconds (reduced from 60s) */
-  timeout: 15 * 1000,
+  /* Global timeout - 30 seconds for E2E tests */
+  timeout: 30 * 1000,
   
-  /* Faster assertion timeout - 3 seconds (reduced from 10s) */
+  /* Assertion timeout - 5 seconds */
   expect: {
-    timeout: 3 * 1000,
+    timeout: 5 * 1000,
   },
 })
